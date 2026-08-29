@@ -1,0 +1,14 @@
+# ${NAME} is expanded from the environment at runtime.
+api_key: ${DEEPSEEK_API_KEY}
+base_url: https://api.deepseek.com
+model: deepseek-v4-flash
+
+dataset: questions.jsonl
+output: results.jsonl
+timeout: 60
+temperature: 1.0
+require_parameters: false
+max_tokens: 8192
+concurrency: 64
+case_sensitive: false
+overwrite: true
