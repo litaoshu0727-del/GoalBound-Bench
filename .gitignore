@@ -16,6 +16,7 @@ dist/
 # Benchmark outputs
 runs/
 /results.jsonl
+/results.manifest.json
 /config.local.yaml
 
 # Editor / OS files

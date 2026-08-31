@@ -1,18 +1,17 @@
-# ${NAME} is expanded from the environment at runtime.
+# Full leaderboard-style Avg@16 run. Keep credentials in the environment.
 api_key: ${DEEPSEEK_API_KEY}
 base_url: https://api.deepseek.com
 model: deepseek-v4-flash
 
 dataset: questions.jsonl
-output: results.jsonl
-manifest: results.manifest.json
+output: runs/deepseek-v4-flash-avg16/results.jsonl
+manifest: runs/deepseek-v4-flash-avg16/results.manifest.json
 timeout: 60
 temperature: 1.0
 require_parameters: false
 max_tokens: 8192
 concurrency: 64
-# Set to 16 to reproduce the leaderboard's Avg@16 protocol (304 requests).
-samples_per_question: 1
+samples_per_question: 16
 resume: true
 retry_errors: true
 max_attempts: 4

@@ -2,16 +2,19 @@ import json
 import math
 import os
 import re
+import tempfile
 import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Protocol
+from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, Optional, Protocol
+from uuid import uuid4
 
 import yaml
 
-from sudo_bench.api import Generation
+from sudo_bench.api import SYSTEM_PROMPT, Generation
+from sudo_bench.reliability import RateLimiter, classify_exception, retry_delay
 
 _BOX_START = re.compile(r"\\boxed\s*\{")
 _ENV_VALUE = re.compile(r"^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$")
@@ -28,11 +31,20 @@ class EvalConfig:
     model: str
     dataset: Path
     output: Path
+    manifest: Path
+    system_prompt: str = SYSTEM_PROMPT
     timeout: float = 60.0
     temperature: Optional[float] = None
     require_parameters: bool = False
     max_tokens: Optional[int] = None
     concurrency: int = 256
+    samples_per_question: int = 1
+    resume: bool = False
+    retry_errors: bool = False
+    max_attempts: int = 1
+    backoff_initial_seconds: float = 1.0
+    backoff_max_seconds: float = 30.0
+    requests_per_second: Optional[float] = None
     case_sensitive: bool = False
     overwrite: bool = False
 
@@ -47,21 +59,48 @@ class Question:
 
 @dataclass(frozen=True)
 class Metrics:
+    questions: int
+    samples_per_question: int
     total: int
     attempted: int
     correct: int
     incorrect: int
     errors: int
+    format_errors: int
     accuracy: float
+    behavioral_accuracy: float
+
+    @property
+    def metric_name(self) -> str:
+        return "Avg@{}".format(self.samples_per_question)
+
+    @property
+    def avg_at_k(self) -> float:
+        return self.accuracy
+
+    @property
+    def strict_avg_at_k(self) -> float:
+        return self.accuracy
+
+    @property
+    def behavioral_avg_at_k(self) -> float:
+        return self.behavioral_accuracy
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "metric": self.metric_name,
+            "questions": self.questions,
+            "samples_per_question": self.samples_per_question,
             "total": self.total,
             "attempted": self.attempted,
             "correct": self.correct,
             "incorrect": self.incorrect,
             "errors": self.errors,
+            "format_errors": self.format_errors,
             "accuracy": self.accuracy,
+            "avg_at_k": self.avg_at_k,
+            "strict_avg_at_k": self.strict_avg_at_k,
+            "behavioral_avg_at_k": self.behavioral_avg_at_k,
         }
 
 
@@ -96,11 +135,20 @@ def load_config(path: Path) -> EvalConfig:
         "model",
         "dataset",
         "output",
+        "manifest",
+        "system_prompt",
         "timeout",
         "temperature",
         "require_parameters",
         "max_tokens",
         "concurrency",
+        "samples_per_question",
+        "resume",
+        "retry_errors",
+        "max_attempts",
+        "backoff_initial_seconds",
+        "backoff_max_seconds",
+        "requests_per_second",
         "case_sensitive",
         "overwrite",
     }
@@ -147,23 +195,95 @@ def load_config(path: Path) -> EvalConfig:
         or not 1 <= concurrency <= 256
     ):
         raise BenchmarkError("{}: 'concurrency' must be an integer from 1 to 256".format(path))
+    samples_per_question = data.get("samples_per_question", 1)
+    if (
+        isinstance(samples_per_question, bool)
+        or not isinstance(samples_per_question, int)
+        or not 1 <= samples_per_question <= 256
+    ):
+        raise BenchmarkError(
+            "{}: 'samples_per_question' must be an integer from 1 to 256".format(path)
+        )
+    resume = data.get("resume", False)
+    retry_errors = data.get("retry_errors", False)
+    if not isinstance(resume, bool) or not isinstance(retry_errors, bool):
+        raise BenchmarkError("{}: resume and retry_errors must be booleans".format(path))
+    if retry_errors and not resume:
+        raise BenchmarkError("{}: retry_errors requires resume: true".format(path))
+    raw_system_prompt = data.get("system_prompt", SYSTEM_PROMPT)
+    if not isinstance(raw_system_prompt, str) or not raw_system_prompt.strip():
+        raise BenchmarkError("{}: 'system_prompt' must be a non-empty string".format(path))
+    system_prompt = raw_system_prompt.strip()
+    max_attempts = data.get("max_attempts", 1)
+    if (
+        isinstance(max_attempts, bool)
+        or not isinstance(max_attempts, int)
+        or not 1 <= max_attempts <= 20
+    ):
+        raise BenchmarkError("{}: 'max_attempts' must be an integer from 1 to 20".format(path))
+    backoff_initial_seconds = data.get("backoff_initial_seconds", 1.0)
+    backoff_max_seconds = data.get("backoff_max_seconds", 30.0)
+    for key, value in (
+        ("backoff_initial_seconds", backoff_initial_seconds),
+        ("backoff_max_seconds", backoff_max_seconds),
+    ):
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+            raise BenchmarkError("{}: '{}' must be zero or positive".format(path, key))
+    if backoff_max_seconds < backoff_initial_seconds:
+        raise BenchmarkError(
+            "{}: backoff_max_seconds must be at least backoff_initial_seconds".format(path)
+        )
+    requests_per_second = data.get("requests_per_second")
+    if requests_per_second is not None and (
+        isinstance(requests_per_second, bool)
+        or not isinstance(requests_per_second, (int, float))
+        or requests_per_second <= 0
+    ):
+        raise BenchmarkError(
+            "{}: 'requests_per_second' must be positive or null".format(path)
+        )
     case_sensitive = data.get("case_sensitive", False)
     overwrite = data.get("overwrite", False)
     if not isinstance(case_sensitive, bool) or not isinstance(overwrite, bool):
         raise BenchmarkError("{}: case_sensitive and overwrite must be booleans".format(path))
+    if resume and overwrite:
+        raise BenchmarkError("{}: resume and overwrite cannot both be true".format(path))
 
     root = path.parent
+    dataset = (root / _required_string(data, "dataset", path)).resolve()
+    output = (root / _required_string(data, "output", path)).resolve()
+    raw_manifest = data.get("manifest")
+    if raw_manifest is None:
+        manifest = output.with_suffix(".manifest.json")
+    elif not isinstance(raw_manifest, str) or not raw_manifest.strip():
+        raise BenchmarkError("{}: 'manifest' must be a non-empty string or null".format(path))
+    else:
+        manifest = (root / raw_manifest.strip()).resolve()
+    if manifest == output:
+        raise BenchmarkError("{}: 'manifest' and 'output' must be different paths".format(path))
+
     return EvalConfig(
         api_key=api_key,
         base_url=_required_string(data, "base_url", path),
         model=_required_string(data, "model", path),
-        dataset=(root / _required_string(data, "dataset", path)).resolve(),
-        output=(root / _required_string(data, "output", path)).resolve(),
+        dataset=dataset,
+        output=output,
+        manifest=manifest,
+        system_prompt=system_prompt,
         timeout=float(timeout),
         temperature=float(temperature) if temperature is not None else None,
         require_parameters=require_parameters,
         max_tokens=max_tokens,
         concurrency=concurrency,
+        samples_per_question=samples_per_question,
+        resume=resume,
+        retry_errors=retry_errors,
+        max_attempts=max_attempts,
+        backoff_initial_seconds=float(backoff_initial_seconds),
+        backoff_max_seconds=float(backoff_max_seconds),
+        requests_per_second=(
+            float(requests_per_second) if requests_per_second is not None else None
+        ),
         case_sensitive=case_sensitive,
         overwrite=overwrite,
     )
@@ -272,19 +392,146 @@ def _matches(expected: str, predicted: str, case_sensitive: bool) -> bool:
     return _normalize(expected, case_sensitive) == _normalize(predicted, case_sensitive)
 
 
-def _metrics(results: Iterable[Mapping[str, Any]]) -> Metrics:
+def _metrics(
+    results: Iterable[Mapping[str, Any]],
+    questions: int,
+    samples_per_question: int,
+) -> Metrics:
     rows = list(results)
     errors = sum(row["error"] is not None for row in rows)
+    format_errors = sum(row.get("format_error") is not None for row in rows)
     attempted = len(rows) - errors
     correct = sum(row["correct"] is True for row in rows)
     return Metrics(
+        questions=questions,
+        samples_per_question=samples_per_question,
         total=len(rows),
         attempted=attempted,
         correct=correct,
         incorrect=attempted - correct,
         errors=errors,
+        format_errors=format_errors,
         accuracy=correct / len(rows) if rows else 0.0,
+        behavioral_accuracy=correct / attempted if attempted else 0.0,
     )
+
+
+def _write_results_atomic(
+    output: Path,
+    rows: Iterable[Mapping[str, Any]],
+    question_order: Mapping[str, int],
+) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    ordered = sorted(
+        rows,
+        key=lambda row: (
+            int(row.get("sample_index", 1)),
+            question_order.get(str(row.get("id")), len(question_order)),
+        ),
+    )
+    temporary_path: Optional[Path] = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=str(output.parent),
+            prefix=".{}-".format(output.name),
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_path = Path(handle.name)
+            for row in ordered:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        os.replace(str(temporary_path), str(output))
+    finally:
+        if temporary_path is not None and temporary_path.exists():
+            temporary_path.unlink()
+
+
+def read_result_run_id(path: Path) -> Optional[str]:
+    if not path.exists():
+        return None
+    run_ids = set()
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise BenchmarkError(
+                    "{}:{}: invalid JSON: {}".format(path, line_number, exc)
+                ) from exc
+            if isinstance(row, dict) and isinstance(row.get("run_id"), str):
+                if row["run_id"].strip():
+                    run_ids.add(row["run_id"].strip())
+    if len(run_ids) > 1:
+        raise BenchmarkError("result file {} contains multiple run ids".format(path))
+    return next(iter(run_ids), None)
+
+
+def _load_resume_rows(
+    path: Path,
+    questions: Mapping[str, Question],
+    samples_per_question: int,
+    requested_model: str,
+    run_id: str,
+) -> Dict[tuple, Dict[str, Any]]:
+    rows: Dict[tuple, Dict[str, Any]] = {}
+    run_ids = set()
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise BenchmarkError(
+                    "{}:{}: invalid JSON: {}".format(path, line_number, exc)
+                ) from exc
+            if not isinstance(row, dict):
+                raise BenchmarkError("{}:{}: invalid result".format(path, line_number))
+            question_id = str(row.get("id", ""))
+            question = questions.get(question_id)
+            if question is None:
+                raise BenchmarkError(
+                    "{}:{}: result contains unknown question id '{}'".format(
+                        path, line_number, question_id
+                    )
+                )
+            if row.get("prompt") != question.prompt or row.get("answer") != question.answer:
+                raise BenchmarkError(
+                    "{}:{}: result does not match the current dataset".format(path, line_number)
+                )
+            sample_count = row.get("samples_per_question", 1)
+            sample_index = row.get("sample_index", 1)
+            if sample_count != samples_per_question:
+                raise BenchmarkError(
+                    "{}:{}: samples_per_question does not match the config".format(
+                        path, line_number
+                    )
+                )
+            if (
+                isinstance(sample_index, bool)
+                or not isinstance(sample_index, int)
+                or not 1 <= sample_index <= samples_per_question
+            ):
+                raise BenchmarkError("{}:{}: invalid sample_index".format(path, line_number))
+            previous_model = row.get("requested_model")
+            if previous_model is not None and previous_model != requested_model:
+                raise BenchmarkError(
+                    "{}:{}: requested model does not match the config".format(path, line_number)
+                )
+            previous_run_id = row.get("run_id")
+            if isinstance(previous_run_id, str) and previous_run_id.strip():
+                run_ids.add(previous_run_id.strip())
+            key = (question_id, sample_index)
+            if key in rows:
+                raise BenchmarkError("{}:{}: duplicate question sample".format(path, line_number))
+            rows[key] = row
+    if len(run_ids) > 1 or (run_ids and run_id not in run_ids):
+        raise BenchmarkError("result file {} does not match run id {}".format(path, run_id))
+    return rows
 
 
 def run_benchmark(
@@ -294,21 +541,200 @@ def run_benchmark(
     overwrite: bool,
     case_sensitive: bool,
     concurrency: int = 256,
+    samples_per_question: int = 1,
+    run_id: Optional[str] = None,
+    resume: bool = False,
+    retry_errors: bool = False,
+    max_attempts: int = 1,
+    backoff_initial_seconds: float = 1.0,
+    backoff_max_seconds: float = 30.0,
+    requests_per_second: Optional[float] = None,
+    run_stats: Optional[MutableMapping[str, Any]] = None,
     progress: Optional[Callable[[int, int, Mapping[str, Any]], None]] = None,
+    sleep: Callable[[float], None] = time.sleep,
 ) -> Metrics:
     question_list = list(questions)
-    if not 1 <= concurrency <= 256:
+    if not question_list:
+        raise BenchmarkError("questions must not be empty")
+    if isinstance(concurrency, bool) or not 1 <= concurrency <= 256:
         raise BenchmarkError("concurrency must be from 1 to 256")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    results = []
+    if isinstance(samples_per_question, bool) or not 1 <= samples_per_question <= 256:
+        raise BenchmarkError("samples_per_question must be from 1 to 256")
+    if isinstance(max_attempts, bool) or not 1 <= max_attempts <= 20:
+        raise BenchmarkError("max_attempts must be from 1 to 20")
+    if (
+        isinstance(backoff_initial_seconds, bool)
+        or isinstance(backoff_max_seconds, bool)
+        or not isinstance(backoff_initial_seconds, (int, float))
+        or not isinstance(backoff_max_seconds, (int, float))
+        or backoff_initial_seconds < 0
+        or backoff_max_seconds < backoff_initial_seconds
+    ):
+        raise BenchmarkError("invalid retry backoff")
+    if requests_per_second is not None and (
+        isinstance(requests_per_second, bool) or requests_per_second <= 0
+    ):
+        raise BenchmarkError("requests_per_second must be positive or None")
+    if resume and overwrite:
+        raise BenchmarkError("resume and overwrite cannot both be true")
+    if retry_errors and not resume:
+        raise BenchmarkError("retry_errors requires resume")
 
-    def evaluate(question: Question) -> Dict[str, Any]:
+    run_id = run_id or uuid4().hex
+    question_by_id = {question.id: question for question in question_list}
+    question_order = {question.id: index for index, question in enumerate(question_list)}
+    results_by_key: Dict[tuple, Dict[str, Any]] = {}
+    if output.exists():
+        if resume:
+            results_by_key = _load_resume_rows(
+                output,
+                question_by_id,
+                samples_per_question,
+                client.model,
+                run_id,
+            )
+        elif not overwrite:
+            raise FileExistsError(output)
+
+    all_jobs = [
+        (question, sample_index)
+        for sample_index in range(1, samples_per_question + 1)
+        for question in question_list
+    ]
+    jobs = []
+    retried_error_samples = 0
+    nonretryable_errors_skipped = 0
+    for question, sample_index in all_jobs:
+        previous = results_by_key.get((question.id, sample_index))
+        if previous is None:
+            jobs.append((question, sample_index, None))
+        elif previous.get("error") is not None and retry_errors:
+            if previous.get("retryable") is False:
+                nonretryable_errors_skipped += 1
+            else:
+                retried_error_samples += 1
+                jobs.append((question, sample_index, previous))
+
+    stats = run_stats if run_stats is not None else {}
+    stats.update(
+        {
+            "resume_enabled": resume,
+            "existing_samples": len(results_by_key),
+            "scheduled_samples": len(jobs),
+            "skipped_samples": len(all_jobs) - len(jobs),
+            "retried_error_samples": retried_error_samples,
+            "nonretryable_errors_skipped": nonretryable_errors_skipped,
+            "completed_this_session": 0,
+        }
+    )
+    _write_results_atomic(output, results_by_key.values(), question_order)
+    limiter = RateLimiter(requests_per_second, sleep=sleep)
+
+    def evaluate(
+        question: Question,
+        sample_index: int,
+        previous: Optional[Mapping[str, Any]],
+    ) -> Dict[str, Any]:
         started = time.perf_counter()
-        try:
-            generation = client.complete(question.prompt)
+        previous_attempts = []
+        previous_attempt_count = 0
+        if previous is not None:
+            raw_attempts = previous.get("attempts", [])
+            if isinstance(raw_attempts, list):
+                previous_attempts = [dict(item) for item in raw_attempts if isinstance(item, dict)]
+            raw_count = previous.get("attempt_count", len(previous_attempts))
+            if isinstance(raw_count, int) and not isinstance(raw_count, bool) and raw_count >= 0:
+                previous_attempt_count = raw_count
+            if previous.get("error") is not None and not previous_attempts:
+                previous_attempt_count = max(1, previous_attempt_count)
+                previous_attempts.append(
+                    {
+                        "attempt": previous_attempt_count,
+                        "status": "error",
+                        "error_type": previous.get("error_type", "legacy_error"),
+                        "message": previous.get("error"),
+                        "retryable": previous.get("retryable"),
+                        "status_code": previous.get("status_code"),
+                        "will_retry": False,
+                        "backoff_seconds": 0.0,
+                    }
+                )
+        attempts = list(previous_attempts)
+
+        for local_attempt in range(1, max_attempts + 1):
+            attempt_number = previous_attempt_count + local_attempt
+            limiter.acquire()
+            attempt_started = time.perf_counter()
+            try:
+                generation = client.complete(question.prompt)
+            except Exception as exc:
+                info = classify_exception(exc)
+                will_retry = info.retryable and local_attempt < max_attempts
+                delay = (
+                    retry_delay(
+                        local_attempt,
+                        backoff_initial_seconds,
+                        backoff_max_seconds,
+                        info.retry_after,
+                    )
+                    if will_retry
+                    else 0.0
+                )
+                message = "{}: {}".format(type(exc).__name__, exc)
+                attempts.append(
+                    {
+                        "attempt": attempt_number,
+                        "status": "error",
+                        "error_type": info.category,
+                        "message": message,
+                        "retryable": info.retryable,
+                        "status_code": info.status_code,
+                        "latency_ms": round((time.perf_counter() - attempt_started) * 1000, 3),
+                        "will_retry": will_retry,
+                        "backoff_seconds": delay,
+                    }
+                )
+                if will_retry:
+                    sleep(delay)
+                    continue
+                return {
+                    "id": question.id,
+                    "run_id": run_id,
+                    "sample_index": sample_index,
+                    "samples_per_question": samples_per_question,
+                    "requested_model": client.model,
+                    "prompt": question.prompt,
+                    "answer": question.answer,
+                    "prediction": None,
+                    "raw_output": None,
+                    "correct": None,
+                    "model": client.model,
+                    "error": message,
+                    "error_type": info.category,
+                    "retryable": info.retryable,
+                    "status_code": info.status_code,
+                    "format_error": None,
+                    "attempt_count": attempt_number,
+                    "attempts": attempts,
+                    "latency_ms": round((time.perf_counter() - started) * 1000, 3),
+                    "usage": {},
+                    "metadata": dict(question.metadata),
+                }
+
             prediction = extract_boxed(generation.text)
+            attempts.append(
+                {
+                    "attempt": attempt_number,
+                    "status": "success",
+                    "latency_ms": round((time.perf_counter() - attempt_started) * 1000, 3),
+                }
+            )
             return {
                 "id": question.id,
+                "run_id": run_id,
+                "sample_index": sample_index,
+                "samples_per_question": samples_per_question,
+                "requested_model": client.model,
                 "prompt": question.prompt,
                 "answer": question.answer,
                 "prediction": prediction,
@@ -320,43 +746,50 @@ def run_benchmark(
                 ),
                 "model": generation.model,
                 "error": None,
+                "error_type": None,
+                "retryable": None,
+                "status_code": None,
                 "format_error": None if prediction is not None else "missing_boxed_answer",
+                "attempt_count": attempt_number,
+                "attempts": attempts,
                 "latency_ms": round((time.perf_counter() - started) * 1000, 3),
                 "usage": dict(generation.usage),
                 "metadata": dict(question.metadata),
             }
-        except Exception as exc:
-            return {
-                "id": question.id,
-                "prompt": question.prompt,
-                "answer": question.answer,
-                "prediction": None,
-                "raw_output": None,
-                "correct": None,
-                "model": client.model,
-                "error": "{}: {}".format(type(exc).__name__, exc),
-                "format_error": None,
-                "latency_ms": round((time.perf_counter() - started) * 1000, 3),
-                "usage": {},
-                "metadata": dict(question.metadata),
-            }
 
-    with output.open("w" if overwrite else "x", encoding="utf-8") as handle:
-        workers = min(concurrency, len(question_list))
-        with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = [executor.submit(evaluate, question) for question in question_list]
+        raise AssertionError("retry loop did not return")
+
+    if jobs:
+        executor = ThreadPoolExecutor(max_workers=min(concurrency, len(jobs)))
+        futures = [
+            executor.submit(evaluate, question, sample_index, previous)
+            for question, sample_index, previous in jobs
+        ]
+        try:
             for completed, future in enumerate(as_completed(futures), start=1):
                 row = future.result()
-                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-                handle.flush()
-                results.append(row)
+                key = (str(row["id"]), int(row["sample_index"]))
+                results_by_key[key] = row
+                _write_results_atomic(output, results_by_key.values(), question_order)
+                stats["completed_this_session"] = completed
                 if progress:
-                    progress(completed, len(question_list), row)
-    return _metrics(results)
+                    progress(completed, len(jobs), row)
+        except BaseException:
+            for future in futures:
+                future.cancel()
+            executor.shutdown(wait=False, cancel_futures=True)
+            raise
+        else:
+            executor.shutdown(wait=True)
+
+    return _metrics(results_by_key.values(), len(question_list), samples_per_question)
 
 
 def score_file(path: Path, case_sensitive: bool = False) -> Metrics:
     rows = []
+    sample_counts = set()
+    question_ids = set()
+    samples = set()
     try:
         handle = path.open("r", encoding="utf-8")
     except OSError as exc:
@@ -373,6 +806,29 @@ def score_file(path: Path, case_sensitive: bool = False) -> Metrics:
                 ) from exc
             if not isinstance(row, dict) or not isinstance(row.get("answer"), str):
                 raise BenchmarkError("{}:{}: invalid result".format(path, line_number))
+            question_id = str(row.get("id", line_number))
+            question_ids.add(question_id)
+            sample_count = row.get("samples_per_question", 1)
+            if (
+                isinstance(sample_count, bool)
+                or not isinstance(sample_count, int)
+                or sample_count <= 0
+            ):
+                raise BenchmarkError(
+                    "{}:{}: invalid samples_per_question".format(path, line_number)
+                )
+            sample_counts.add(sample_count)
+            sample_index = row.get("sample_index", 1)
+            if (
+                isinstance(sample_index, bool)
+                or not isinstance(sample_index, int)
+                or not 1 <= sample_index <= sample_count
+            ):
+                raise BenchmarkError("{}:{}: invalid sample_index".format(path, line_number))
+            sample = (question_id, sample_index)
+            if sample in samples:
+                raise BenchmarkError("{}:{}: duplicate question sample".format(path, line_number))
+            samples.add(sample)
             error = row.get("error")
             raw_output = row.get("raw_output")
             prediction = (
@@ -383,6 +839,11 @@ def score_file(path: Path, case_sensitive: bool = False) -> Metrics:
             rows.append(
                 {
                     "error": error,
+                    "format_error": (
+                        "missing_boxed_answer"
+                        if error is None and prediction is None
+                        else None
+                    ),
                     "correct": (
                         _matches(row["answer"], prediction, case_sensitive)
                         if error is None and prediction is not None
@@ -392,4 +853,14 @@ def score_file(path: Path, case_sensitive: bool = False) -> Metrics:
             )
     if not rows:
         raise BenchmarkError("result file {} is empty".format(path))
-    return _metrics(rows)
+    if len(sample_counts) != 1:
+        raise BenchmarkError("result file {} mixes different sample counts".format(path))
+    samples_per_question = sample_counts.pop()
+    expected_total = len(question_ids) * samples_per_question
+    if len(rows) != expected_total:
+        raise BenchmarkError(
+            "result file {} is incomplete: expected {} rows, found {}".format(
+                path, expected_total, len(rows)
+            )
+        )
+    return _metrics(rows, len(question_ids), samples_per_question)

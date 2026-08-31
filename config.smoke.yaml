@@ -1,0 +1,22 @@
+# Low-cost live API smoke test. Keep credentials in the environment.
+api_key: ${DEEPSEEK_API_KEY}
+base_url: https://api.deepseek.com
+model: deepseek-v4-flash
+
+dataset: examples/smoke_questions.jsonl
+output: runs/smoke/results.jsonl
+manifest: runs/smoke/results.manifest.json
+timeout: 90
+temperature: 1.0
+require_parameters: false
+max_tokens: 512
+concurrency: 1
+samples_per_question: 1
+resume: true
+retry_errors: true
+max_attempts: 3
+backoff_initial_seconds: 1
+backoff_max_seconds: 10
+requests_per_second: 0.5
+case_sensitive: false
+overwrite: false
