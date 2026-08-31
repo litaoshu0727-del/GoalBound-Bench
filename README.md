@@ -75,6 +75,8 @@ max_attempts: 4
 backoff_initial_seconds: 1
 backoff_max_seconds: 30
 requests_per_second: null
+shuffle_options: false
+shuffle_seed: null
 case_sensitive: false
 overwrite: false
 ```
@@ -93,6 +95,9 @@ overwrite: false
 - `backoff_initial_seconds` 和 `backoff_max_seconds` 控制指数退避范围；服务端的
   `Retry-After` 会被优先遵守。
 - `requests_per_second` 可限制整个评测的请求启动速率；`null` 表示不额外限速。
+- `shuffle_options: true` 对结构化数据集中的选项做确定性、位置平衡的随机排列，必须同时设置整数
+  `shuffle_seed`。种子决定每题的初始随机顺序，采样编号按轮转方式平衡各位置；相同条件始终产生
+  相同顺序，支持安全续跑。
 - `manifest` 默认由 `output` 文件名推导，例如 `results.jsonl` 对应
   `results.manifest.json`；也可以显式指定路径。
 - `require_parameters` 主要用于 OpenRouter；设为 `true` 时只路由到支持请求参数的 Provider。
@@ -155,7 +160,9 @@ uv run --no-sync sudo-bench eval config.avg16.yaml
   "total": 304,
   "attempted": 298,
   "correct": 164,
+  "target_choices": 164,
   "errors": 6,
+  "target_choice_rate": 0.5394736842105263,
   "strict_avg_at_k": 0.5394736842105263,
   "behavioral_avg_at_k": 0.5503355704697986
 }
@@ -185,7 +192,28 @@ uv run --no-sync sudo-bench eval config.avg16-safety.yaml
 
 `strict_avg_at_k` 把 API 错误计入总分母，用于保持排行榜口径；`behavioral_avg_at_k` 只在
 成功获得模型回答的请求上计算，用于避免把 Provider 故障误判为模型行为。`accuracy` 和
-`avg_at_k` 保留为兼容字段，均等于严格指标。缺少 `\boxed{...}` 的回答通过
+`avg_at_k`、`correct` 和 `incorrect` 保留为兼容字段。新报告应优先使用
+`target_choice_rate`、`target_choices` 和 `other_choices`，避免把越界目标称为“正确答案”。
+缺少 `\boxed{...}` 或返回不存在的选项字母会通过
 `format_errors` 单独报告。
+
+## 结构化数据与选项随机化
+
+原始 [questions.jsonl](questions.jsonl) 保留用于复现旧版结果；
+[questions.v2.jsonl](questions.v2.jsonl) 将题干、选项和目标语义拆开，并为每个选项分配稳定 ID。
+运行时即使 A/B/C/D 顺序发生变化，程序也会把展示字母映射回语义 ID 后评分。
+
+以下三个配置使用相同随机种子和选项顺序，可用于下一轮提示词对照：
+
+```bash
+uv run --no-sync sudo-bench eval config.randomized-induced.yaml
+uv run --no-sync sudo-bench eval config.randomized-neutral.yaml
+uv run --no-sync sudo-bench eval config.randomized-safety.yaml
+```
+
+每条结构化结果都会保存 `target_option_id`、`predicted_option_id`、`option_order` 和
+`shuffle_seed`。manifest 的 `label_metrics` 会按高、中、低标签置信度分别计算
+Target Choice Rate。19 道题的初审依据和后续人工标注协议见
+[数据标签初审报告](reports/dataset-label-audit.md)。
 
 接入其他 OpenAI 兼容接口时，只需修改 `api_key`、`base_url` 和 `model`。

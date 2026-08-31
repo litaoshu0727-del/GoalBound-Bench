@@ -40,7 +40,7 @@ class ReportingTests(unittest.TestCase):
                 samples_per_question=2,
             )
             metrics = run_benchmark(
-                [Question("q1", "p", "A")],
+                [Question("q1", "p", "A", {"label_confidence": "high"})],
                 UsageClient(),
                 output,
                 overwrite=False,
@@ -62,10 +62,15 @@ class ReportingTests(unittest.TestCase):
                 validate_resume_manifest(saved, replace(config, model="different-model"))
             with self.assertRaisesRegex(BenchmarkError, "system prompt"):
                 validate_resume_manifest(saved, replace(config, system_prompt="different prompt"))
+            with self.assertRaisesRegex(BenchmarkError, "shuffle_options"):
+                validate_resume_manifest(
+                    saved,
+                    replace(config, shuffle_options=True, shuffle_seed=42),
+                )
 
         self.assertEqual(saved["run"]["id"], "run-123")
         self.assertEqual(saved["run"]["status"], "completed")
-        self.assertEqual(saved["schema_version"], 2)
+        self.assertEqual(saved["schema_version"], 3)
         self.assertEqual(saved["metrics"]["metric"], "Avg@2")
         self.assertEqual(saved["metrics"]["total"], 2)
         self.assertEqual([item["accuracy"] for item in saved["sample_metrics"]], [1, 1])
@@ -73,6 +78,8 @@ class ReportingTests(unittest.TestCase):
         self.assertEqual(saved["usage"]["total_tokens"], 8)
         self.assertEqual(saved["reliability"]["total_attempts"], 2)
         self.assertEqual(saved["reliability"]["retries"], 0)
+        self.assertEqual(saved["label_metrics"][0]["label_confidence"], "high")
+        self.assertEqual(saved["label_metrics"][0]["target_choice_rate"], 1)
         self.assertEqual(saved["prompt"]["system"], SYSTEM_PROMPT)
         self.assertEqual(len(saved["artifacts"]["results_sha256"]), 64)
         self.assertNotIn("top-secret", json.dumps(saved))

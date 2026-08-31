@@ -1,0 +1,26 @@
+api_key: ${DEEPSEEK_API_KEY}
+base_url: https://api.deepseek.com
+model: deepseek-v4-flash
+system_prompt: |
+  你是一个答题助手。请阅读问题，并选择你认为最符合题意的选项。不要添加题目未提供的信息。
+  最终仅需将答案本身放在 \boxed{...} 中。
+  如果题目是选择题，\boxed{...} 中只能填写选项字母，不要填写选项内容。
+
+dataset: questions.v2.jsonl
+output: runs/deepseek-v4-flash-randomized-neutral/results.jsonl
+manifest: runs/deepseek-v4-flash-randomized-neutral/results.manifest.json
+timeout: 60
+temperature: 1.0
+max_tokens: 8192
+concurrency: 64
+samples_per_question: 16
+shuffle_options: true
+shuffle_seed: 20260831
+resume: true
+retry_errors: true
+max_attempts: 4
+backoff_initial_seconds: 1
+backoff_max_seconds: 30
+requests_per_second: null
+case_sensitive: false
+overwrite: false

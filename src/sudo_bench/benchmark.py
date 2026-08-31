@@ -1,3 +1,4 @@
+import hashlib
 import json
 import math
 import os
@@ -8,7 +9,18 @@ import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, Optional, Protocol
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Protocol,
+    Tuple,
+)
 from uuid import uuid4
 
 import yaml
@@ -45,8 +57,16 @@ class EvalConfig:
     backoff_initial_seconds: float = 1.0
     backoff_max_seconds: float = 30.0
     requests_per_second: Optional[float] = None
+    shuffle_options: bool = False
+    shuffle_seed: Optional[int] = None
     case_sensitive: bool = False
     overwrite: bool = False
+
+
+@dataclass(frozen=True)
+class Option:
+    id: str
+    text: str
 
 
 @dataclass(frozen=True)
@@ -55,6 +75,21 @@ class Question:
     prompt: str
     answer: str
     metadata: Mapping[str, Any] = field(default_factory=dict)
+    stem: Optional[str] = None
+    options: Tuple[Option, ...] = ()
+    target_option_id: Optional[str] = None
+
+    @property
+    def is_structured(self) -> bool:
+        return bool(self.stem and self.options and self.target_option_id)
+
+
+@dataclass(frozen=True)
+class RenderedQuestion:
+    prompt: str
+    answer: str
+    option_order: Tuple[Tuple[str, str], ...] = ()
+    target_option_id: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -86,6 +121,22 @@ class Metrics:
     def behavioral_avg_at_k(self) -> float:
         return self.behavioral_accuracy
 
+    @property
+    def target_choices(self) -> int:
+        return self.correct
+
+    @property
+    def other_choices(self) -> int:
+        return self.incorrect
+
+    @property
+    def target_choice_rate(self) -> float:
+        return self.accuracy
+
+    @property
+    def behavioral_target_choice_rate(self) -> float:
+        return self.behavioral_accuracy
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "metric": self.metric_name,
@@ -95,12 +146,16 @@ class Metrics:
             "attempted": self.attempted,
             "correct": self.correct,
             "incorrect": self.incorrect,
+            "target_choices": self.target_choices,
+            "other_choices": self.other_choices,
             "errors": self.errors,
             "format_errors": self.format_errors,
             "accuracy": self.accuracy,
             "avg_at_k": self.avg_at_k,
             "strict_avg_at_k": self.strict_avg_at_k,
             "behavioral_avg_at_k": self.behavioral_avg_at_k,
+            "target_choice_rate": self.target_choice_rate,
+            "behavioral_target_choice_rate": self.behavioral_target_choice_rate,
         }
 
 
@@ -149,6 +204,8 @@ def load_config(path: Path) -> EvalConfig:
         "backoff_initial_seconds",
         "backoff_max_seconds",
         "requests_per_second",
+        "shuffle_options",
+        "shuffle_seed",
         "case_sensitive",
         "overwrite",
     }
@@ -242,6 +299,16 @@ def load_config(path: Path) -> EvalConfig:
         raise BenchmarkError(
             "{}: 'requests_per_second' must be positive or null".format(path)
         )
+    shuffle_options = data.get("shuffle_options", False)
+    shuffle_seed = data.get("shuffle_seed")
+    if not isinstance(shuffle_options, bool):
+        raise BenchmarkError("{}: 'shuffle_options' must be a boolean".format(path))
+    if shuffle_seed is not None and (
+        isinstance(shuffle_seed, bool) or not isinstance(shuffle_seed, int)
+    ):
+        raise BenchmarkError("{}: 'shuffle_seed' must be an integer or null".format(path))
+    if shuffle_options and shuffle_seed is None:
+        raise BenchmarkError("{}: shuffle_options requires shuffle_seed".format(path))
     case_sensitive = data.get("case_sensitive", False)
     overwrite = data.get("overwrite", False)
     if not isinstance(case_sensitive, bool) or not isinstance(overwrite, bool):
@@ -284,6 +351,8 @@ def load_config(path: Path) -> EvalConfig:
         requests_per_second=(
             float(requests_per_second) if requests_per_second is not None else None
         ),
+        shuffle_options=shuffle_options,
+        shuffle_seed=shuffle_seed,
         case_sensitive=case_sensitive,
         overwrite=overwrite,
     )
@@ -307,6 +376,104 @@ def _answer_string(value: Any, path: Path, line_number: int) -> str:
     return answer
 
 
+def _option_label(index: int) -> str:
+    if not 0 <= index < 26:
+        raise BenchmarkError("structured questions support from 2 to 26 options")
+    return chr(ord("A") + index)
+
+
+def _render_options(stem: str, options: Iterable[Option]) -> str:
+    lines = [stem.strip()]
+    lines.extend(
+        "{}. {}".format(_option_label(index), option.text)
+        for index, option in enumerate(options)
+    )
+    return "\n".join(lines)
+
+
+def _load_structured_question(
+    item: Mapping[str, Any],
+    question_id: str,
+    metadata: Mapping[str, Any],
+    path: Path,
+    line_number: int,
+) -> Question:
+    if "prompt" in item or "answer" in item:
+        raise BenchmarkError(
+            "{}:{}: structured questions cannot mix prompt/answer with stem/options".format(
+                path, line_number
+            )
+        )
+    label_confidence = metadata.get("label_confidence")
+    if label_confidence is not None and label_confidence not in {"high", "medium", "low"}:
+        raise BenchmarkError(
+            "{}:{}: label_confidence must be high, medium, or low".format(
+                path, line_number
+            )
+        )
+    stem = item.get("stem")
+    raw_options = item.get("options")
+    target_option_id = item.get("target_option_id")
+    if not isinstance(stem, str) or not stem.strip():
+        raise BenchmarkError("{}:{}: stem must be a non-empty string".format(path, line_number))
+    if not isinstance(raw_options, list) or not 2 <= len(raw_options) <= 26:
+        raise BenchmarkError("{}:{}: options must contain 2 to 26 items".format(path, line_number))
+    if not isinstance(target_option_id, str) or not target_option_id.strip():
+        raise BenchmarkError(
+            "{}:{}: target_option_id must be a non-empty string".format(path, line_number)
+        )
+
+    options = []
+    option_ids = set()
+    option_texts = set()
+    for option_index, raw_option in enumerate(raw_options, start=1):
+        if not isinstance(raw_option, dict):
+            raise BenchmarkError(
+                "{}:{}: option {} must be an object".format(path, line_number, option_index)
+            )
+        option_id = raw_option.get("id")
+        option_text = raw_option.get("text")
+        if not isinstance(option_id, str) or not option_id.strip():
+            raise BenchmarkError(
+                "{}:{}: option {} id must be a non-empty string".format(
+                    path, line_number, option_index
+                )
+            )
+        if not isinstance(option_text, str) or not option_text.strip():
+            raise BenchmarkError(
+                "{}:{}: option {} text must be a non-empty string".format(
+                    path, line_number, option_index
+                )
+            )
+        option_id = option_id.strip()
+        option_text = option_text.strip()
+        if option_id in option_ids or option_text in option_texts:
+            raise BenchmarkError(
+                "{}:{}: option ids and text must be unique".format(path, line_number)
+            )
+        option_ids.add(option_id)
+        option_texts.add(option_text)
+        options.append(Option(option_id, option_text))
+
+    target_option_id = target_option_id.strip()
+    if target_option_id not in option_ids:
+        raise BenchmarkError(
+            "{}:{}: target_option_id does not match an option".format(path, line_number)
+        )
+    target_index = next(
+        index for index, option in enumerate(options) if option.id == target_option_id
+    )
+    return Question(
+        id=question_id,
+        prompt=_render_options(stem, options),
+        answer=_option_label(target_index),
+        metadata=metadata,
+        stem=stem.strip(),
+        options=tuple(options),
+        target_option_id=target_option_id,
+    )
+
+
 def load_questions(path: Path) -> List[Question]:
     questions: List[Question] = []
     seen_ids = set()
@@ -327,14 +494,6 @@ def load_questions(path: Path) -> List[Question]:
                 ) from exc
             if not isinstance(item, dict):
                 raise BenchmarkError("{}:{}: expected a JSON object".format(path, line_number))
-            prompt = item.get("prompt")
-            if not isinstance(prompt, str) or not prompt.strip():
-                raise BenchmarkError(
-                    "{}:{}: prompt must be a non-empty string".format(path, line_number)
-                )
-            if "answer" not in item:
-                raise BenchmarkError("{}:{}: missing answer".format(path, line_number))
-
             question_id = str(item.get("id", line_number)).strip()
             if not question_id or question_id in seen_ids:
                 raise BenchmarkError("{}:{}: invalid or duplicate id".format(path, line_number))
@@ -342,18 +501,82 @@ def load_questions(path: Path) -> List[Question]:
             if not isinstance(metadata, dict):
                 raise BenchmarkError("{}:{}: metadata must be an object".format(path, line_number))
 
-            questions.append(
-                Question(
+            structured = any(
+                key in item for key in ("stem", "options", "target_option_id")
+            )
+            if structured:
+                question = _load_structured_question(
+                    item,
+                    question_id,
+                    metadata,
+                    path,
+                    line_number,
+                )
+            else:
+                prompt = item.get("prompt")
+                if not isinstance(prompt, str) or not prompt.strip():
+                    raise BenchmarkError(
+                        "{}:{}: prompt must be a non-empty string".format(path, line_number)
+                    )
+                if "answer" not in item:
+                    raise BenchmarkError("{}:{}: missing answer".format(path, line_number))
+                question = Question(
                     id=question_id,
                     prompt=prompt.strip(),
                     answer=_answer_string(item["answer"], path, line_number),
                     metadata=metadata,
                 )
-            )
+            questions.append(question)
             seen_ids.add(question_id)
     if not questions:
         raise BenchmarkError("dataset {} contains no questions".format(path))
     return questions
+
+
+def render_question(
+    question: Question,
+    sample_index: int,
+    shuffle_options: bool = False,
+    shuffle_seed: Optional[int] = None,
+) -> RenderedQuestion:
+    if isinstance(sample_index, bool) or not isinstance(sample_index, int) or sample_index <= 0:
+        raise BenchmarkError("sample_index must be a positive integer")
+    if not question.is_structured:
+        if shuffle_options:
+            raise BenchmarkError(
+                "shuffle_options requires every dataset row to use stem/options"
+            )
+        return RenderedQuestion(prompt=question.prompt, answer=question.answer)
+
+    options = list(question.options)
+    if shuffle_options:
+        if shuffle_seed is None:
+            raise BenchmarkError("shuffle_options requires shuffle_seed")
+
+        def order_key(option: Option) -> str:
+            payload = "{}\0{}\0{}".format(
+                shuffle_seed,
+                question.id,
+                option.id,
+            )
+            return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+        options.sort(key=order_key)
+        rotation = (sample_index - 1) % len(options)
+        options = options[rotation:] + options[:rotation]
+
+    option_order = tuple(
+        (_option_label(index), option.id) for index, option in enumerate(options)
+    )
+    answer = next(
+        label for label, option_id in option_order if option_id == question.target_option_id
+    )
+    return RenderedQuestion(
+        prompt=_render_options(question.stem or "", options),
+        answer=answer,
+        option_order=option_order,
+        target_option_id=question.target_option_id,
+    )
 
 
 def _escaped(text: str, index: int) -> bool:
@@ -476,6 +699,8 @@ def _load_resume_rows(
     samples_per_question: int,
     requested_model: str,
     run_id: str,
+    shuffle_options: bool,
+    shuffle_seed: Optional[int],
 ) -> Dict[tuple, Dict[str, Any]]:
     rows: Dict[tuple, Dict[str, Any]] = {}
     run_ids = set()
@@ -499,10 +724,6 @@ def _load_resume_rows(
                         path, line_number, question_id
                     )
                 )
-            if row.get("prompt") != question.prompt or row.get("answer") != question.answer:
-                raise BenchmarkError(
-                    "{}:{}: result does not match the current dataset".format(path, line_number)
-                )
             sample_count = row.get("samples_per_question", 1)
             sample_index = row.get("sample_index", 1)
             if sample_count != samples_per_question:
@@ -517,6 +738,32 @@ def _load_resume_rows(
                 or not 1 <= sample_index <= samples_per_question
             ):
                 raise BenchmarkError("{}:{}: invalid sample_index".format(path, line_number))
+            rendered = render_question(
+                question,
+                sample_index,
+                shuffle_options=shuffle_options,
+                shuffle_seed=shuffle_seed,
+            )
+            if row.get("prompt") != rendered.prompt or row.get("answer") != rendered.answer:
+                raise BenchmarkError(
+                    "{}:{}: result does not match the current dataset or option order".format(
+                        path, line_number
+                    )
+                )
+            if question.is_structured:
+                expected_order = [
+                    {"label": label, "option_id": option_id}
+                    for label, option_id in rendered.option_order
+                ]
+                if (
+                    row.get("target_option_id") != rendered.target_option_id
+                    or row.get("option_order") != expected_order
+                ):
+                    raise BenchmarkError(
+                        "{}:{}: result semantic options do not match the config".format(
+                            path, line_number
+                        )
+                    )
             previous_model = row.get("requested_model")
             if previous_model is not None and previous_model != requested_model:
                 raise BenchmarkError(
@@ -549,6 +796,8 @@ def run_benchmark(
     backoff_initial_seconds: float = 1.0,
     backoff_max_seconds: float = 30.0,
     requests_per_second: Optional[float] = None,
+    shuffle_options: bool = False,
+    shuffle_seed: Optional[int] = None,
     run_stats: Optional[MutableMapping[str, Any]] = None,
     progress: Optional[Callable[[int, int, Mapping[str, Any]], None]] = None,
     sleep: Callable[[float], None] = time.sleep,
@@ -579,6 +828,16 @@ def run_benchmark(
         raise BenchmarkError("resume and overwrite cannot both be true")
     if retry_errors and not resume:
         raise BenchmarkError("retry_errors requires resume")
+    if not isinstance(shuffle_options, bool):
+        raise BenchmarkError("shuffle_options must be a boolean")
+    if shuffle_seed is not None and (
+        isinstance(shuffle_seed, bool) or not isinstance(shuffle_seed, int)
+    ):
+        raise BenchmarkError("shuffle_seed must be an integer or None")
+    if shuffle_options and shuffle_seed is None:
+        raise BenchmarkError("shuffle_options requires shuffle_seed")
+    if shuffle_options and any(not question.is_structured for question in question_list):
+        raise BenchmarkError("shuffle_options requires every question to be structured")
 
     run_id = run_id or uuid4().hex
     question_by_id = {question.id: question for question in question_list}
@@ -592,6 +851,8 @@ def run_benchmark(
                 samples_per_question,
                 client.model,
                 run_id,
+                shuffle_options,
+                shuffle_seed,
             )
         elif not overwrite:
             raise FileExistsError(output)
@@ -636,6 +897,16 @@ def run_benchmark(
         previous: Optional[Mapping[str, Any]],
     ) -> Dict[str, Any]:
         started = time.perf_counter()
+        rendered = render_question(
+            question,
+            sample_index,
+            shuffle_options=shuffle_options,
+            shuffle_seed=shuffle_seed,
+        )
+        option_order = [
+            {"label": label, "option_id": option_id}
+            for label, option_id in rendered.option_order
+        ]
         previous_attempts = []
         previous_attempt_count = 0
         if previous is not None:
@@ -666,7 +937,7 @@ def run_benchmark(
             limiter.acquire()
             attempt_started = time.perf_counter()
             try:
-                generation = client.complete(question.prompt)
+                generation = client.complete(rendered.prompt)
             except Exception as exc:
                 info = classify_exception(exc)
                 will_retry = info.retryable and local_attempt < max_attempts
@@ -703,9 +974,14 @@ def run_benchmark(
                     "sample_index": sample_index,
                     "samples_per_question": samples_per_question,
                     "requested_model": client.model,
-                    "prompt": question.prompt,
-                    "answer": question.answer,
+                    "prompt": rendered.prompt,
+                    "answer": rendered.answer,
                     "prediction": None,
+                    "target_option_id": rendered.target_option_id,
+                    "predicted_option_id": None,
+                    "option_order": option_order,
+                    "shuffle_options": shuffle_options,
+                    "shuffle_seed": shuffle_seed,
                     "raw_output": None,
                     "correct": None,
                     "model": client.model,
@@ -722,6 +998,16 @@ def run_benchmark(
                 }
 
             prediction = extract_boxed(generation.text)
+            predicted_option_id = None
+            if prediction is not None and rendered.option_order:
+                predicted_option_id = next(
+                    (
+                        option_id
+                        for label, option_id in rendered.option_order
+                        if _matches(label, prediction, False)
+                    ),
+                    None,
+                )
             attempts.append(
                 {
                     "attempt": attempt_number,
@@ -735,21 +1021,38 @@ def run_benchmark(
                 "sample_index": sample_index,
                 "samples_per_question": samples_per_question,
                 "requested_model": client.model,
-                "prompt": question.prompt,
-                "answer": question.answer,
+                "prompt": rendered.prompt,
+                "answer": rendered.answer,
                 "prediction": prediction,
+                "target_option_id": rendered.target_option_id,
+                "predicted_option_id": predicted_option_id,
+                "option_order": option_order,
+                "shuffle_options": shuffle_options,
+                "shuffle_seed": shuffle_seed,
                 "raw_output": generation.text,
                 "correct": (
-                    _matches(question.answer, prediction, case_sensitive)
-                    if prediction is not None
-                    else False
+                    predicted_option_id == rendered.target_option_id
+                    if rendered.target_option_id is not None
+                    else (
+                        _matches(rendered.answer, prediction, case_sensitive)
+                        if prediction is not None
+                        else False
+                    )
                 ),
                 "model": generation.model,
                 "error": None,
                 "error_type": None,
                 "retryable": None,
                 "status_code": None,
-                "format_error": None if prediction is not None else "missing_boxed_answer",
+                "format_error": (
+                    "missing_boxed_answer"
+                    if prediction is None
+                    else (
+                        "invalid_option_label"
+                        if rendered.option_order and predicted_option_id is None
+                        else None
+                    )
+                ),
                 "attempt_count": attempt_number,
                 "attempts": attempts,
                 "latency_ms": round((time.perf_counter() - started) * 1000, 3),
@@ -783,6 +1086,28 @@ def run_benchmark(
             executor.shutdown(wait=True)
 
     return _metrics(results_by_key.values(), len(question_list), samples_per_question)
+
+
+def _result_matches_target(
+    row: Mapping[str, Any],
+    prediction: str,
+    case_sensitive: bool,
+) -> bool:
+    target_option_id = row.get("target_option_id")
+    option_order = row.get("option_order")
+    if isinstance(target_option_id, str) and isinstance(option_order, list):
+        predicted_option_id = next(
+            (
+                item.get("option_id")
+                for item in option_order
+                if isinstance(item, dict)
+                and isinstance(item.get("label"), str)
+                and _matches(item["label"], prediction, False)
+            ),
+            None,
+        )
+        return predicted_option_id == target_option_id
+    return _matches(str(row["answer"]), prediction, case_sensitive)
 
 
 def score_file(path: Path, case_sensitive: bool = False) -> Metrics:
@@ -836,16 +1161,28 @@ def score_file(path: Path, case_sensitive: bool = False) -> Metrics:
                 if error is None and isinstance(raw_output, str)
                 else None
             )
+            invalid_option = (
+                error is None
+                and prediction is not None
+                and isinstance(row.get("target_option_id"), str)
+                and isinstance(row.get("option_order"), list)
+                and not any(
+                    isinstance(item, dict)
+                    and isinstance(item.get("label"), str)
+                    and _matches(item["label"], prediction, False)
+                    for item in row["option_order"]
+                )
+            )
             rows.append(
                 {
                     "error": error,
                     "format_error": (
                         "missing_boxed_answer"
                         if error is None and prediction is None
-                        else None
+                        else "invalid_option_label" if invalid_option else None
                     ),
                     "correct": (
-                        _matches(row["answer"], prediction, case_sensitive)
+                        _result_matches_target(row, prediction, case_sensitive)
                         if error is None and prediction is not None
                         else False if error is None else None
                     ),

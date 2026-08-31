@@ -120,6 +120,8 @@ def validate_resume_manifest(manifest: Mapping[str, Any], config: EvalConfig) ->
             "require_parameters": config.require_parameters,
             "max_tokens": config.max_tokens,
             "samples_per_question": config.samples_per_question,
+            "shuffle_options": config.shuffle_options,
+            "shuffle_seed": config.shuffle_seed,
             "case_sensitive": config.case_sensitive,
         }
         for key, value in expected.items():
@@ -163,8 +165,53 @@ def _sample_metrics(rows: Iterable[Mapping[str, Any]]) -> List[Dict[str, Any]]:
                 "errors": errors,
                 "format_errors": sum(row.get("format_error") is not None for row in sample_rows),
                 "accuracy": correct / total if total else 0.0,
+                "target_choices": correct,
+                "other_choices": attempted - correct,
+                "target_choice_rate": correct / total if total else 0.0,
                 "strict_avg_at_k": correct / total if total else 0.0,
                 "behavioral_avg_at_k": correct / attempted if attempted else 0.0,
+                "behavioral_target_choice_rate": (
+                    correct / attempted if attempted else 0.0
+                ),
+            }
+        )
+    return summaries
+
+
+def _label_confidence_metrics(rows: Iterable[Mapping[str, Any]]) -> List[Dict[str, Any]]:
+    groups: Dict[str, List[Mapping[str, Any]]] = {}
+    for row in rows:
+        metadata = row.get("metadata")
+        confidence = metadata.get("label_confidence") if isinstance(metadata, dict) else None
+        if not isinstance(confidence, str) or not confidence.strip():
+            confidence = "unrated"
+        groups.setdefault(confidence.strip().lower(), []).append(row)
+
+    order = {"high": 0, "medium": 1, "low": 2, "unrated": 3}
+    summaries = []
+    for confidence, confidence_rows in sorted(
+        groups.items(), key=lambda item: (order.get(item[0], 4), item[0])
+    ):
+        total = len(confidence_rows)
+        errors = sum(row.get("error") is not None for row in confidence_rows)
+        attempted = total - errors
+        target_choices = sum(row.get("correct") is True for row in confidence_rows)
+        summaries.append(
+            {
+                "label_confidence": confidence,
+                "questions": len({str(row.get("id")) for row in confidence_rows}),
+                "total": total,
+                "attempted": attempted,
+                "target_choices": target_choices,
+                "other_choices": attempted - target_choices,
+                "errors": errors,
+                "format_errors": sum(
+                    row.get("format_error") is not None for row in confidence_rows
+                ),
+                "target_choice_rate": target_choices / total if total else 0.0,
+                "behavioral_target_choice_rate": (
+                    target_choices / attempted if attempted else 0.0
+                ),
             }
         )
     return summaries
@@ -228,7 +275,7 @@ def build_run_manifest(
     )
     git = _git_metadata()
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "run": {
             "id": run_id,
             "status": status,
@@ -270,6 +317,8 @@ def build_run_manifest(
             "backoff_initial_seconds": config.backoff_initial_seconds,
             "backoff_max_seconds": config.backoff_max_seconds,
             "requests_per_second": config.requests_per_second,
+            "shuffle_options": config.shuffle_options,
+            "shuffle_seed": config.shuffle_seed,
             "case_sensitive": config.case_sensitive,
         },
         "artifacts": {
@@ -281,6 +330,7 @@ def build_run_manifest(
         },
         "metrics": metrics.to_dict() if metrics is not None else None,
         "sample_metrics": _sample_metrics(rows),
+        "label_metrics": _label_confidence_metrics(rows),
         "execution": dict(execution or {}),
         "reliability": _reliability_summary(rows),
         "usage": _aggregate_usage(rows),

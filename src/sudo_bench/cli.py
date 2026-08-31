@@ -35,9 +35,9 @@ def _progress(index: int, total: int, row: Mapping[str, object]) -> None:
     elif row["format_error"]:
         status = "format-error"
     elif row["correct"]:
-        status = "correct"
+        status = "target-choice"
     else:
-        status = "incorrect"
+        status = "other-choice"
     sample = row.get("sample_index", 1)
     print(
         "[{}/{}] {}#{}: {}".format(index, total, row["id"], sample, status),
@@ -169,6 +169,8 @@ def _eval(
             backoff_initial_seconds=config.backoff_initial_seconds,
             backoff_max_seconds=config.backoff_max_seconds,
             requests_per_second=config.requests_per_second,
+            shuffle_options=config.shuffle_options,
+            shuffle_seed=config.shuffle_seed,
             run_stats=run_stats,
             progress=None if quiet else _progress,
         )

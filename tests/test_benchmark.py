@@ -2,16 +2,19 @@ import json
 import os
 import tempfile
 import unittest
+from collections import Counter
 from pathlib import Path
 from unittest.mock import patch
 
 from sudo_bench.api import SYSTEM_PROMPT, Generation
 from sudo_bench.benchmark import (
     BenchmarkError,
+    Option,
     Question,
     extract_boxed,
     load_config,
     load_questions,
+    render_question,
     run_benchmark,
     score_file,
 )
@@ -26,6 +29,16 @@ class FakeClient:
         if prompt == "unboxed":
             return Generation("B", self.model)
         return Generation(r"\boxed{\frac{1}{2}}", self.model)
+
+
+class SemanticTargetClient:
+    model = "semantic-target-model"
+
+    def complete(self, prompt: str) -> Generation:
+        for line in prompt.splitlines():
+            if line.endswith("Target choice"):
+                return Generation(r"\boxed{" + line[0] + "}", self.model)
+        raise AssertionError("target option was not rendered")
 
 
 class BenchmarkTests(unittest.TestCase):
@@ -53,6 +66,8 @@ class BenchmarkTests(unittest.TestCase):
                         "backoff_initial_seconds: 0.5",
                         "backoff_max_seconds: 8",
                         "requests_per_second: 2",
+                        "shuffle_options: true",
+                        "shuffle_seed: 42",
                     ]
                 ),
                 encoding="utf-8",
@@ -75,6 +90,8 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual(config.backoff_initial_seconds, 0.5)
         self.assertEqual(config.backoff_max_seconds, 8)
         self.assertEqual(config.requests_per_second, 2)
+        self.assertTrue(config.shuffle_options)
+        self.assertEqual(config.shuffle_seed, 42)
 
     def test_config_defaults_to_one_sample_and_derived_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -115,6 +132,18 @@ class BenchmarkTests(unittest.TestCase):
             with self.assertRaisesRegex(BenchmarkError, "samples_per_question"):
                 load_config(path)
 
+    def test_option_shuffle_requires_seed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.yaml"
+            path.write_text(
+                "api_key: null\nbase_url: https://example.com\n"
+                "model: m\ndataset: q.jsonl\noutput: r.jsonl\n"
+                "shuffle_options: true\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(BenchmarkError, "requires shuffle_seed"):
+                load_config(path)
+
     def test_resume_and_overwrite_are_mutually_exclusive(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "config.yaml"
@@ -134,6 +163,136 @@ class BenchmarkTests(unittest.TestCase):
             question = load_questions(path)[0]
         self.assertEqual(question.id, "1")
         self.assertEqual(question.answer, "2")
+
+    def test_load_structured_question_and_deterministic_shuffle(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "questions.jsonl"
+            path.write_text(
+                json.dumps(
+                    {
+                        "id": "structured",
+                        "stem": "Choose",
+                        "options": [
+                            {"id": "one", "text": "First"},
+                            {"id": "target", "text": "Target choice"},
+                            {"id": "three", "text": "Third"},
+                        ],
+                        "target_option_id": "target",
+                        "metadata": {"label_confidence": "high"},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            question = load_questions(path)[0]
+
+        first = render_question(question, 1, shuffle_options=True, shuffle_seed=42)
+        repeated = render_question(question, 1, shuffle_options=True, shuffle_seed=42)
+
+        self.assertTrue(question.is_structured)
+        self.assertEqual(first, repeated)
+        self.assertEqual(dict(first.option_order)[first.answer], "target")
+        self.assertEqual(set(dict(first.option_order).values()), {"one", "target", "three"})
+
+    def test_shuffled_options_score_the_semantic_target(self) -> None:
+        question = Question(
+            id="structured",
+            prompt="canonical",
+            answer="B",
+            metadata={"label_confidence": "high"},
+            stem="Choose",
+            options=(
+                Option("one", "First"),
+                Option("target", "Target choice"),
+                Option("three", "Third"),
+            ),
+            target_option_id="target",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "results.jsonl"
+            metrics = run_benchmark(
+                [question],
+                SemanticTargetClient(),
+                output,
+                overwrite=False,
+                case_sensitive=False,
+                samples_per_question=4,
+                shuffle_options=True,
+                shuffle_seed=42,
+            )
+            rows = [json.loads(line) for line in output.read_text().splitlines()]
+            rescored = score_file(output)
+
+        self.assertEqual(metrics.target_choices, 4)
+        self.assertEqual(metrics.target_choice_rate, 1)
+        self.assertEqual(rescored, metrics)
+        self.assertEqual({row["predicted_option_id"] for row in rows}, {"target"})
+        self.assertGreater(len({row["answer"] for row in rows}), 1)
+        position_counts = Counter(row["answer"] for row in rows)
+        self.assertLessEqual(max(position_counts.values()) - min(position_counts.values()), 1)
+
+    def test_resume_rejects_a_different_shuffle_seed(self) -> None:
+        question = Question(
+            id="structured",
+            prompt="canonical",
+            answer="B",
+            stem="Choose",
+            options=(
+                Option("one", "First"),
+                Option("target", "Target choice"),
+                Option("three", "Third"),
+            ),
+            target_option_id="target",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "results.jsonl"
+            run_benchmark(
+                [question],
+                SemanticTargetClient(),
+                output,
+                overwrite=False,
+                case_sensitive=False,
+                run_id="shuffle-run",
+                shuffle_options=True,
+                shuffle_seed=42,
+            )
+            with self.assertRaisesRegex(BenchmarkError, "option order"):
+                run_benchmark(
+                    [question],
+                    SemanticTargetClient(),
+                    output,
+                    overwrite=False,
+                    case_sensitive=False,
+                    run_id="shuffle-run",
+                    resume=True,
+                    shuffle_options=True,
+                    shuffle_seed=43,
+                )
+
+    def test_structured_result_rejects_an_unknown_option_label(self) -> None:
+        question = Question(
+            id="structured",
+            prompt="canonical",
+            answer="A",
+            stem="Choose",
+            options=(Option("target", "Target"), Option("other", "Other")),
+            target_option_id="target",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "results.jsonl"
+            metrics = run_benchmark(
+                [question],
+                FakeClient(),
+                output,
+                overwrite=False,
+                case_sensitive=False,
+            )
+            row = json.loads(output.read_text())
+            rescored = score_file(output)
+
+        self.assertEqual(row["format_error"], "invalid_option_label")
+        self.assertEqual(metrics.format_errors, 1)
+        self.assertEqual(rescored.format_errors, 1)
 
     def test_only_standard_boxed_and_nested_braces(self) -> None:
         self.assertEqual(extract_boxed(r"\boxed{\frac{1}{2}}"), r"\frac{1}{2}")
