@@ -11,7 +11,7 @@ temperature: 1.0
 require_parameters: false
 max_tokens: 8192
 concurrency: 64
-# Set to 16 to reproduce the leaderboard's Avg@16 protocol (304 requests).
+# Set to 16 for the leaderboard's Avg@16 protocol (304 requests).
 samples_per_question: 1
 resume: true
 retry_errors: true
