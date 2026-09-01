@@ -1,4 +1,4 @@
-# SuDo-Bench 盲審標註指南
+# GoalBound-Bench 盲審標註指南
 
 版本：1.0
 

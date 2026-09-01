@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/litaoshu0727-del/SuDo-Bench/annotation/response.schema.json",
-  "title": "SuDo-Bench blind annotation response",
+  "$id": "https://github.com/litaoshu0727-del/GoalBound-Bench/annotation/response.schema.json",
+  "title": "GoalBound-Bench blind annotation response",
   "type": "object",
   "additionalProperties": false,
   "required": [

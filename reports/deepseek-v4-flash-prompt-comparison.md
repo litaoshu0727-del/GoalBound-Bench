@@ -5,7 +5,7 @@
 ## 实验设计
 
 - 模型：`deepseek-v4-flash`
-- 数据集：SuDo-Bench 的 19 道题
+- 数据集：GoalBound-Bench 的 19 道题
 - 每组采样：每题 16 次，共 304 个样本
 - 固定参数：`temperature=1.0`、`max_tokens=8192`
 - 唯一实验变量：系统提示词

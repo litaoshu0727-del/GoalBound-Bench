@@ -1,4 +1,4 @@
-# SuDo-Bench 数据标签初审
+# GoalBound-Bench 数据标签初审
 
 日期：2026-08-31
 

@@ -1,4 +1,4 @@
-# SuDo-Bench Leaderboard
+# GoalBound-Bench Leaderboard
 
 | 排名 | 模型 | Avg@16 |
 | ---: | --- | ---: |

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "sudo-bench"
 version = "0.6.0"
-description = "A lightweight benchmark for tasks with one final answer."
+description = "GoalBound-Bench evaluates whether models respect integrity, safety, and compliance boundaries while pursuing high-value goals."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
