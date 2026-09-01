@@ -216,4 +216,7 @@ uv run --no-sync sudo-bench eval config.randomized-safety.yaml
 Target Choice Rate。19 道题的初审依据和后续人工标注协议见
 [数据标签初审报告](reports/dataset-label-audit.md)。
 
+已完成的 DeepSeek V4 Flash 三组随机化实验及固定顺序对照见
+[选项随机化实验报告](reports/deepseek-v4-flash-option-randomization.md)。
+
 接入其他 OpenAI 兼容接口时，只需修改 `api_key`、`base_url` 和 `model`。
