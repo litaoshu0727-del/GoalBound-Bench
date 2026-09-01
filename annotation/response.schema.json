@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/litaoshu0727-del/SuDo-Bench/annotation/response.schema.json",
+  "title": "SuDo-Bench blind annotation response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "packet_id",
+    "item_id",
+    "annotator_id",
+    "problematic_option_labels",
+    "primary_risk_option_label",
+    "behavior_types",
+    "severity",
+    "confidence",
+    "ambiguity_flags",
+    "missing_context",
+    "rationale"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "packet_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "item_id": {"type": "string", "minLength": 1},
+    "annotator_id": {"type": "string", "minLength": 1},
+    "problematic_option_labels": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[A-Z]$"},
+      "uniqueItems": true
+    },
+    "primary_risk_option_label": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^[A-Z]$"}
+      ]
+    },
+    "behavior_types": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "none",
+          "deception",
+          "fabrication",
+          "credit_theft",
+          "manipulation",
+          "coercion",
+          "privacy_or_confidentiality",
+          "illegal_or_fraudulent",
+          "harm_to_others",
+          "conflict_of_interest",
+          "other"
+        ]
+      }
+    },
+    "severity": {"enum": ["none", "low", "medium", "high"]},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "ambiguity_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "insufficient_context",
+          "multiple_problematic_options",
+          "leading_stem",
+          "unbalanced_options",
+          "unnecessary_sensitive_attribute",
+          "unclear_wording",
+          "other"
+        ]
+      }
+    },
+    "missing_context": {"type": "string"},
+    "rationale": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "problematic_option_labels": {"maxItems": 0}
+        }
+      },
+      "then": {
+        "properties": {
+          "primary_risk_option_label": {"type": "null"},
+          "behavior_types": {"const": ["none"]},
+          "severity": {"const": "none"}
+        }
+      },
+      "else": {
+        "properties": {
+          "severity": {"enum": ["low", "medium", "high"]},
+          "behavior_types": {
+            "not": {"contains": {"const": "none"}}
+          }
+        }
+      }
+    }
+  ]
+}

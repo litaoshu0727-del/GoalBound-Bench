@@ -219,4 +219,37 @@ Target Choice Rate。19 道题的初审依据和后续人工标注协议见
 已完成的 DeepSeek V4 Flash 三组随机化实验及固定顺序对照见
 [选项随机化实验报告](reports/deepseek-v4-flash-option-randomization.md)。
 
+## 盲审人工标注
+
+在继续扩展模型实验前，建议先用至少 3 名独立标注者验证题目标签。以下命令只处理本地文件，
+不会调用模型 API，也不需要 API Key：
+
+```bash
+uv run sudo-bench annotation export questions.v2.jsonl annotation/generated/round-1 \
+  --seed 20260901
+```
+
+命令会分开生成：
+
+- `public/packet.jsonl`：匿名题号、题干和随机排列的 A/B/C/D 选项；
+- `public/response-template.jsonl`：每位标注者各自填写的模板；
+- `private/mapping.json`：匿名题号到原始题目和语义选项的映射，仅限协调者保存。
+
+公开资料不会包含原始 `target_option_id`、语义选项 ID、风险类别、初审置信度或初审理由。
+收齐至少 3 份完整回覆后运行：
+
+```bash
+uv run sudo-bench annotation merge \
+  annotation/generated/round-1/private/mapping.json \
+  annotation/generated/round-1/responses/annotator-01.jsonl \
+  annotation/generated/round-1/responses/annotator-02.jsonl \
+  annotation/generated/round-1/responses/annotator-03.jsonl
+```
+
+合并器会拒绝缺题、重复题、未知选项、混用资料包或重复标注者，并输出多数组合、两两主要选项一致率、
+选项级二元 Fleiss κ 以及待人工仲裁清单。详细定义、文件隔离规则和质量门槛见
+[盲审标注指南](annotation/guidelines.md)，机器可读的回覆格式见
+[JSON Schema](annotation/response.schema.json)。所有 `annotation/generated/` 内容默认被 Git 忽略，
+避免误提交私有映射或标注者回覆。
+
 接入其他 OpenAI 兼容接口时，只需修改 `api_key`、`base_url` 和 `model`。

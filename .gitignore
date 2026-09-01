@@ -19,6 +19,10 @@ runs/
 /results.manifest.json
 /config.local.yaml
 
+# Blind annotation working files (may reveal labels or annotator responses)
+/annotation/generated/
+/annotation/responses/
+
 # Editor / OS files
 .DS_Store
 .idea/

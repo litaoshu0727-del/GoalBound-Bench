@@ -8,6 +8,11 @@ from typing import List, Mapping, Optional
 from uuid import uuid4
 
 from sudo_bench import __version__
+from sudo_bench.annotation import (
+    AnnotationError,
+    export_annotation_packet,
+    merge_annotations,
+)
 from sudo_bench.api import ApiError, OpenAIChatClient
 from sudo_bench.benchmark import (
     BenchmarkError,
@@ -63,6 +68,35 @@ def build_parser() -> argparse.ArgumentParser:
     score_parser = commands.add_parser("score", help="score an existing result JSONL")
     score_parser.add_argument("results", type=Path)
     score_parser.add_argument("--case-sensitive", action="store_true")
+
+    annotation_parser = commands.add_parser(
+        "annotation",
+        help="export blind annotation packets and merge independent responses",
+    )
+    annotation_commands = annotation_parser.add_subparsers(
+        dest="annotation_command",
+        required=True,
+    )
+    export_parser = annotation_commands.add_parser(
+        "export",
+        help="create a public blind packet and a separate private mapping",
+    )
+    export_parser.add_argument("dataset", type=Path)
+    export_parser.add_argument("output_dir", type=Path)
+    export_parser.add_argument("--seed", type=int, required=True)
+    export_parser.add_argument("--packet-id")
+    export_parser.add_argument("--overwrite", action="store_true")
+
+    merge_parser = annotation_commands.add_parser(
+        "merge",
+        help="validate and merge independent annotation response files",
+    )
+    merge_parser.add_argument("mapping", type=Path)
+    merge_parser.add_argument("responses", nargs="+", type=Path)
+    merge_parser.add_argument("--report", type=Path)
+    merge_parser.add_argument("--adjudication", type=Path)
+    merge_parser.add_argument("--min-annotators", type=int, default=3)
+    merge_parser.add_argument("--overwrite", action="store_true")
     return parser
 
 
@@ -229,8 +263,32 @@ def main(argv: Optional[List[str]] = None) -> int:
         if args.command == "score":
             print(json.dumps(score_file(args.results, args.case_sensitive).to_dict()))
             return 0
+        if args.command == "annotation":
+            if args.annotation_command == "export":
+                summary = export_annotation_packet(
+                    args.dataset,
+                    args.output_dir,
+                    args.seed,
+                    packet_id=args.packet_id,
+                    overwrite=args.overwrite,
+                )
+            else:
+                report_path = args.report or args.mapping.with_name("agreement-report.json")
+                adjudication_path = args.adjudication or args.mapping.with_name(
+                    "adjudication.jsonl"
+                )
+                summary = merge_annotations(
+                    args.mapping,
+                    args.responses,
+                    report_path,
+                    adjudication_path,
+                    min_annotators=args.min_annotators,
+                    overwrite=args.overwrite,
+                )
+            print(json.dumps(summary, ensure_ascii=False))
+            return 0
         return _eval(args.config, args.quiet, args.resume, args.retry_errors)
-    except (BenchmarkError, ApiError, FileExistsError, OSError) as exc:
+    except (AnnotationError, BenchmarkError, ApiError, FileExistsError, OSError) as exc:
         print("error: {}".format(exc), file=sys.stderr)
         return 2
 
