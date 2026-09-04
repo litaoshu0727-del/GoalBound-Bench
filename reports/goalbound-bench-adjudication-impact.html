@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoalBound-Bench 盲审前后变化</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; display: grid; place-items: center; background: #f5f5f5; }
+    svg { display: block; width: min(1800px, 100vw); height: auto; }
+  </style>
+</head>
+<body>
+  <svg viewBox="0 0 1800 1120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="adjudication-impact-title adjudication-impact-desc">
+    <title id="adjudication-impact-title">GoalBound-Bench 盲审前与仲裁后问题行为选择率变化</title>
+    <desc id="adjudication-impact-desc">Dumbbell chart comparing the primary target choice rate before blind review on nineteen candidate questions with the rate after adjudication on fifteen core questions. It also displays score changes and deterministic rank movement for twelve completed model runs.</desc>
+    <defs>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@500;600&amp;display=swap');
+        .title { font: 700 40px 'Geist', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif; fill: #2d3142; letter-spacing: -0.02em; }
+        .subtitle { font: 500 16px 'Geist', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif; fill: #4f5d75; }
+        .note { font: 600 16px 'Geist', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif; fill: #7a3d28; }
+        .axis { font: 500 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #7a8399; }
+        .header { font: 600 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #4f5d75; letter-spacing: 0.06em; }
+        .model { font: 600 16px 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #2d3142; }
+        .model-id { font: 500 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #7a8399; }
+        .score { font: 600 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #2d3142; }
+        .delta-up { font: 600 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #9c6b50; }
+        .delta-down { font: 600 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #5e7a9b; }
+        .delta-flat { font: 600 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #7a8399; }
+        .legend { font: 500 12px 'Geist', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif; fill: #4f5d75; }
+        .footnote { font: 500 12px 'Geist', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif; fill: #6b7588; }
+      </style>
+    </defs>
+
+    <rect width="1800" height="1120" fill="#f5f5f5"/>
+    <text x="64" y="72" class="title">盲审前 vs. 仲裁后：问题行为选择率变化</text>
+    <text x="64" y="108" class="subtitle">GoalBound-Bench · Primary target choice rate · 12 completed Avg@16 model runs</text>
+
+    <g aria-label="Adjudication summary">
+      <rect x="64" y="136" width="1672" height="48" rx="8" fill="#fff3ed" stroke="#eb6c36" stroke-opacity="0.45"/>
+      <circle cx="88" cy="160" r="8" fill="#eb6c36"/>
+      <text x="108" y="166" class="note">19 道候选题 → 15 道核心题：移除 4 道语境或定义不足的题目，并修正 1 道主要风险标签。</text>
+    </g>
+
+    <g aria-label="Chart headers">
+      <text x="64" y="224" class="header">MODEL</text>
+      <text x="380" y="224" class="header">PRIMARY TARGET CHOICE RATE</text>
+      <text x="1216" y="224" class="header">BEFORE → AFTER</text>
+      <text x="1448" y="224" class="header">Δ SCORE</text>
+      <text x="1600" y="224" class="header">RANK MOVEMENT</text>
+      <text x="380" y="248" text-anchor="middle" class="axis">0%</text>
+      <text x="540" y="248" text-anchor="middle" class="axis">20%</text>
+      <text x="700" y="248" text-anchor="middle" class="axis">40%</text>
+      <text x="860" y="248" text-anchor="middle" class="axis">60%</text>
+      <text x="1020" y="248" text-anchor="middle" class="axis">80%</text>
+      <text x="1180" y="248" text-anchor="middle" class="axis">100%</text>
+      <line x1="380" y1="260" x2="380" y2="920" stroke="#bfc0c0"/>
+      <line x1="540" y1="260" x2="540" y2="920" stroke="#dedfe3"/>
+      <line x1="700" y1="260" x2="700" y2="920" stroke="#dedfe3"/>
+      <line x1="860" y1="260" x2="860" y2="920" stroke="#dedfe3"/>
+      <line x1="1020" y1="260" x2="1020" y2="920" stroke="#dedfe3"/>
+      <line x1="1180" y1="260" x2="1180" y2="920" stroke="#bfc0c0"/>
+    </g>
+
+    <g aria-label="Gemini 3.7 Flash, 81.58 to 82.50 percent, plus 0.92 percentage points, rank 1 to 1">
+      <text x="64" y="280" class="model">Gemini 3.7 Flash</text>
+      <text x="64" y="300" class="model-id">google/gemini-3.7-flash</text>
+      <line x1="1032.6" y1="288" x2="1040" y2="288" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="1032.6" cy="288" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="1040" cy="288" r="8" fill="#2d3142"/>
+      <text x="1216" y="293" class="score">81.58 → 82.50%</text>
+      <text x="1448" y="293" class="delta-up">+0.92 pp</text>
+      <text x="1600" y="293" class="delta-flat">1 → 1  —</text>
+    </g>
+
+    <g aria-label="Grok 4.6, 48.36 to 51.25 percent, plus 2.89 percentage points, rank 3 to 2">
+      <text x="64" y="336" class="model">Grok 4.6</text>
+      <text x="64" y="356" class="model-id">x-ai/grok-4.6</text>
+      <line x1="766.8" y1="344" x2="790" y2="344" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="766.8" cy="344" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="790" cy="344" r="8" fill="#2d3142"/>
+      <text x="1216" y="349" class="score">48.36 → 51.25%</text>
+      <text x="1448" y="349" class="delta-up">+2.89 pp</text>
+      <text x="1600" y="349" class="delta-up">3 → 2  ↑1</text>
+    </g>
+
+    <g aria-label="Claude Opus 5, 56.25 to 49.58 percent, minus 6.67 percentage points, rank 2 to 3">
+      <text x="64" y="392" class="model">Claude Opus 5</text>
+      <text x="64" y="412" class="model-id">anthropic/claude-opus-5</text>
+      <line x1="776.7" y1="400" x2="830" y2="400" stroke="#5e7a9b" stroke-width="4"/>
+      <circle cx="830" cy="400" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="776.7" cy="400" r="8" fill="#2d3142"/>
+      <text x="1216" y="405" class="score">56.25 → 49.58%</text>
+      <text x="1448" y="405" class="delta-down">−6.67 pp</text>
+      <text x="1600" y="405" class="delta-down">2 → 3  ↓1</text>
+    </g>
+
+    <g aria-label="DeepSeek V4 Flash, 33.88 to 40.42 percent, plus 6.54 percentage points, rank 5 to 4">
+      <text x="64" y="448" class="model">DeepSeek V4 Flash</text>
+      <text x="64" y="468" class="model-id">deepseek-v4-flash</text>
+      <line x1="651.1" y1="456" x2="703.3" y2="456" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="651.1" cy="456" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="703.3" cy="456" r="8" fill="#2d3142"/>
+      <text x="1216" y="461" class="score">33.88 → 40.42%</text>
+      <text x="1448" y="461" class="delta-up">+6.54 pp</text>
+      <text x="1600" y="461" class="delta-up">5 → 4  ↑1</text>
+    </g>
+
+    <g aria-label="Tencent Hy4 Preview, 37.17 to 40.42 percent, plus 3.25 percentage points, rank 4 to 5">
+      <text x="64" y="504" class="model">Hy4 Preview</text>
+      <text x="64" y="524" class="model-id">tencent/hy4-preview</text>
+      <line x1="677.4" y1="512" x2="703.3" y2="512" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="677.4" cy="512" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="703.3" cy="512" r="8" fill="#2d3142"/>
+      <text x="1216" y="517" class="score">37.17 → 40.42%</text>
+      <text x="1448" y="517" class="delta-up">+3.25 pp</text>
+      <text x="1600" y="517" class="delta-down">4 → 5  ↓1</text>
+    </g>
+
+    <g aria-label="Seed 2.1 Turbo, 28.62 to 28.75 percent, plus 0.13 percentage points, rank 6 to 6">
+      <text x="64" y="560" class="model">Seed 2.1 Turbo</text>
+      <text x="64" y="580" class="model-id">bytedance-seed/seed-2-1-turbo</text>
+      <line x1="608.9" y1="568" x2="610" y2="568" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="608.9" cy="568" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="610" cy="568" r="8" fill="#2d3142"/>
+      <text x="1216" y="573" class="score">28.62 → 28.75%</text>
+      <text x="1448" y="573" class="delta-up">+0.13 pp</text>
+      <text x="1600" y="573" class="delta-flat">6 → 6  —</text>
+    </g>
+
+    <g aria-label="Qwen 3.8 Flash, 17.11 to 19.58 percent, plus 2.48 percentage points, rank 8 to 7">
+      <text x="64" y="616" class="model">Qwen 3.8 Flash</text>
+      <text x="64" y="636" class="model-id">qwen/qwen3.8-flash</text>
+      <line x1="516.8" y1="624" x2="536.7" y2="624" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="516.8" cy="624" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="536.7" cy="624" r="8" fill="#2d3142"/>
+      <text x="1216" y="629" class="score">17.11 → 19.58%</text>
+      <text x="1448" y="629" class="delta-up">+2.48 pp</text>
+      <text x="1600" y="629" class="delta-up">8 → 7  ↑1</text>
+    </g>
+
+    <g aria-label="Kimi K3, 19.08 to 18.33 percent, minus 0.75 percentage points, rank 7 to 8">
+      <text x="64" y="672" class="model">Kimi K3</text>
+      <text x="64" y="692" class="model-id">moonshotai/kimi-k3</text>
+      <line x1="526.7" y1="680" x2="532.6" y2="680" stroke="#5e7a9b" stroke-width="4"/>
+      <circle cx="532.6" cy="680" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="526.7" cy="680" r="8" fill="#2d3142"/>
+      <text x="1216" y="685" class="score">19.08 → 18.33%</text>
+      <text x="1448" y="685" class="delta-down">−0.75 pp</text>
+      <text x="1600" y="685" class="delta-down">7 → 8  ↓1</text>
+    </g>
+
+    <g aria-label="MiniMax M3, 7.57 to 8.75 percent, plus 1.18 percentage points, rank 10 to 9">
+      <text x="64" y="728" class="model">MiniMax M3</text>
+      <text x="64" y="748" class="model-id">minimax/minimax-m3</text>
+      <line x1="440.5" y1="736" x2="450" y2="736" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="440.5" cy="736" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="450" cy="736" r="8" fill="#2d3142"/>
+      <text x="1216" y="741" class="score">7.57 → 8.75%</text>
+      <text x="1448" y="741" class="delta-up">+1.18 pp</text>
+      <text x="1600" y="741" class="delta-up">10 → 9  ↑1</text>
+    </g>
+
+    <g aria-label="GLM 5.3 Flash, 8.88 to 8.75 percent, minus 0.13 percentage points, rank 9 to 10">
+      <text x="64" y="784" class="model">GLM 5.3 Flash</text>
+      <text x="64" y="804" class="model-id">z-ai/glm-5.3-flash</text>
+      <line x1="450" y1="792" x2="451.1" y2="792" stroke="#5e7a9b" stroke-width="4"/>
+      <circle cx="451.1" cy="792" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="450" cy="792" r="8" fill="#2d3142"/>
+      <text x="1216" y="797" class="score">8.88 → 8.75%</text>
+      <text x="1448" y="797" class="delta-down">−0.13 pp</text>
+      <text x="1600" y="797" class="delta-down">9 → 10  ↓1</text>
+    </g>
+
+    <g aria-label="Muse Spark 1.3, 3.95 to 4.17 percent, plus 0.22 percentage points, rank 11 to 11">
+      <text x="64" y="840" class="model">Muse Spark 1.3</text>
+      <text x="64" y="860" class="model-id">meta/muse-spark-1.3</text>
+      <line x1="411.6" y1="848" x2="413.3" y2="848" stroke="#9c6b50" stroke-width="4"/>
+      <circle cx="411.6" cy="848" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="413.3" cy="848" r="8" fill="#2d3142"/>
+      <text x="1216" y="853" class="score">3.95 → 4.17%</text>
+      <text x="1448" y="853" class="delta-up">+0.22 pp</text>
+      <text x="1600" y="853" class="delta-flat">11 → 11  —</text>
+    </g>
+
+    <g aria-label="GPT 5.6 Sol, zero percent before and after, rank 12 to 12">
+      <text x="64" y="896" class="model">GPT-5.6 Sol</text>
+      <text x="64" y="916" class="model-id">openai/gpt-5.6-sol</text>
+      <circle cx="380" cy="904" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <circle cx="380" cy="904" r="4" fill="#2d3142"/>
+      <text x="1216" y="909" class="score">0.00 → 0.00%</text>
+      <text x="1448" y="909" class="delta-flat">0.00 pp</text>
+      <text x="1600" y="909" class="delta-flat">12 → 12  —</text>
+    </g>
+
+    <line x1="64" y1="952" x2="1736" y2="952" stroke="#cfd2d8"/>
+    <g aria-label="Legend">
+      <circle cx="76" cy="984" r="7" fill="#f5f5f5" stroke="#7a8399" stroke-width="3"/>
+      <text x="96" y="989" class="legend">盲审前（19 道候选题）</text>
+      <circle cx="312" cy="984" r="8" fill="#2d3142"/>
+      <text x="332" y="989" class="legend">仲裁后（15 道核心题）</text>
+      <line x1="560" y1="984" x2="592" y2="984" stroke="#9c6b50" stroke-width="4"/>
+      <text x="604" y="989" class="legend">问题行为选择率上升</text>
+      <line x1="816" y1="984" x2="848" y2="984" stroke="#5e7a9b" stroke-width="4"/>
+      <text x="860" y="989" class="legend">问题行为选择率下降</text>
+    </g>
+    <text x="64" y="1032" class="footnote">所有变化均由既有语义预测复算得到，没有重新调用模型 API。分数变化单位为百分点（pp）。</text>
+    <text x="64" y="1056" class="footnote">名次仅表示主要问题行为选择率的排序；↑ 表示进入更高风险率位置，不代表模型表现变好。同分沿用报告中的确定性顺序。</text>
+    <text x="1736" y="1056" text-anchor="end" class="footnote">2026-09-04</text>
+  </svg>
+</body>
+</html>

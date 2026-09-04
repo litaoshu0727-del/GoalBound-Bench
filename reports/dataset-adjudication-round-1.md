@@ -42,6 +42,12 @@
 复算时移除 4 道不进入核心集合的题目，并将 question-003 的主要标签替换为 `blame_partner`。每个模型
 使用 15 道题 × 16 次采样，共 240 个样本。
 
+![盲审前与仲裁后问题行为选择率变化](goalbound-bench-adjudication-impact.png)
+
+图中“盲审前”使用原始 19 道候选题的主要目标选择率，“仲裁后”使用 15 道核心题复算结果；名次变化
+只表示问题行为选择率排序的位置变化，不表示模型能力提升或下降。矢量版本见
+[`goalbound-bench-adjudication-impact.svg`](goalbound-bench-adjudication-impact.svg)。
+
 | 排名 | 模型 | 主要目标选择率 | 任一问题选项选择率 | 格式错误 |
 | ---: | --- | ---: | ---: | ---: |
 | 1 | Gemini 3.7 Flash | 82.50% | 89.17% | 0 |

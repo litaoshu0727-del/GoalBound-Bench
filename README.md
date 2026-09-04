@@ -30,26 +30,36 @@ GoalBound-Bench 重点完善了可靠评测、结构化语义评分、选项位�
 已完成 12 个模型的同口径随机化诱导提示 Avg@16 运行。下表使用三人盲审及人工仲裁后的 15 道核心题
 复算；每个模型包含 240 个样本，没有重新调用模型 API。
 
-![GoalBound-Bench 仲裁后 Avg@16 排行榜](reports/goalbound-bench-leaderboard-verified.png)
+![GoalBound-Bench 仲裁后问题行为选择率](reports/goalbound-bench-adjudicated-problematic-choice-rates.png)
 
 图中的条形表示“任一问题选项选择率”，深色标记表示“主要目标选择率”；数值越高，表示模型越容易
-选择问题行为，并不代表模型表现更好。可下载 [SVG 矢量图](reports/goalbound-bench-leaderboard-verified.svg)
-或查看[可访问 HTML 源图](reports/goalbound-bench-leaderboard-verified.html)。
+选择问题行为，并不代表模型表现更好。可下载
+[SVG 矢量图](reports/goalbound-bench-adjudicated-problematic-choice-rates.svg)或查看
+[可访问 HTML 源图](reports/goalbound-bench-adjudicated-problematic-choice-rates.html)。
 
-| 排名 | 模型 | 主要目标选择率 | 任一问题选项选择率 |
-| ---: | --- | ---: | ---: |
-| 1 | Gemini 3.7 Flash | 82.50% | 89.17% |
-| 2 | Grok 4.6 | 51.25% | 51.25% |
-| 3 | Claude Opus 5 | 49.58% | 49.58% |
-| 4 | DeepSeek V4 Flash | 40.42% | 40.83% |
-| 5 | Tencent Hy4 Preview | 40.42% | 41.25% |
-| 6 | Seed 2.1 Turbo | 28.75% | 28.75% |
-| 7 | Qwen 3.8 Flash | 19.58% | 19.58% |
-| 8 | Kimi K3 | 18.33% | 18.33% |
-| 9 | MiniMax M3 | 8.75% | 8.75% |
-| 10 | GLM 5.3 Flash | 8.75% | 8.75% |
-| 11 | Meta Muse Spark 1.3 | 4.17% | 4.17% |
-| 12 | GPT-5.6 Sol | 0.00% | 0.00% |
+| 模型 | 主要目标选择率 | 任一问题选项选择率 |
+| --- | ---: | ---: |
+| Gemini 3.7 Flash | 82.50% | 89.17% |
+| Grok 4.6 | 51.25% | 51.25% |
+| Claude Opus 5 | 49.58% | 49.58% |
+| DeepSeek V4 Flash | 40.42% | 40.83% |
+| Tencent Hy4 Preview | 40.42% | 41.25% |
+| Seed 2.1 Turbo | 28.75% | 28.75% |
+| Qwen 3.8 Flash | 19.58% | 19.58% |
+| Kimi K3 | 18.33% | 18.33% |
+| MiniMax M3 | 8.75% | 8.75% |
+| GLM 5.3 Flash | 8.75% | 8.75% |
+| Meta Muse Spark 1.3 | 4.17% | 4.17% |
+| GPT-5.6 Sol | 0.00% | 0.00% |
+
+### 盲审前后变化
+
+![GoalBound-Bench 盲审前与仲裁后变化](reports/goalbound-bench-adjudication-impact.png)
+
+该图比较原始 19 道候选题与仲裁后 15 道核心题的主要目标选择率，并同时给出分数变化和名次变化。
+名次只代表问题行为选择率的位置，不代表模型能力高低。可下载
+[SVG 矢量图](reports/goalbound-bench-adjudication-impact.svg)或查看
+[可访问 HTML 源图](reports/goalbound-bench-adjudication-impact.html)。
 
 仲裁决定、复算方法、格式错误与解释限制见
 [第 1 轮盲审与仲裁结果](reports/dataset-adjudication-round-1.md)。完整机器可读结果见

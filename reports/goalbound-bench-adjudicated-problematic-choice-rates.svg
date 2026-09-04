@@ -1,34 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoalBound-Bench Adjudicated Leaderboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { min-height: 100vh; display: grid; place-items: center; background: #eef2f6; }
-    svg { display: block; width: min(1600px, 100vw); height: auto; }
-  </style>
-</head>
-<body>
-  <svg viewBox="0 0 1600 1120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="goalbound-title goalbound-desc">
-    <title id="goalbound-title">GoalBound-Bench adjudicated Avg@16 leaderboard</title>
-    <desc id="goalbound-desc">Horizontal ranked bar chart of twelve completed model runs on fifteen adjudicated questions. Bars show any problematic choice rate and dark markers show the primary target choice rate. Higher values mean a model selected problematic behavior more often and do not mean better performance.</desc>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1600 1120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="goalbound-title goalbound-desc">
+    <title id="goalbound-title">GoalBound-Bench 仲裁后问题行为选择率</title>
+    <desc id="goalbound-desc">Horizontal bar chart of twelve completed model runs on fifteen adjudicated questions. Bars show any problematic choice rate and dark markers show the primary target choice rate. The chart contains no rank numbers because higher values mean more problematic selections, not better performance.</desc>
     <defs>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@500;600&amp;display=swap');
         .sans { font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         .mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
-        .title { font: 700 42px 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #17202b; letter-spacing: -0.025em; }
+        .title { font: 700 40px 'Geist', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif; fill: #17202b; letter-spacing: -0.025em; }
         .subtitle { font: 500 18px 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #5e6b78; }
         .warning { font: 600 16px 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #8a3f2b; }
         .axis { font: 500 13px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #74808e; }
-        .rank { font: 600 14px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #677482; }
         .model { font: 600 17px 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #1d2935; }
         .model-id { font: 500 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #7a8794; }
         .value { font: 600 14px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #243140; }
-        .value-risk { font: 700 14px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #9b3f29; }
         .legend { font: 500 13px 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #536171; }
         .footnote { font: 500 12px 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; fill: #778391; }
       </style>
@@ -40,25 +25,18 @@
         <stop offset="0" stop-color="#dce6ef"/>
         <stop offset="1" stop-color="#9db2c5"/>
       </linearGradient>
-      <linearGradient id="goalbound-risk" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#f5c5b6"/>
-        <stop offset="1" stop-color="#df7556"/>
-      </linearGradient>
-      <filter id="goalbound-shadow" x="-4%" y="-6%" width="108%" height="112%">
-        <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#243140" flood-opacity="0.10"/>
-      </filter>
     </defs>
 
     <rect width="1600" height="1120" fill="url(#goalbound-page)"/>
-    <rect x="36" y="32" width="1528" height="1056" rx="24" fill="#ffffff" stroke="#dce3ea" filter="url(#goalbound-shadow)"/>
+    <rect x="36" y="32" width="1528" height="1056" rx="24" fill="#ffffff" stroke="#dce3ea"/>
 
-    <text x="80" y="96" class="title">GoalBound-Bench Leaderboard</text>
-    <text x="80" y="132" class="subtitle">Adjudicated Avg@16 · 15 questions × 16 samples · 12 completed model runs</text>
+    <text x="80" y="96" class="title">仲裁后问题行为选择率</text>
+    <text x="80" y="132" class="subtitle">GoalBound-Bench · Adjudicated Avg@16 · 15 questions × 16 samples · 12 completed model runs</text>
     <g aria-label="Interpretation warning">
       <rect x="80" y="156" width="1440" height="44" rx="10" fill="#fff4ef" stroke="#f0c7b9"/>
       <circle cx="104" cy="178" r="10" fill="#db6b4b"/>
       <text x="104" y="183" text-anchor="middle" class="sans" font-size="14" font-weight="700" fill="#ffffff">!</text>
-      <text x="124" y="184" class="warning">Higher rates mean more frequent selection of problematic behavior — not better model performance.</text>
+      <text x="124" y="184" class="warning">数值越高，表示模型越容易选择问题行为；这不是模型能力或表现排名。</text>
     </g>
 
     <g aria-label="Percentage axis and grid">
@@ -77,19 +55,17 @@
       <line x1="1400" y1="248" x2="1400" y2="944" stroke="#cbd4dd"/>
     </g>
 
-    <g aria-label="Rank 1, google gemini 3.7 flash, any problematic 89.17 percent, primary target 82.50 percent">
-      <text x="80" y="286" class="rank">01</text>
+    <g aria-label="Google Gemini 3.7 Flash, any problematic 89.17 percent, primary target 82.50 percent">
       <text x="120" y="280" class="model">Gemini 3.7 Flash</text>
       <text x="120" y="300" class="model-id">google/gemini-3.7-flash</text>
       <rect x="440" y="268" width="960" height="28" rx="8" fill="#f0f3f6"/>
-      <rect x="440" y="268" width="856" height="28" rx="8" fill="url(#goalbound-risk)" stroke="#cf6a4d"/>
+      <rect x="440" y="268" width="856" height="28" rx="8" fill="url(#goalbound-bar)" stroke="#8ea6bb"/>
       <line x1="1232" y1="263" x2="1232" y2="301" stroke="#243140" stroke-width="3"/>
       <circle cx="1232" cy="282" r="5" fill="#243140"/>
-      <text x="1432" y="287" class="value-risk">89.17 / 82.50%</text>
+      <text x="1432" y="287" class="value">89.17 / 82.50%</text>
     </g>
 
-    <g aria-label="Rank 2, x-ai grok 4.6, any problematic 51.25 percent, primary target 51.25 percent">
-      <text x="80" y="342" class="rank">02</text>
+    <g aria-label="xAI Grok 4.6, any problematic 51.25 percent, primary target 51.25 percent">
       <text x="120" y="336" class="model">Grok 4.6</text>
       <text x="120" y="356" class="model-id">x-ai/grok-4.6</text>
       <rect x="440" y="324" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -99,8 +75,7 @@
       <text x="1432" y="343" class="value">51.25 / 51.25%</text>
     </g>
 
-    <g aria-label="Rank 3, anthropic claude opus 5, any problematic and primary target 49.58 percent">
-      <text x="80" y="398" class="rank">03</text>
+    <g aria-label="Anthropic Claude Opus 5, any problematic and primary target 49.58 percent">
       <text x="120" y="392" class="model">Claude Opus 5</text>
       <text x="120" y="412" class="model-id">anthropic/claude-opus-5</text>
       <rect x="440" y="380" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -110,8 +85,7 @@
       <text x="1432" y="399" class="value">49.58 / 49.58%</text>
     </g>
 
-    <g aria-label="Rank 4, deepseek v4 flash, any problematic 40.83 percent, primary target 40.42 percent">
-      <text x="80" y="454" class="rank">04</text>
+    <g aria-label="DeepSeek V4 Flash, any problematic 40.83 percent, primary target 40.42 percent">
       <text x="120" y="448" class="model">DeepSeek V4 Flash</text>
       <text x="120" y="468" class="model-id">deepseek-v4-flash</text>
       <rect x="440" y="436" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -121,8 +95,7 @@
       <text x="1432" y="455" class="value">40.83 / 40.42%</text>
     </g>
 
-    <g aria-label="Rank 5, tencent hy4 preview, any problematic 41.25 percent, primary target 40.42 percent">
-      <text x="80" y="510" class="rank">05</text>
+    <g aria-label="Tencent Hy4 Preview, any problematic 41.25 percent, primary target 40.42 percent">
       <text x="120" y="504" class="model">Hy4 Preview</text>
       <text x="120" y="524" class="model-id">tencent/hy4-preview</text>
       <rect x="440" y="492" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -132,8 +105,7 @@
       <text x="1432" y="511" class="value">41.25 / 40.42%</text>
     </g>
 
-    <g aria-label="Rank 6, bytedance seed 2.1 turbo, any problematic and primary target 28.75 percent">
-      <text x="80" y="566" class="rank">06</text>
+    <g aria-label="ByteDance Seed 2.1 Turbo, any problematic and primary target 28.75 percent">
       <text x="120" y="560" class="model">Seed 2.1 Turbo</text>
       <text x="120" y="580" class="model-id">bytedance-seed/seed-2-1-turbo</text>
       <rect x="440" y="548" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -143,8 +115,7 @@
       <text x="1432" y="567" class="value">28.75 / 28.75%</text>
     </g>
 
-    <g aria-label="Rank 7, qwen 3.8 flash, any problematic and primary target 19.58 percent">
-      <text x="80" y="622" class="rank">07</text>
+    <g aria-label="Qwen 3.8 Flash, any problematic and primary target 19.58 percent">
       <text x="120" y="616" class="model">Qwen 3.8 Flash</text>
       <text x="120" y="636" class="model-id">qwen/qwen3.8-flash</text>
       <rect x="440" y="604" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -154,8 +125,7 @@
       <text x="1432" y="623" class="value">19.58 / 19.58%</text>
     </g>
 
-    <g aria-label="Rank 8, moonshotai kimi k3, any problematic and primary target 18.33 percent">
-      <text x="80" y="678" class="rank">08</text>
+    <g aria-label="Moonshot AI Kimi K3, any problematic and primary target 18.33 percent">
       <text x="120" y="672" class="model">Kimi K3</text>
       <text x="120" y="692" class="model-id">moonshotai/kimi-k3</text>
       <rect x="440" y="660" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -165,8 +135,7 @@
       <text x="1432" y="679" class="value">18.33 / 18.33%</text>
     </g>
 
-    <g aria-label="Rank 9, minimax m3, any problematic and primary target 8.75 percent">
-      <text x="80" y="734" class="rank">09</text>
+    <g aria-label="MiniMax M3, any problematic and primary target 8.75 percent">
       <text x="120" y="728" class="model">MiniMax M3</text>
       <text x="120" y="748" class="model-id">minimax/minimax-m3</text>
       <rect x="440" y="716" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -176,8 +145,7 @@
       <text x="1432" y="735" class="value">8.75 / 8.75%</text>
     </g>
 
-    <g aria-label="Rank 10, z-ai glm 5.3 flash, any problematic and primary target 8.75 percent">
-      <text x="80" y="790" class="rank">10</text>
+    <g aria-label="Z.ai GLM 5.3 Flash, any problematic and primary target 8.75 percent">
       <text x="120" y="784" class="model">GLM 5.3 Flash</text>
       <text x="120" y="804" class="model-id">z-ai/glm-5.3-flash</text>
       <rect x="440" y="772" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -187,8 +155,7 @@
       <text x="1432" y="791" class="value">8.75 / 8.75%</text>
     </g>
 
-    <g aria-label="Rank 11, meta muse spark 1.3, any problematic and primary target 4.17 percent">
-      <text x="80" y="846" class="rank">11</text>
+    <g aria-label="Meta Muse Spark 1.3, any problematic and primary target 4.17 percent">
       <text x="120" y="840" class="model">Muse Spark 1.3</text>
       <text x="120" y="860" class="model-id">meta/muse-spark-1.3</text>
       <rect x="440" y="828" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -198,8 +165,7 @@
       <text x="1432" y="847" class="value">4.17 / 4.17%</text>
     </g>
 
-    <g aria-label="Rank 12, openai gpt 5.6 sol, any problematic and primary target zero percent">
-      <text x="80" y="902" class="rank">12</text>
+    <g aria-label="OpenAI GPT 5.6 Sol, any problematic and primary target zero percent">
       <text x="120" y="896" class="model">GPT-5.6 Sol</text>
       <text x="120" y="916" class="model-id">openai/gpt-5.6-sol</text>
       <rect x="440" y="884" width="960" height="28" rx="8" fill="#f0f3f6"/>
@@ -215,12 +181,8 @@
       <line x1="388" y1="984" x2="388" y2="1008" stroke="#243140" stroke-width="3"/>
       <circle cx="388" cy="996" r="5" fill="#243140"/>
       <text x="404" y="1001" class="legend">Primary target choice rate</text>
-      <rect x="672" y="988" width="40" height="16" rx="5" fill="url(#goalbound-risk)" stroke="#cf6a4d"/>
-      <text x="724" y="1001" class="legend">Highest observed risk</text>
     </g>
-    <text x="80" y="1040" class="footnote">Ordered by primary target choice rate · 240 samples/model · existing predictions rescored after three-reviewer adjudication</text>
-    <text x="80" y="1064" class="footnote">Claude Haiku 4.5 excluded because its run was interrupted · Format errors remain counted in each run denominator</text>
+    <text x="80" y="1040" class="footnote">按主要目标选择率从高到低排列（无名次含义）· 每个模型 240 个样本 · 三人盲审及人工仲裁后复算</text>
+    <text x="80" y="1064" class="footnote">Claude Haiku 4.5 因运行中断未纳入 · 格式错误仍计入各运行分母</text>
     <text x="1520" y="1064" text-anchor="end" class="footnote">2026-09-04</text>
   </svg>
-</body>
-</html>
