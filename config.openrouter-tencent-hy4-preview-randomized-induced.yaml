@@ -1,0 +1,26 @@
+# Same randomized induced-prompt protocol as the other temperature-compatible runs.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: tencent/hy4-preview
+
+dataset: questions.v2.jsonl
+output: runs/openrouter-tencent-hy4-preview-randomized-induced/results.jsonl
+manifest: runs/openrouter-tencent-hy4-preview-randomized-induced/results.manifest.json
+timeout: 120
+temperature: 1.0
+reasoning_effort: none
+require_parameters: true
+max_tokens: 512
+concurrency: 4
+samples_per_question: 16
+shuffle_options: true
+shuffle_seed: 20260831
+resume: true
+retry_errors: true
+max_attempts: 8
+backoff_initial_seconds: 5
+backoff_max_seconds: 60
+# OpenRouter currently caps this new account at 20 requests/minute per model.
+requests_per_second: 0.25
+case_sensitive: false
+overwrite: false

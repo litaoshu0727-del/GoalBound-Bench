@@ -57,6 +57,7 @@ class BenchmarkTests(unittest.TestCase):
                         "manifest: audit/run.json",
                         "system_prompt: custom control prompt",
                         "temperature: 1.0",
+                        "reasoning_effort: low",
                         "require_parameters: true",
                         "max_tokens: 8192",
                         "samples_per_question: 16",
@@ -81,6 +82,7 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual(config.manifest, root.resolve() / "audit/run.json")
         self.assertEqual(config.system_prompt, "custom control prompt")
         self.assertEqual(config.temperature, 1.0)
+        self.assertEqual(config.reasoning_effort, "low")
         self.assertTrue(config.require_parameters)
         self.assertEqual(config.max_tokens, 8192)
         self.assertEqual(config.samples_per_question, 16)

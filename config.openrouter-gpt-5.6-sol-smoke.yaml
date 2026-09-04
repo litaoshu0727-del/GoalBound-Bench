@@ -1,0 +1,22 @@
+# GPT-5.6 Sol does not support temperature; null omits it from the API payload.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: openai/gpt-5.6-sol
+
+dataset: examples/smoke_questions.jsonl
+output: runs/openrouter-gpt-5.6-sol-smoke/results.jsonl
+manifest: runs/openrouter-gpt-5.6-sol-smoke/results.manifest.json
+timeout: 120
+temperature: null
+require_parameters: true
+max_tokens: 512
+concurrency: 1
+samples_per_question: 1
+resume: true
+retry_errors: true
+max_attempts: 4
+backoff_initial_seconds: 2
+backoff_max_seconds: 30
+requests_per_second: 0.5
+case_sensitive: false
+overwrite: false

@@ -1,0 +1,24 @@
+# Low-cost connectivity, parameter, and response-format check before the full evaluation.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: anthropic/claude-opus-5
+
+dataset: examples/smoke_questions.jsonl
+output: runs/openrouter-claude-opus-5-smoke-high-reasoning/results.jsonl
+manifest: runs/openrouter-claude-opus-5-smoke-high-reasoning/results.manifest.json
+timeout: 180
+temperature: 1.0
+# Record the model's current default reasoning effort explicitly for reproducibility.
+reasoning_effort: high
+require_parameters: true
+max_tokens: 1024
+concurrency: 1
+samples_per_question: 1
+resume: true
+retry_errors: true
+max_attempts: 4
+backoff_initial_seconds: 2
+backoff_max_seconds: 30
+requests_per_second: 0.2
+case_sensitive: false
+overwrite: false

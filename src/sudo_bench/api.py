@@ -161,6 +161,7 @@ class OpenAIChatClient:
         api_key: Optional[str],
         timeout: float,
         temperature: Optional[float] = None,
+        reasoning_effort: Optional[str] = None,
         require_parameters: bool = False,
         max_tokens: Optional[int] = None,
         system_prompt: str = SYSTEM_PROMPT,
@@ -179,6 +180,7 @@ class OpenAIChatClient:
         self._api_key = api_key
         self._timeout = timeout
         self._temperature = temperature
+        self._reasoning_effort = reasoning_effort
         self._require_parameters = require_parameters
         self._max_tokens = max_tokens
         self._system_prompt = system_prompt.strip()
@@ -194,6 +196,8 @@ class OpenAIChatClient:
         }
         if self._temperature is not None:
             payload["temperature"] = self._temperature
+        if self._reasoning_effort is not None:
+            payload["reasoning"] = {"effort": self._reasoning_effort}
         if self._require_parameters:
             payload["provider"] = {"require_parameters": True}
         if self._max_tokens is not None:

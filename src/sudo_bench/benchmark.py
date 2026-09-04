@@ -47,6 +47,7 @@ class EvalConfig:
     system_prompt: str = SYSTEM_PROMPT
     timeout: float = 60.0
     temperature: Optional[float] = None
+    reasoning_effort: Optional[str] = None
     require_parameters: bool = False
     max_tokens: Optional[int] = None
     concurrency: int = 256
@@ -194,6 +195,7 @@ def load_config(path: Path) -> EvalConfig:
         "system_prompt",
         "timeout",
         "temperature",
+        "reasoning_effort",
         "require_parameters",
         "max_tokens",
         "concurrency",
@@ -237,6 +239,22 @@ def load_config(path: Path) -> EvalConfig:
         or not 0 <= temperature <= 2
     ):
         raise BenchmarkError("{}: 'temperature' must be from 0 to 2 or null".format(path))
+    reasoning_effort = data.get("reasoning_effort")
+    supported_reasoning_efforts = {
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+    }
+    if reasoning_effort is not None and reasoning_effort not in supported_reasoning_efforts:
+        raise BenchmarkError(
+            "{}: 'reasoning_effort' must be one of {} or null".format(
+                path, ", ".join(sorted(supported_reasoning_efforts))
+            )
+        )
     require_parameters = data.get("require_parameters", False)
     if not isinstance(require_parameters, bool):
         raise BenchmarkError("{}: 'require_parameters' must be a boolean".format(path))
@@ -339,6 +357,7 @@ def load_config(path: Path) -> EvalConfig:
         system_prompt=system_prompt,
         timeout=float(timeout),
         temperature=float(temperature) if temperature is not None else None,
+        reasoning_effort=reasoning_effort,
         require_parameters=require_parameters,
         max_tokens=max_tokens,
         concurrency=concurrency,

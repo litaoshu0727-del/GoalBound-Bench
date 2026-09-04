@@ -1,0 +1,26 @@
+# Same randomized induced-prompt protocol as the verified DeepSeek Avg@16 run.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: anthropic/claude-haiku-4.5
+
+dataset: questions.v2.jsonl
+output: runs/openrouter-claude-haiku-4.5-randomized-induced/results.jsonl
+manifest: runs/openrouter-claude-haiku-4.5-randomized-induced/results.manifest.json
+timeout: 90
+temperature: 1.0
+require_parameters: true
+max_tokens: 512
+concurrency: 1
+samples_per_question: 16
+shuffle_options: true
+shuffle_seed: 20260831
+resume: true
+retry_errors: true
+max_attempts: 8
+backoff_initial_seconds: 5
+backoff_max_seconds: 60
+# OpenRouter currently caps this new account at 20 requests/minute for this model.
+# Keep a large safety margin because the provider enforces a rolling window.
+requests_per_second: 0.2
+case_sensitive: false
+overwrite: false

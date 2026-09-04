@@ -1,0 +1,27 @@
+# Same randomized induced-prompt protocol as the other temperature-compatible runs.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: x-ai/grok-4.6
+
+dataset: questions.v2.jsonl
+output: runs/openrouter-grok-4.6-randomized-induced-high-reasoning/results.jsonl
+manifest: runs/openrouter-grok-4.6-randomized-induced-high-reasoning/results.manifest.json
+timeout: 180
+temperature: 1.0
+# The model requires reasoning; record its current default effort explicitly.
+reasoning_effort: high
+require_parameters: true
+max_tokens: 1024
+concurrency: 4
+samples_per_question: 16
+shuffle_options: true
+shuffle_seed: 20260831
+resume: true
+retry_errors: true
+max_attempts: 8
+backoff_initial_seconds: 5
+backoff_max_seconds: 60
+# Stay below the account's observed 20 requests/minute model limit.
+requests_per_second: 0.2
+case_sensitive: false
+overwrite: false

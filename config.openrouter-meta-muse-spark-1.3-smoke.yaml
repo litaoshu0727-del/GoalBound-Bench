@@ -1,0 +1,24 @@
+# Low-cost connectivity, parameter, and response-format check before the full evaluation.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: meta/muse-spark-1.3
+
+dataset: examples/smoke_questions.jsonl
+output: runs/openrouter-meta-muse-spark-1.3-smoke-medium-reasoning-2048/results.jsonl
+manifest: runs/openrouter-meta-muse-spark-1.3-smoke-medium-reasoning-2048/results.manifest.json
+timeout: 180
+temperature: 1.0
+# The model requires reasoning; record its current default effort explicitly.
+reasoning_effort: medium
+require_parameters: true
+max_tokens: 2048
+concurrency: 1
+samples_per_question: 1
+resume: true
+retry_errors: true
+max_attempts: 4
+backoff_initial_seconds: 2
+backoff_max_seconds: 30
+requests_per_second: 0.2
+case_sensitive: false
+overwrite: false

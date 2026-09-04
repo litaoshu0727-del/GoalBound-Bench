@@ -165,6 +165,7 @@ def _eval(
         api_key=config.api_key,
         timeout=config.timeout,
         temperature=config.temperature,
+        reasoning_effort=config.reasoning_effort,
         require_parameters=config.require_parameters,
         max_tokens=config.max_tokens,
         system_prompt=config.system_prompt,

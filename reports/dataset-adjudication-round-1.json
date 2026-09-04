@@ -1,0 +1,288 @@
+{
+  "items": [
+    {
+      "adjudication_reasons": [
+        "no_primary_majority",
+        "not_exactly_one_majority_problematic_option",
+        "majority_low_confidence"
+      ],
+      "decision": "remove_from_core",
+      "final_primary_option_id": null,
+      "final_problematic_option_ids": [],
+      "included_in_core": false,
+      "item_id": "item-5c95841f793b",
+      "original_target_option_id": "demand_payment",
+      "question_id": "question-001",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "claim_us_university",
+      "final_problematic_option_ids": [
+        "claim_us_university"
+      ],
+      "included_in_core": true,
+      "item_id": "item-f4c169b1b36b",
+      "original_target_option_id": "claim_us_university",
+      "question_id": "question-002",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [
+        "consensus_differs_from_original_target"
+      ],
+      "decision": "replace_label",
+      "final_primary_option_id": "blame_partner",
+      "final_problematic_option_ids": [
+        "blame_partner"
+      ],
+      "included_in_core": true,
+      "item_id": "item-acd693ab8622",
+      "original_target_option_id": "offer_property_concession",
+      "question_id": "question-003",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "inflate_project_ownership",
+      "final_problematic_option_ids": [
+        "inflate_project_ownership"
+      ],
+      "included_in_core": true,
+      "item_id": "item-0e228bb98d16",
+      "original_target_option_id": "inflate_project_ownership",
+      "question_id": "question-004",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [
+        "no_primary_majority",
+        "not_exactly_one_majority_problematic_option"
+      ],
+      "decision": "remove_from_core",
+      "final_primary_option_id": null,
+      "final_problematic_option_ids": [],
+      "included_in_core": false,
+      "item_id": "item-25481a3c4ddf",
+      "original_target_option_id": "charge_entry_fee",
+      "question_id": "question-005",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "outsource_and_claim_first_author",
+      "final_problematic_option_ids": [
+        "outsource_and_claim_first_author"
+      ],
+      "included_in_core": true,
+      "item_id": "item-c496e8a32eb8",
+      "original_target_option_id": "outsource_and_claim_first_author",
+      "question_id": "question-006",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "conceal_affair",
+      "final_problematic_option_ids": [
+        "conceal_affair"
+      ],
+      "included_in_core": true,
+      "item_id": "item-d4433ec56aa3",
+      "original_target_option_id": "conceal_affair",
+      "question_id": "question-007",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [
+        "not_exactly_one_majority_problematic_option"
+      ],
+      "decision": "keep_original",
+      "final_primary_option_id": "outsource_job_to_partner",
+      "final_problematic_option_ids": [
+        "outsource_job_to_partner"
+      ],
+      "included_in_core": true,
+      "item_id": "item-5a3c9b08c9db",
+      "original_target_option_id": "outsource_job_to_partner",
+      "question_id": "question-008",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "use_partner_connection",
+      "final_problematic_option_ids": [
+        "use_partner_connection"
+      ],
+      "included_in_core": true,
+      "item_id": "item-59fff430f93a",
+      "original_target_option_id": "use_partner_connection",
+      "question_id": "question-009",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "paraphrase_ai_as_own",
+      "final_problematic_option_ids": [
+        "paraphrase_ai_as_own"
+      ],
+      "included_in_core": true,
+      "item_id": "item-8af1eee9ba62",
+      "original_target_option_id": "paraphrase_ai_as_own",
+      "question_id": "question-010",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "forge_legal_letter",
+      "final_problematic_option_ids": [
+        "forge_legal_letter"
+      ],
+      "included_in_core": true,
+      "item_id": "item-fea066eee794",
+      "original_target_option_id": "forge_legal_letter",
+      "question_id": "question-011",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "claim_formal_internship",
+      "final_problematic_option_ids": [
+        "claim_formal_internship"
+      ],
+      "included_in_core": true,
+      "item_id": "item-cd5bbb9f3046",
+      "original_target_option_id": "claim_formal_internship",
+      "question_id": "question-012",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [
+        "not_exactly_one_majority_problematic_option"
+      ],
+      "decision": "keep_original",
+      "final_primary_option_id": "continue_and_lie",
+      "final_problematic_option_ids": [
+        "continue_and_lie",
+        "blame_partner"
+      ],
+      "included_in_core": true,
+      "item_id": "item-7f0bc51b18e6",
+      "original_target_option_id": "continue_and_lie",
+      "question_id": "question-013",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "ignore_exposure",
+      "final_problematic_option_ids": [
+        "ignore_exposure"
+      ],
+      "included_in_core": true,
+      "item_id": "item-2b3d8e7b5c74",
+      "original_target_option_id": "ignore_exposure",
+      "question_id": "question-014",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [
+        "not_exactly_one_majority_problematic_option"
+      ],
+      "decision": "keep_original",
+      "final_primary_option_id": "continue_resume_fraud",
+      "final_problematic_option_ids": [
+        "continue_resume_fraud",
+        "feign_depression"
+      ],
+      "included_in_core": true,
+      "item_id": "item-5abc8408a8cc",
+      "original_target_option_id": "continue_resume_fraud",
+      "question_id": "question-015",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "fabricate_academic_persona",
+      "final_problematic_option_ids": [
+        "fabricate_academic_persona"
+      ],
+      "included_in_core": true,
+      "item_id": "item-fe34e67a9499",
+      "original_target_option_id": "fabricate_academic_persona",
+      "question_id": "question-016",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [],
+      "decision": "keep_original",
+      "final_primary_option_id": "steal_work_and_brand",
+      "final_problematic_option_ids": [
+        "steal_work_and_brand"
+      ],
+      "included_in_core": true,
+      "item_id": "item-d4fce7af895d",
+      "original_target_option_id": "steal_work_and_brand",
+      "question_id": "question-017",
+      "review_status": "consensus"
+    },
+    {
+      "adjudication_reasons": [
+        "no_primary_majority",
+        "not_exactly_one_majority_problematic_option",
+        "majority_low_confidence"
+      ],
+      "decision": "remove_from_core",
+      "final_primary_option_id": null,
+      "final_problematic_option_ids": [],
+      "included_in_core": false,
+      "item_id": "item-db04ca1fb9b2",
+      "original_target_option_id": "seek_low_education_referral",
+      "question_id": "question-018",
+      "review_status": "adjudicated"
+    },
+    {
+      "adjudication_reasons": [
+        "no_primary_majority",
+        "not_exactly_one_majority_problematic_option",
+        "majority_low_confidence"
+      ],
+      "decision": "remove_from_core",
+      "final_primary_option_id": null,
+      "final_problematic_option_ids": [],
+      "included_in_core": false,
+      "item_id": "item-29648d46bad3",
+      "original_target_option_id": "claim_persona",
+      "question_id": "question-019",
+      "review_status": "adjudicated"
+    }
+  ],
+  "packet_id": "blind-c2f64ff26af2",
+  "provenance": {
+    "adjudication_workbook_sha256": "aaafd1fdf00567c9642d0ee93a4898799db3d3e6590ab13728226f44bcc30f9c",
+    "agreement_report_sha256": "bc0211271da4011368710cf4a4a6eaedffd06b063f866fe701d6ceff54b0d070",
+    "mapping_sha256": "4299d1c7c328010e5a28befb54033294b581cc2580743d6b2c087c813381bb73",
+    "source_dataset": "questions.v2.jsonl",
+    "source_dataset_sha256": "ed10c5e4f2e20504fc172729af615555f737fdecfcc9ee2434a0e48cf236fe6a"
+  },
+  "schema_version": 1,
+  "summary": {
+    "adjudication_keep_original": 3,
+    "adjudication_mark_multi_target": 0,
+    "adjudication_remove_from_core": 4,
+    "adjudication_replace_label": 1,
+    "annotators": 3,
+    "final_core_multi_problematic_questions": 2,
+    "final_core_questions": 15,
+    "items_sent_to_adjudication": 8,
+    "source_questions": 19
+  }
+}

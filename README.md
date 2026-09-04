@@ -15,29 +15,45 @@ GoalBound-Bench 重点完善了可靠评测、结构化语义评分、选项位�
 
 - **可靠评测执行**：加入断点续跑、错误补跑、指数退避、全局限速、原子检查点和运行 manifest，
   降低网络故障与中断对实验结果的影响。
-- **结构化数据与语义评分**：新增 `questions.v2.jsonl`，以稳定语义选项 ID 取代对展示字母的依赖，
-  并保留旧数据格式兼容能力。
+- **结构化数据与语义评分**：以稳定语义选项 ID 取代对展示字母的依赖；`questions.v3.jsonl` 纳入
+  三人盲审和人工仲裁结果，并保留旧数据格式兼容能力。
 - **选项位置偏差控制**：实现确定性、位置平衡的选项随机化；评分时将展示字母映射回语义选项，
   支持固定顺序与随机顺序的对照分析。
 - **提示词与指标体系扩展**：支持自定义系统提示词及其哈希记录，提供诱导、自然、安全三类提示词对照，
   并区分严格统计口径与仅基于有效回答的行为统计口径。
-- **数据标签治理**：完成标签初审，并新增三人独立盲审、匿名资料包、响应校验、一致性统计和人工仲裁清单，
-  让题目标签能够被系统检查和持续改进。
+- **数据标签治理**：完成三人独立盲审和 8 道争议题的人工仲裁，从 19 道候选题形成 15 道核心题，
+  同时保存单一主要风险选项和全部问题选项。
 - **实验报告与自动化测试**：提供提示词对照、选项随机化和标签审计报告，并用自动化测试覆盖关键评测与标注流程。
 
 ## 当前已验证实验
 
-目前只完成了 DeepSeek V4 Flash 的正式评测。下表比较同一模型在三类提示词和两种选项顺序下的
-Target Choice Rate；在完成其他模型的同口径实验前，本仓库不发布多模型排行榜。
+已完成 12 个模型的同口径随机化诱导提示 Avg@16 运行。下表使用三人盲审及人工仲裁后的 15 道核心题
+复算；每个模型包含 240 个样本，没有重新调用模型 API。
 
-| 提示词条件 | 固定选项顺序 Avg@16 | 位置平衡随机化 Avg@16 |
-| --- | ---: | ---: |
-| 诱导 | 30.59% | 33.88% |
-| 中性 | 6.91% | 4.28% |
-| 安全 | 0.00% | 0.00% |
+![GoalBound-Bench 仲裁后 Avg@16 排行榜](reports/goalbound-bench-leaderboard-verified.png)
 
-实验设计、原始运行文件和局限性见[提示词对照实验报告](reports/deepseek-v4-flash-prompt-comparison.md)
-与[选项随机化实验报告](reports/deepseek-v4-flash-option-randomization.md)。
+图中的条形表示“任一问题选项选择率”，深色标记表示“主要目标选择率”；数值越高，表示模型越容易
+选择问题行为，并不代表模型表现更好。可下载 [SVG 矢量图](reports/goalbound-bench-leaderboard-verified.svg)
+或查看[可访问 HTML 源图](reports/goalbound-bench-leaderboard-verified.html)。
+
+| 排名 | 模型 | 主要目标选择率 | 任一问题选项选择率 |
+| ---: | --- | ---: | ---: |
+| 1 | Gemini 3.7 Flash | 82.50% | 89.17% |
+| 2 | Grok 4.6 | 51.25% | 51.25% |
+| 3 | Claude Opus 5 | 49.58% | 49.58% |
+| 4 | DeepSeek V4 Flash | 40.42% | 40.83% |
+| 5 | Tencent Hy4 Preview | 40.42% | 41.25% |
+| 6 | Seed 2.1 Turbo | 28.75% | 28.75% |
+| 7 | Qwen 3.8 Flash | 19.58% | 19.58% |
+| 8 | Kimi K3 | 18.33% | 18.33% |
+| 9 | MiniMax M3 | 8.75% | 8.75% |
+| 10 | GLM 5.3 Flash | 8.75% | 8.75% |
+| 11 | Meta Muse Spark 1.3 | 4.17% | 4.17% |
+| 12 | GPT-5.6 Sol | 0.00% | 0.00% |
+
+仲裁决定、复算方法、格式错误与解释限制见
+[第 1 轮盲审与仲裁结果](reports/dataset-adjudication-round-1.md)。完整机器可读结果见
+[`goalbound-bench-leaderboard-adjudicated.json`](reports/goalbound-bench-leaderboard-adjudicated.json)。
 
 ## 快速开始
 
@@ -92,6 +108,7 @@ output: results.jsonl
 manifest: results.manifest.json
 timeout: 60
 temperature: 1.0
+reasoning_effort: null
 require_parameters: false
 max_tokens: 8192
 concurrency: 64
@@ -113,6 +130,8 @@ overwrite: false
 - `system_prompt` 可覆盖默认诱导提示词；实际文本和 SHA-256 哈希会写入 manifest，
   续跑时也会校验，避免不同实验条件混入同一个结果文件。
 - `temperature: null` 表示不传温度，使用模型默认值。
+- `reasoning_effort` 可设为 `none`、`minimal`、`low`、`medium`、`high`、`xhigh`
+  或 `max`；`null` 表示不发送推理强度参数。实际值会写入 manifest 并在断点续跑时校验。
 - `concurrency` 控制测评并发数量。
 - `samples_per_question` 控制每道题的独立采样次数，指标会显示为对应的 `Avg@K`。
 - `resume: true` 会根据 `(question_id, sample_index)` 跳过已完成样本并补齐缺失样本。
@@ -227,8 +246,11 @@ uv run --no-sync sudo-bench eval config.avg16-safety.yaml
 ## 结构化数据与选项随机化
 
 原始 [questions.jsonl](questions.jsonl) 保留用于兼容历史运行和旧版结果格式；
-[questions.v2.jsonl](questions.v2.jsonl) 将题干、选项和目标语义拆开，并为每个选项分配稳定 ID。
-运行时即使 A/B/C/D 顺序发生变化，程序也会把展示字母映射回语义 ID 后评分。
+[questions.v2.jsonl](questions.v2.jsonl) 是包含 19 道候选题的结构化盲审来源；
+[questions.v3.jsonl](questions.v3.jsonl) 是经过三人盲审和人工仲裁后的 15 道核心题。结构化数据为每个
+选项分配稳定 ID，运行时即使 A/B/C/D 顺序发生变化，程序也会把展示字母映射回语义 ID 后评分。
+现有 `questions.v2.jsonl` 配置用于复现历史运行；新的正式运行应把配置中的 `dataset` 指向
+`questions.v3.jsonl`，并使用新的输出目录。
 
 以下三个配置使用相同随机种子和选项顺序，可用于下一轮提示词对照：
 
@@ -278,5 +300,9 @@ uv run sudo-bench annotation merge \
 [盲审标注指南](annotation/guidelines.md)，机器可读的回覆格式见
 [JSON Schema](annotation/response.schema.json)。所有 `annotation/generated/` 内容默认被 Git 忽略，
 避免误提交私有映射或标注者回覆。
+
+第 1 轮盲审已经完成：8 道题进入仲裁，3 道保留原标签、1 道替换标签、4 道移出核心集合，最终形成
+15 道题的 [questions.v3.jsonl](questions.v3.jsonl)。完整结果见
+[第 1 轮盲审与仲裁结果](reports/dataset-adjudication-round-1.md)。
 
 接入其他 OpenAI 兼容接口时，只需修改 `api_key`、`base_url` 和 `model`。

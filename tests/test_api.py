@@ -32,6 +32,7 @@ class ApiTests(unittest.TestCase):
             api_key="test-key",
             timeout=10,
             temperature=1.0,
+            reasoning_effort="low",
             require_parameters=True,
             max_tokens=8192,
             transport=transport,
@@ -44,6 +45,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(headers["Authorization"], "Bearer test-key")
         self.assertEqual(headers["User-Agent"], "sudo-bench/{}".format(__version__))
         self.assertEqual(body["temperature"], 1.0)
+        self.assertEqual(body["reasoning"], {"effort": "low"})
         self.assertEqual(body["provider"], {"require_parameters": True})
         self.assertEqual(body["max_tokens"], 8192)
         self.assertEqual(

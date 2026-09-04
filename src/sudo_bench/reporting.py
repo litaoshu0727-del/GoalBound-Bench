@@ -117,6 +117,7 @@ def validate_resume_manifest(manifest: Mapping[str, Any], config: EvalConfig) ->
     if isinstance(parameters, dict):
         expected = {
             "temperature": config.temperature,
+            "reasoning_effort": config.reasoning_effort,
             "require_parameters": config.require_parameters,
             "max_tokens": config.max_tokens,
             "samples_per_question": config.samples_per_question,
@@ -307,6 +308,7 @@ def build_run_manifest(
         "parameters": {
             "timeout": config.timeout,
             "temperature": config.temperature,
+            "reasoning_effort": config.reasoning_effort,
             "require_parameters": config.require_parameters,
             "max_tokens": config.max_tokens,
             "concurrency": config.concurrency,

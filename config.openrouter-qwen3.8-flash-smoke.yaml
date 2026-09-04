@@ -1,0 +1,23 @@
+# Low-cost connectivity and response-format check before the full evaluation.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: qwen/qwen3.8-flash
+
+dataset: examples/smoke_questions.jsonl
+output: runs/openrouter-qwen3.8-flash-smoke-default-reasoning/results.jsonl
+manifest: runs/openrouter-qwen3.8-flash-smoke-default-reasoning/results.manifest.json
+timeout: 120
+temperature: 1.0
+# Keep the model's default reasoning behavior for this run.
+require_parameters: true
+max_tokens: 1024
+concurrency: 1
+samples_per_question: 1
+resume: true
+retry_errors: true
+max_attempts: 4
+backoff_initial_seconds: 2
+backoff_max_seconds: 30
+requests_per_second: 0.5
+case_sensitive: false
+overwrite: false
