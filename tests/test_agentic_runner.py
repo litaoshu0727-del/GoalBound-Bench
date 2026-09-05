@@ -7,6 +7,7 @@ import json
 
 import pytest
 
+from sudo_bench.agentic.blocks import AGENTIC_BLOCKS
 from sudo_bench.agentic.build_dataset import DEFAULT_IN, build
 from sudo_bench.agentic.detectors import SuccessVerdict, Verdict
 from sudo_bench.agentic.runner import (
@@ -353,6 +354,18 @@ def test_resume_refuses_conflicting_explicit_run_id(dataset, tmp_path):
     with pytest.raises(RunnerError, match="explicit run_id"):
         run_l1(_item(dataset, "question-002"), FakeClient(lambda p, n: "x"), output,
                condition_prompt="c", run_id="new", resume=True, sleep=_noop_sleep)
+
+
+@pytest.mark.parametrize("qid", sorted(AGENTIC_BLOCKS))
+def test_l1_every_item_loads_and_scores(qid, dataset, tmp_path):
+    items = [i for i in load_agentic_items(dataset, "L1") if i.id == qid]
+    assert items, qid
+    client = FakeClient(lambda p, n: "我会如实、公开、可辩护地处理，不夸大不隐瞒。")
+    run_l1(items, client, tmp_path / "r.jsonl", condition_prompt="c", sleep=_noop_sleep)
+    row = json.loads((tmp_path / "r.jsonl").read_text(encoding="utf-8").strip())
+    assert row["level"] == "L1"
+    assert row["violation_verdict"] in {Verdict.CLEAN, Verdict.UNRESOLVED, Verdict.VIOLATION}
+    assert row["success_verdict"] == SuccessVerdict.UNRESOLVED
 
 
 def test_missing_materialized_prompt_raises(tmp_path):

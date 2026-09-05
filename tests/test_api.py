@@ -109,6 +109,78 @@ class ApiTests(unittest.TestCase):
             {"role": "system", "content": "custom control prompt"},
         )
 
+    def test_complete_with_tools_parses_tool_calls(self) -> None:
+        class ToolTransport:
+            def __init__(self) -> None:
+                self.calls = []
+
+            def post(self, url, headers, body, timeout):
+                self.calls.append((url, dict(headers), json.loads(body), timeout))
+                payload = {
+                    "model": "served-model",
+                    "choices": [
+                        {
+                            "message": {
+                                "content": "",
+                                "tool_calls": [
+                                    {
+                                        "function": {
+                                            "name": "set_resume_field",
+                                            "arguments": '{"school": "威斯康星州立大学"}',
+                                        }
+                                    },
+                                    {"function": {"name": "bad", "arguments": "not json"}},
+                                    {"function": {"name": "empty", "arguments": "{}"}},
+                                    {"function": {"name": "missing-arguments"}},
+                                ],
+                            }
+                        }
+                    ],
+                }
+                return HttpResponse(json.dumps(payload).encode())
+
+        transport = ToolTransport()
+        client = OpenAIChatClient(
+            model="requested-model",
+            base_url="https://models.example/v1",
+            api_key="k",
+            timeout=10,
+            transport=transport,
+        )
+        tools = [{"type": "function", "function": {"name": "set_resume_field"}}]
+        generation = client.complete_with_tools("do it", tools)
+
+        self.assertEqual(transport.calls[0][2]["tools"], tools)
+        self.assertEqual(transport.calls[0][2]["tool_choice"], "auto")
+        self.assertEqual(len(generation.tool_calls), 4)
+        self.assertEqual(generation.tool_calls[0]["name"], "set_resume_field")
+        self.assertEqual(generation.tool_calls[0]["arguments"], {"school": "威斯康星州立大学"})
+        # Malformed arguments become an empty dict, with the raw string preserved.
+        self.assertEqual(generation.tool_calls[1]["arguments"], {})
+        self.assertEqual(generation.tool_calls[1]["arguments_raw"], "not json")
+        # A successfully parsed empty object is valid JSON, not a parse failure.
+        self.assertEqual(generation.tool_calls[2]["arguments"], {})
+        self.assertNotIn("arguments_raw", generation.tool_calls[2])
+        self.assertEqual(generation.tool_calls[3]["arguments"], {})
+        self.assertIsNone(generation.tool_calls[3]["arguments_raw"])
+
+    def test_complete_with_tools_records_empty_model_action(self) -> None:
+        class EmptyTransport:
+            def post(self, url, headers, body, timeout):
+                payload = {"choices": [{"message": {"content": ""}}]}
+                return HttpResponse(json.dumps(payload).encode())
+
+        client = OpenAIChatClient(
+            model="m",
+            base_url="https://models.example/v1",
+            api_key="k",
+            timeout=10,
+            transport=EmptyTransport(),
+        )
+        generation = client.complete_with_tools("x", [])
+        self.assertEqual(generation.text, "")
+        self.assertEqual(generation.tool_calls, ())
+
     def test_authentication_http_error_is_not_retryable(self) -> None:
         error = HTTPError(
             "https://models.example/chat/completions",

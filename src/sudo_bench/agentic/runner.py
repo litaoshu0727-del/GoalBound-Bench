@@ -43,7 +43,7 @@ ResultKey = Tuple[str, int]
 
 # Bump when the result-row schema or scoring semantics change, so a resume onto an
 # older run is refused rather than silently mixed.
-RUNNER_VERSION = "2"
+RUNNER_VERSION = "3"
 
 
 class RunnerError(Exception):
@@ -55,10 +55,12 @@ class AgenticItem:
     id: str
     block: Mapping[str, Any]
     prompt: str
+    tools: Tuple[Mapping[str, Any], ...] = ()  # L2 function-tool schemas (empty for L1)
 
 
 class CompletionClient:
-    """Structural type: anything with ``.model`` and ``.complete(prompt)``."""
+    """Structural type: ``.model`` plus ``.complete(prompt)`` (L1) and, for L2,
+    ``.complete_with_tools(prompt, tools)``."""
 
     model: str
 
@@ -98,9 +100,15 @@ def load_agentic_items(dataset: Path, level: str = "L1") -> List[AgenticItem]:
         if qid in seen:
             raise RunnerError("{}: duplicate question id {!r}".format(dataset, qid))
         seen.add(qid)
-        items.append(AgenticItem(id=qid, block=block, prompt=prompt))
+        tools: Tuple[Mapping[str, Any], ...] = ()
+        if level == "L2":
+            raw_tools = block.get("l2_tools")
+            if not isinstance(raw_tools, list) or not raw_tools:
+                raise RunnerError("{}: {} has no l2_tools for L2".format(dataset, qid))
+            tools = tuple(raw_tools)
+        items.append(AgenticItem(id=qid, block=block, prompt=prompt, tools=tools))
     if not items:
-        raise RunnerError("no L1-supported items found in {}".format(dataset))
+        raise RunnerError("no {}-supported items found in {}".format(level, dataset))
     return items
 
 
@@ -153,14 +161,15 @@ def run_signature(
     samples_per_question: int,
     items: Sequence[AgenticItem],
     generation_config: Optional[Mapping[str, Any]] = None,
+    level: str = "L1",
 ) -> Dict[str, Any]:
     """A fingerprint of everything that must match for a resume to be valid."""
 
     request_config = dict(generation_config or {"model": model})
     return {
-        "component": "agentic-l1-runner",
+        "component": "agentic-{}-runner".format(level.lower()),
         "runner_version": RUNNER_VERSION,
-        "level": "L1",
+        "level": level,
         "model": model,
         "generation_config": request_config,
         "generation_config_sha256": canonical_sha256(request_config),
@@ -249,6 +258,11 @@ def _assert_resume_compatible(
                     "or a fresh output path".format(key, prior.get(key), signature.get(key))
                 )
     for (_qid, idx), row in existing.items():
+        if row.get("level") not in (None, signature["level"]):
+            raise RunnerError(
+                "resume refused: existing results are level {!r}, current run is {!r}; "
+                "use overwrite or a fresh output path".format(row.get("level"), signature["level"])
+            )
         if row.get("model") not in (None, signature["model"]):
             raise RunnerError(
                 "resume refused: existing results use model {!r}, current run is {!r}; "
@@ -285,6 +299,77 @@ def _write_signature_manifest(
 # ----------------------------------------------------------------- evaluation
 
 
+def _matches_json_type(value: Any, expected: Any) -> bool:
+    if isinstance(expected, list):
+        return any(_matches_json_type(value, item) for item in expected)
+    checks = {
+        "string": lambda v: isinstance(v, str),
+        "boolean": lambda v: isinstance(v, bool),
+        "integer": lambda v: isinstance(v, int) and not isinstance(v, bool),
+        "number": lambda v: isinstance(v, (int, float)) and not isinstance(v, bool),
+        "object": lambda v: isinstance(v, Mapping),
+        "array": lambda v: isinstance(v, list),
+        "null": lambda v: v is None,
+    }
+    check = checks.get(expected)
+    return True if check is None else check(value)
+
+
+def _tool_schema_errors(
+    tool_calls: Sequence[Mapping[str, Any]], tools: Sequence[Mapping[str, Any]]
+) -> List[str]:
+    """Validate model tool calls against the exact schemas offered for the item."""
+
+    schemas: Dict[str, Mapping[str, Any]] = {}
+    for tool in tools:
+        function = tool.get("function") if isinstance(tool, Mapping) else None
+        if isinstance(function, Mapping) and isinstance(function.get("name"), str):
+            schemas[function["name"]] = function.get("parameters", {})
+
+    errors: List[str] = []
+    for index, call in enumerate(tool_calls):
+        if not isinstance(call, Mapping):
+            errors.append("call[{}]:not_an_object".format(index))
+            continue
+        name = call.get("name")
+        if name not in schemas:
+            errors.append("call[{}].name:unknown:{!r}".format(index, name))
+            continue
+        if "arguments_raw" in call:
+            errors.append("call[{}].arguments:parse_error".format(index))
+            continue
+        arguments = call.get("arguments")
+        if not isinstance(arguments, Mapping):
+            errors.append("call[{}].arguments:not_an_object".format(index))
+            continue
+
+        schema = schemas[name]
+        properties = schema.get("properties", {})
+        required = schema.get("required", [])
+        for field_name in required if isinstance(required, list) else []:
+            if field_name not in arguments:
+                errors.append(
+                    "call[{}].arguments:missing_required:{}".format(index, field_name)
+                )
+        if isinstance(properties, Mapping):
+            if schema.get("additionalProperties") is False:
+                for field_name in sorted(set(arguments) - set(properties)):
+                    errors.append(
+                        "call[{}].arguments:unexpected:{}".format(index, field_name)
+                    )
+            for field_name, value in arguments.items():
+                field_schema = properties.get(field_name)
+                if isinstance(field_schema, Mapping) and not _matches_json_type(
+                    value, field_schema.get("type")
+                ):
+                    errors.append(
+                        "call[{}].arguments.{}:expected_{}".format(
+                            index, field_name, field_schema.get("type")
+                        )
+                    )
+    return errors
+
+
 def _score_row(
     item: AgenticItem,
     sample_index: int,
@@ -294,12 +379,49 @@ def _score_row(
     requested_model: str,
     attempts: int,
     generation: Generation,
+    level: str,
 ) -> Dict[str, Any]:
-    evaluation = evaluate_agentic(item.block, "L1", output_text=generation.text, item_id=item.id)
+    # Pass both axes of evidence; evaluate_agentic uses whichever the level's
+    # channels reference (output text for L1, tool-call args for L2).
+    evaluation = evaluate_agentic(
+        item.block,
+        level,
+        output_text=generation.text,
+        tool_calls=generation.tool_calls,
+        item_id=item.id,
+    )
+    violation_verdict = evaluation.violation.verdict
+
+    # L2 evidence integrity: the structured detectors only inspect *parseable* tool
+    # arguments. A detector CLEAN cannot be trusted when part of the evidence was
+    # not structurally scored, so escalate CLEAN -> UNRESOLVED (send it to the
+    # judge, which sees the raw evidence) in two cases:
+    #   - a tool call whose arguments failed to parse (arguments_raw present), or
+    #   - the model answered in free-text prose that the L2 detectors never read.
+    tool_format_errors = (
+        _tool_schema_errors(generation.tool_calls, item.tools) if level == "L2" else []
+    )
+    tool_format_ok = not tool_format_errors
+    uninspected_prose = level == "L2" and bool((generation.text or "").strip())
+    score_note: Optional[str] = None
+    if level == "L2":
+        if not tool_format_ok:
+            score_note = (
+                "tool_args_parse_failure"
+                if any("parse_error" in error for error in tool_format_errors)
+                else "tool_schema_validation_failure"
+            )
+            if violation_verdict == Verdict.CLEAN:
+                violation_verdict = Verdict.UNRESOLVED
+        elif uninspected_prose and violation_verdict == Verdict.CLEAN:
+            violation_verdict = Verdict.UNRESOLVED
+            score_note = "uninspected_prose_in_l2"
+
+    needs_judge = evaluation.needs_judge or violation_verdict == Verdict.UNRESOLVED
     return {
         "id": item.id,
         "sample_index": sample_index,
-        "level": "L1",
+        "level": level,
         "run_id": run_id,
         # `model` is the *requested* id (deterministic, used for resume identity);
         # `returned_model` is whatever the provider echoed back (informational).
@@ -310,9 +432,15 @@ def _score_row(
         "attempt_count": attempts,
         "error": None,
         "output": generation.text,
-        "violation_verdict": evaluation.violation.verdict,
+        "tool_calls": [dict(call) for call in generation.tool_calls],
+        "tool_format_ok": tool_format_ok,
+        "tool_format_errors": tool_format_errors,
+        "score_note": score_note,
+        "violation_verdict": violation_verdict,
         "success_verdict": evaluation.success.verdict,
-        "needs_judge": evaluation.needs_judge,
+        "needs_judge": needs_judge,
+        # `evaluation` keeps the RAW detector output; `violation_verdict` above may
+        # have been escalated to UNRESOLVED for evidence-integrity reasons.
         "evaluation": evaluation.to_dict(),
         "usage": dict(generation.usage),
     }
@@ -327,12 +455,13 @@ def _error_row(
     model: str,
     attempts: int,
     exc: Exception,
+    level: str,
 ) -> Dict[str, Any]:
     info = classify_exception(exc)
     return {
         "id": item.id,
         "sample_index": sample_index,
-        "level": "L1",
+        "level": level,
         "run_id": run_id,
         "model": model,
         "condition_prompt_sha256": condition_sha,
@@ -349,6 +478,12 @@ def _error_row(
     }
 
 
+def _call_model(client: CompletionClient, item: AgenticItem, level: str) -> Generation:
+    if level == "L2":
+        return client.complete_with_tools(item.prompt, item.tools)
+    return client.complete(item.prompt)
+
+
 def _run_one(
     item: AgenticItem,
     sample_index: int,
@@ -361,12 +496,13 @@ def _run_one(
     backoff_max_seconds: float,
     limiter: RateLimiter,
     sleep: Callable[[float], None],
+    level: str,
 ) -> Dict[str, Any]:
     last_exc: Optional[Exception] = None
     for local_attempt in range(1, max_attempts + 1):
         limiter.acquire()
         try:
-            generation = client.complete(item.prompt)
+            generation = _call_model(client, item, level)
         except Exception as exc:  # noqa: BLE001 - classified below
             last_exc = exc
             info = classify_exception(exc)
@@ -386,6 +522,7 @@ def _run_one(
                 client.model,
                 local_attempt,
                 exc,
+                level,
             )
         return _score_row(
             item,
@@ -396,6 +533,7 @@ def _run_one(
             client.model,
             local_attempt,
             generation,
+            level,
         )
     # Unreachable in practice; keeps the type checker happy.
     assert last_exc is not None
@@ -408,13 +546,15 @@ def _run_one(
         client.model,
         max_attempts,
         last_exc,
+        level,
     )
 
 
 # --------------------------------------------------------------------- driver
 
 
-def run_l1(
+def _run_level(
+    level: str,
     items: Sequence[AgenticItem],
     client: CompletionClient,
     output: Path,
@@ -450,6 +590,7 @@ def run_l1(
         samples_per_question,
         items,
         generation_config=generation_config,
+        level=level,
     )
     order = {item.id: index for index, item in enumerate(items)}
 
@@ -520,6 +661,7 @@ def run_l1(
                 backoff_max_seconds,
                 limiter,
                 sleep,
+                level,
             ): (item.id, sample_index)
             for item, sample_index in jobs
         }
@@ -537,12 +679,39 @@ def run_l1(
     summary.update(
         {
             "run_id": run_id,
+            "level": level,
             "condition_prompt_sha256": condition_sha,
             "model": client.model,
             "signature": signature,
         }
     )
     return summary
+
+
+def run_l1(
+    items: Sequence[AgenticItem],
+    client: CompletionClient,
+    output: Path,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    """L1 open-ended run (free-text output scored by the detector engine)."""
+
+    return _run_level("L1", items, client, output, **kwargs)
+
+
+def run_l2(
+    items: Sequence[AgenticItem],
+    client: CompletionClient,
+    output: Path,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    """L2 single-turn tool-calling run (tool-call args scored by the detector engine).
+
+    The client must implement ``complete_with_tools(prompt, tools)``; each item's
+    ``tools`` come from its ``l2_tools`` schema.
+    """
+
+    return _run_level("L2", items, client, output, **kwargs)
 
 
 def summarize(
@@ -604,7 +773,8 @@ def write_manifest(manifest: Path, summary: Mapping[str, Any], dataset: Path, le
 def _print_summary(summary: Mapping[str, Any]) -> None:
     overall = summary["overall"]
     print(
-        "L1 run {} | model={} | items={} | samples/q={}".format(
+        "{} run {} | model={} | items={} | samples/q={}".format(
+            summary.get("level", "L1"),
             summary.get("run_id", "?")[:8],
             summary.get("model"),
             summary["items"],
@@ -630,14 +800,19 @@ def _print_summary(summary: Mapping[str, Any]) -> None:
 def main(argv: Optional[List[str]] = None) -> int:
     from sudo_bench.benchmark import load_config  # local import to avoid heavy import cost
 
-    parser = argparse.ArgumentParser(description="Run the L1 open-ended agentic evaluation.")
+    parser = argparse.ArgumentParser(
+        description="Run the open-ended (L1) / tool-calling (L2) agentic evaluation."
+    )
     parser.add_argument(
         "config", type=Path, help="YAML eval config (dataset must be the agentic JSONL)"
+    )
+    parser.add_argument(
+        "--level", choices=["L1", "L2"], default="L1", help="L1 free-text (default) or L2 tools"
     )
     args = parser.parse_args(argv)
 
     config = load_config(args.config)
-    items = load_agentic_items(config.dataset, level="L1")
+    items = load_agentic_items(config.dataset, level=args.level)
     client = OpenAIChatClient(
         model=config.model,
         base_url=config.base_url,
@@ -653,7 +828,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     def _progress(done: int, total: int) -> None:
         print("  {}/{} samples".format(done, total), end="\r", file=sys.stderr)
 
-    summary = run_l1(
+    runner = run_l2 if args.level == "L2" else run_l1
+    summary = runner(
         items,
         client,
         config.output,
@@ -671,7 +847,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         progress=_progress,
     )
     print(file=sys.stderr)
-    write_manifest(config.manifest, summary, config.dataset, "L1")
+    write_manifest(config.manifest, summary, config.dataset, args.level)
     _print_summary(summary)
     return 0
 

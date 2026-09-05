@@ -4,7 +4,7 @@ import socket
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any, Dict, List, Mapping, Optional, Protocol
+from typing import Any, Dict, List, Mapping, Optional, Protocol, Sequence, Tuple
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
@@ -44,6 +44,8 @@ class Generation:
     text: str
     model: str
     usage: Mapping[str, Any] = field(default_factory=dict)
+    # Populated only by complete_with_tools (L2); each item is {"name", "arguments"}.
+    tool_calls: Tuple[Mapping[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -140,6 +142,47 @@ def _error_message(body_text: str) -> str:
         if isinstance(error, str):
             return error[:500]
     return body_text.strip()[:500] or "unknown error"
+
+
+def _parse_tool_calls(raw: Any) -> List[Dict[str, Any]]:
+    """Parse an OpenAI ``tool_calls`` array into [{"name", "arguments"}, ...].
+
+    ``arguments`` is a JSON string per the OpenAI spec; malformed arguments become
+    an empty dict (a model-formatting failure, not retried), with the raw string
+    kept under ``arguments_raw`` for auditing.
+    """
+
+    calls: List[Dict[str, Any]] = []
+    if not isinstance(raw, list):
+        return calls
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        function = item.get("function")
+        if not isinstance(function, dict):
+            continue
+        name = function.get("name")
+        if not isinstance(name, str) or not name:
+            continue
+        args_raw = function.get("arguments")
+        arguments: Dict[str, Any] = {}
+        parse_ok = False
+        if isinstance(args_raw, dict):
+            arguments = args_raw
+            parse_ok = True
+        elif isinstance(args_raw, str):
+            try:
+                parsed = json.loads(args_raw)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, dict):
+                arguments = parsed
+                parse_ok = True
+        call: Dict[str, Any] = {"name": name, "arguments": arguments}
+        if not parse_ok:
+            call["arguments_raw"] = args_raw
+        calls.append(call)
+    return calls
 
 
 def _content_text(content: Any) -> str:
@@ -280,4 +323,85 @@ class OpenAIChatClient:
             text=text,
             model=returned_model if isinstance(returned_model, str) else self.model,
             usage=usage if isinstance(usage, dict) else {},
+        )
+
+    def complete_with_tools(
+        self, prompt: str, tools: Sequence[Mapping[str, Any]]
+    ) -> Generation:
+        """Single-turn tool-calling completion (L2).
+
+        Sends ``tools`` and returns the assistant's tool calls parsed into
+        ``Generation.tool_calls`` (a tuple of {"name", "arguments"} dicts). Unlike
+        ``complete``, an empty text body is fine as long as at least one tool call
+        is present — that is the expected shape for L2.
+        """
+
+        payload: Dict[str, Any] = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": self._system_prompt},
+                {"role": "user", "content": prompt},
+            ],
+            "tools": list(tools),
+            "tool_choice": "auto",
+        }
+        if self._temperature is not None:
+            payload["temperature"] = self._temperature
+        if self._reasoning_effort is not None:
+            payload["reasoning"] = {"effort": self._reasoning_effort}
+        if self._require_parameters:
+            payload["provider"] = {"require_parameters": True}
+        if self._max_tokens is not None:
+            payload["max_tokens"] = self._max_tokens
+        headers: Dict[str, str] = {
+            "Content-Type": "application/json",
+            "User-Agent": "sudo-bench/{}".format(__version__),
+        }
+        if self._api_key:
+            headers["Authorization"] = "Bearer {}".format(self._api_key)
+
+        response = self._transport.post(
+            self._endpoint,
+            headers,
+            json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            self._timeout,
+        )
+        try:
+            data = json.loads(response.body.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise ApiError(
+                "model endpoint returned invalid JSON",
+                category="response_error",
+                retryable=True,
+            ) from exc
+        if not isinstance(data, dict):
+            raise ApiError(
+                "model endpoint returned a non-object JSON response",
+                category="response_error",
+                retryable=True,
+            )
+        choices = data.get("choices")
+        if not isinstance(choices, list) or not choices:
+            raise ApiError(
+                "model endpoint returned no choices",
+                category="response_error",
+                retryable=True,
+            )
+        choice = choices[0]
+        if not isinstance(choice, dict) or not isinstance(choice.get("message"), dict):
+            raise ApiError(
+                "model endpoint returned an invalid choice",
+                category="response_error",
+                retryable=True,
+            )
+        message = choice["message"]
+        text = _content_text(message.get("content"))
+        tool_calls = _parse_tool_calls(message.get("tool_calls"))
+        returned_model = data.get("model")
+        usage = data.get("usage")
+        return Generation(
+            text=text,
+            model=returned_model if isinstance(returned_model, str) else self.model,
+            usage=usage if isinstance(usage, dict) else {},
+            tool_calls=tuple(tool_calls),
         )

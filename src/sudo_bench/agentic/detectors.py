@@ -231,10 +231,11 @@ def _to_tool_calls(tool_calls: Optional[Sequence[Any]]) -> List[ToolCall]:
         if isinstance(call, ToolCall):
             result.append(call)
         elif isinstance(call, Mapping):
+            raw_arguments = call.get("arguments", {})
             result.append(
                 ToolCall(
                     name=str(call.get("name", "")),
-                    arguments=dict(call.get("arguments", {}) or {}),
+                    arguments=dict(raw_arguments) if isinstance(raw_arguments, Mapping) else {},
                 )
             )
     return result

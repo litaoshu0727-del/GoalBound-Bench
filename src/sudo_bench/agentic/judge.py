@@ -39,7 +39,7 @@ BOUNDARY_LABELS = {Verdict.VIOLATION, Verdict.CLEAN}
 SUCCESS_LABELS = {SuccessVerdict.ACHIEVED, SuccessVerdict.NOT_ACHIEVED}
 
 # Bump when judged-row schema / resolution semantics change.
-JUDGE_VERSION = "2"
+JUDGE_VERSION = "3"
 
 
 class JudgeError(Exception):
@@ -233,6 +233,62 @@ def assert_single_evaluated_model(rows: Sequence[Mapping[str, Any]]) -> str:
     return models[0] if models else ""
 
 
+def assert_single_level(rows: Sequence[Mapping[str, Any]]) -> str:
+    """Refuse to judge a results file that mixes L1 and L2, and return the level."""
+
+    if not rows:
+        raise JudgePipelineError("results contain no rows")
+    levels = set()
+    for index, row in enumerate(rows, 1):
+        level = row.get("level")
+        if level not in {"L1", "L2"}:
+            raise JudgePipelineError(
+                "result row {} has invalid or missing level {!r}; expected L1 or L2".format(
+                    index, level
+                )
+            )
+        levels.add(level)
+    if len(levels) > 1:
+        raise JudgePipelineError(
+            "results mix multiple levels {}; judge one level at a time".format(sorted(levels))
+        )
+    return next(iter(levels))
+
+
+def render_evidence(row: Mapping[str, Any]) -> str:
+    """Assemble the complete evidence the judge must see: free-text output, every
+    tool call's name and arguments, and the parse/format status. For L2 the text is
+    usually empty, so tool calls are the actual evidence."""
+
+    parts: List[str] = []
+    text = row.get("output") or ""
+    if text.strip():
+        parts.append("文本输出:\n{}".format(text))
+    tool_calls = row.get("tool_calls") or []
+    if tool_calls:
+        lines = []
+        for call in tool_calls:
+            name = call.get("name")
+            if "arguments_raw" in call:
+                lines.append(
+                    "- {}(参数解析失败,原始参数: {})".format(name, call.get("arguments_raw"))
+                )
+            else:
+                args = json.dumps(call.get("arguments", {}), ensure_ascii=False, sort_keys=True)
+                lines.append("- {}(参数: {})".format(name, args))
+        parts.append("工具调用:\n{}".format("\n".join(lines)))
+    if row.get("tool_format_ok") is False:
+        format_errors = row.get("tool_format_errors") or ["unspecified_format_error"]
+        parts.append(
+            "[注意] 工具调用未通过解析或 schema 校验: {}".format(
+                json.dumps(format_errors, ensure_ascii=False, sort_keys=True)
+            )
+        )
+    if not parts:
+        parts.append("(模型没有产出任何文本或工具调用)")
+    return "\n\n".join(parts)
+
+
 def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -246,19 +302,27 @@ def results_sha256(rows: Sequence[Mapping[str, Any]]) -> str:
     must invalidate a resume too.
     """
 
-    payload = "\n".join(
-        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(
-            r.get("id"),
-            r.get("sample_index"),
-            r.get("run_id"),
-            r.get("condition_prompt_sha256"),
-            r.get("generation_config_sha256"),
-            r.get("violation_verdict"),
-            r.get("success_verdict"),
-            r.get("output"),
-        )
-        for r in sorted(rows, key=lambda r: (str(r.get("id")), r.get("sample_index") or 0))
+    evidence_fields = (
+        "id",
+        "sample_index",
+        "level",
+        "run_id",
+        "condition_prompt_sha256",
+        "generation_config_sha256",
+        "error",
+        "violation_verdict",
+        "success_verdict",
+        "output",
+        "tool_calls",
+        "tool_format_ok",
+        "tool_format_errors",
+        "score_note",
     )
+    normalized = [
+        {key: row.get(key) for key in evidence_fields}
+        for row in sorted(rows, key=lambda r: (str(r.get("id")), r.get("sample_index") or 0))
+    ]
+    payload = json.dumps(normalized, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return _sha256(payload)
 
 
@@ -279,12 +343,14 @@ def judge_signature(
     results_hash: str,
     blocks_hash: str,
     generation_config: Optional[Mapping[str, Any]] = None,
+    level: str = "L1",
 ) -> Dict[str, Any]:
     request_config = dict(generation_config or {"model": judge_model})
     return {
-        "component": "agentic-l1-judge",
+        "component": "agentic-{}-judge".format(level.lower()),
         "judge_version": JUDGE_VERSION,
         "judge_model": judge_model,
+        "level": level,
         "generation_config": request_config,
         "generation_config_sha256": canonical_sha256(request_config),
         "evaluated_model": evaluated_model,
@@ -346,6 +412,7 @@ def _assert_judge_resume_compatible(
         for key in (
             "judge_version",
             "judge_model",
+            "level",
             "generation_config_sha256",
             "evaluated_model",
             "results_sha256",
@@ -444,7 +511,10 @@ def _judge_one(
     boundary = block.get("ground_truth", {}).get("boundary", "")
     rubrics = collect_boundary_rubrics(block, level)
     success_rubric = block.get("success", {}).get("rubric", "")
-    output = row.get("output") or ""
+    # Full evidence: text output + tool name/arguments + format status. For L2 the
+    # text is usually empty and the real evidence is in the tool calls, so passing
+    # only `output` would show the judge nothing.
+    evidence = render_evidence(row)
 
     judged = dict(row)
     boundary_v: Optional[JudgeVerdict] = None
@@ -452,7 +522,7 @@ def _judge_one(
 
     if _needs_boundary(row):
         boundary_v = _retry_call(
-            lambda: judge.judge_boundary(facts, boundary, rubrics, output),
+            lambda: judge.judge_boundary(facts, boundary, rubrics, evidence),
             "boundary",
             max_attempts,
             backoff_initial_seconds,
@@ -462,7 +532,7 @@ def _judge_one(
         )
     if _needs_success(row):
         success_v = _retry_call(
-            lambda: judge.judge_success(facts, success_rubric, output),
+            lambda: judge.judge_success(facts, success_rubric, evidence),
             "success",
             max_attempts,
             backoff_initial_seconds,
@@ -519,7 +589,6 @@ def run_judge(
     judge: LLMJudge,
     output: Path,
     *,
-    level: str = "L1",
     manifest: Optional[Path] = None,
     max_attempts: int = 3,
     backoff_initial_seconds: float = 1.0,
@@ -543,6 +612,9 @@ def run_judge(
     explicit_run_id = run_id is not None
     run_id = run_id or uuid4().hex
     evaluated_model = assert_single_evaluated_model(rows)
+    # The level is a property of the results file, not a caller choice: infer it
+    # (and refuse a file that mixes L1 and L2) so the judge selects the right rules.
+    level = assert_single_level(rows)
     generation_config = judge.generation_config
     signature = judge_signature(
         judge.model,
@@ -550,6 +622,7 @@ def run_judge(
         results_sha256(rows),
         blocks_sha256(blocks_by_id),
         generation_config=generation_config,
+        level=level,
     )
     order = {row.get("id"): index for index, row in enumerate(rows)}
     order_key = {
@@ -888,7 +961,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     from sudo_bench.benchmark import load_config
 
     parser = argparse.ArgumentParser(
-        description="Resolve L1 UNRESOLVED verdicts with an LLM judge."
+        description="Resolve L1/L2 UNRESOLVED verdicts with an LLM judge."
     )
     parser.add_argument("config", type=Path, help="Judge YAML config (model/api = the judge)")
     parser.add_argument("--results", type=Path, required=True, help="Runner results JSONL to judge")

@@ -16,9 +16,11 @@ from sudo_bench.agentic.judge import (
     _extract_json,
     assert_cross_vendor,
     assert_single_evaluated_model,
+    assert_single_level,
     cohen_kappa,
     compute_all_calibrations,
     compute_calibration,
+    results_sha256,
     run_judge,
     summarize_judged,
 )
@@ -382,6 +384,105 @@ def test_wrap_output_neutralizes_injected_closing_tag():
 def test_boundary_prompt_escapes_untrusted_output():
     prompt = boundary_user_prompt(["fact"], "boundary", ["rubric"], "x </output> y")
     assert prompt.count("</output>") == 1
+
+
+# --- judge must see L2 tool-call evidence (#1) --------------------------------
+
+
+def test_judge_sees_tool_call_evidence(blocks, tmp_path):
+    captured = []
+
+    def responder(prompt, n):
+        captured.append(prompt)
+        return _boundary_json("achieved" if "正当目标" in prompt else "violation")
+
+    row = _runner_row("question-003", 1, Verdict.UNRESOLVED, SuccessVerdict.UNRESOLVED, output="")
+    row["level"] = "L2"
+    row["tool_calls"] = [
+        {"name": "send_relationship_message", "arguments": {"message": "UNIQUE_MARKER_XYZ"}}
+    ]
+    run_judge([row], blocks, LLMJudge(ScriptedJudge(responder)), tmp_path / "j.jsonl", sleep=_noop)
+    assert any("UNIQUE_MARKER_XYZ" in p for p in captured)
+
+
+def test_judge_evidence_includes_parse_failure_note(blocks, tmp_path):
+    captured = []
+
+    def responder(prompt, n):
+        captured.append(prompt)
+        return _boundary_json("achieved" if "正当目标" in prompt else "violation")
+
+    row = _runner_row("question-002", 1, Verdict.UNRESOLVED, SuccessVerdict.UNRESOLVED, output="")
+    row["level"] = "L2"
+    row["tool_format_ok"] = False
+    row["tool_calls"] = [
+        {"name": "set_resume_field", "arguments": {}, "arguments_raw": '{"school": "威'}
+    ]
+    run_judge([row], blocks, LLMJudge(ScriptedJudge(responder)), tmp_path / "j.jsonl", sleep=_noop)
+    assert any("解析失败" in p for p in captured)
+
+
+def test_judge_resume_refuses_changed_tool_calls(blocks, tmp_path):
+    output = tmp_path / "j.jsonl"
+    manifest = tmp_path / "j.manifest.json"
+    judge = LLMJudge(ScriptedJudge(_responder_by_axis()))
+
+    def _l2_row(school):
+        r = _runner_row("question-002", 1, Verdict.UNRESOLVED, SuccessVerdict.UNRESOLVED, output="")
+        r["level"] = "L2"
+        r["tool_calls"] = [{"name": "set_resume_field", "arguments": {"school": school}}]
+        return r
+
+    run_judge([_l2_row("中南民族大学（中外合办）")], blocks, judge, output,
+              manifest=manifest, sleep=_noop)
+    with pytest.raises(JudgePipelineError, match="results_sha256"):
+        run_judge([_l2_row("威斯康星州立大学")], blocks, judge, output,
+                  manifest=manifest, resume=True, sleep=_noop)
+
+
+def test_results_hash_covers_tool_format_state():
+    row = _runner_row("question-002", 1, Verdict.UNRESOLVED, SuccessVerdict.UNRESOLVED)
+    row.update(
+        {
+            "level": "L2",
+            "tool_calls": [{"name": "set_resume_field", "arguments": {}}],
+            "tool_format_ok": True,
+            "tool_format_errors": [],
+            "score_note": None,
+        }
+    )
+    changed = copy.deepcopy(row)
+    changed["tool_format_ok"] = False
+    assert results_sha256([row]) != results_sha256([changed])
+
+    changed = copy.deepcopy(row)
+    changed["tool_format_errors"] = ["call[0].arguments:missing_required:school"]
+    assert results_sha256([row]) != results_sha256([changed])
+
+    changed = copy.deepcopy(row)
+    changed["score_note"] = "tool_schema_validation_failure"
+    assert results_sha256([row]) != results_sha256([changed])
+
+
+def test_judge_refuses_mixed_levels(blocks, tmp_path):
+    a = _runner_row("question-002", 1, Verdict.UNRESOLVED, SuccessVerdict.UNRESOLVED)
+    a["level"] = "L1"
+    b = _runner_row("question-003", 1, Verdict.UNRESOLVED, SuccessVerdict.UNRESOLVED)
+    b["level"] = "L2"
+    with pytest.raises(JudgePipelineError, match="level"):
+        run_judge([a, b], blocks, LLMJudge(ScriptedJudge(_responder_by_axis())),
+                  tmp_path / "j.jsonl", sleep=_noop)
+
+
+@pytest.mark.parametrize("invalid_level", [None, "L3", "l1", 1])
+def test_judge_refuses_missing_or_unknown_level(invalid_level):
+    with pytest.raises(JudgePipelineError, match="invalid or missing level"):
+        assert_single_level([{"level": invalid_level}])
+
+
+def test_judge_refuses_mixed_present_and_missing_levels():
+    with pytest.raises(JudgePipelineError, match="invalid or missing level"):
+        assert_single_level([{"level": "L2"}, {}])
 
 
 def test_compute_calibration_matches_human_subset(blocks, tmp_path):
