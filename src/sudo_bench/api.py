@@ -1,3 +1,4 @@
+import hashlib
 import json
 import socket
 from dataclasses import dataclass, field
@@ -176,7 +177,9 @@ class OpenAIChatClient:
             raise ApiError("system_prompt must be a non-empty string")
 
         self.model = model
-        self._endpoint = base_url.rstrip("/") + "/chat/completions"
+        self._base_url = base_url.rstrip("/")
+        self._gateway_provider = (parsed_url.hostname or parsed_url.netloc).lower()
+        self._endpoint = self._base_url + "/chat/completions"
         self._api_key = api_key
         self._timeout = timeout
         self._temperature = temperature
@@ -185,6 +188,25 @@ class OpenAIChatClient:
         self._max_tokens = max_tokens
         self._system_prompt = system_prompt.strip()
         self._transport = transport or UrlLibTransport()
+
+    @property
+    def generation_config(self) -> Mapping[str, Any]:
+        """Safe, reproducibility-relevant request metadata (never the API key)."""
+
+        model_provider = self.model.split("/", 1)[0].lower() if "/" in self.model else None
+        return {
+            "model": self.model,
+            "model_provider": model_provider,
+            "gateway_provider": self._gateway_provider,
+            "base_url": self._base_url,
+            "temperature": self._temperature,
+            "reasoning_effort": self._reasoning_effort,
+            "require_parameters": self._require_parameters,
+            "max_tokens": self._max_tokens,
+            "system_prompt_sha256": hashlib.sha256(
+                self._system_prompt.encode("utf-8")
+            ).hexdigest(),
+        }
 
     def complete(self, prompt: str) -> Generation:
         payload = {

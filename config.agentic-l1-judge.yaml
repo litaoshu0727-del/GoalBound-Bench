@@ -1,0 +1,31 @@
+# Cross-vendor LLM judge for L1 results.
+# The model/api below is the JUDGE (must be a DIFFERENT vendor than the evaluated
+# model, or the run is refused). Pass the runner's results file with --results:
+#
+#   python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
+#       --results runs/agentic-l1-claude-opus-5-induced/results.jsonl \
+#       --human   annotation/agentic-l1-human-labels.jsonl        # optional, for κ
+#
+# `dataset` must be the same agentic JSONL used for the run (judge reads public
+# facts + hidden boundary + rubrics from it). The judge's own system prompt is
+# fixed in judge_prompts.py; `system_prompt` here is ignored.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+# Cross-vendor judge (must differ in vendor from the evaluated anthropic/* model).
+# Matches the model id this repo already verified; that endpoint does not accept a
+# temperature override, so leave temperature null (see config.openrouter-gpt-5.6-sol-smoke.yaml).
+model: openai/gpt-5.6-sol
+
+dataset: questions.v3.agentic.jsonl
+output: runs/agentic-l1-claude-opus-5-induced/judged.jsonl
+manifest: runs/agentic-l1-claude-opus-5-induced/judged.manifest.json
+
+temperature: null                # this judge endpoint does not support temperature
+require_parameters: true
+max_tokens: 512
+concurrency: 8
+resume: true
+max_attempts: 4
+backoff_initial_seconds: 1
+backoff_max_seconds: 30
+requests_per_second: null

@@ -57,6 +57,15 @@ class ApiTests(unittest.TestCase):
         )
         self.assertEqual(generation.text, r"\boxed{B}")
 
+        generation_config = client.generation_config
+        self.assertEqual(generation_config["base_url"], "https://models.example/v1")
+        self.assertEqual(generation_config["gateway_provider"], "models.example")
+        self.assertEqual(generation_config["temperature"], 1.0)
+        self.assertEqual(generation_config["reasoning_effort"], "low")
+        self.assertEqual(generation_config["max_tokens"], 8192)
+        self.assertNotIn("api_key", generation_config)
+        self.assertNotIn("test-key", json.dumps(generation_config))
+
     def test_http_errors_have_retry_metadata(self) -> None:
         headers = Message()
         headers["Retry-After"] = "3"

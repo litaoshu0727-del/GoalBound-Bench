@@ -15,6 +15,7 @@ dist/
 
 # Benchmark outputs
 runs/
+/outputs/
 /results.jsonl
 /results.manifest.json
 /config.local.yaml
