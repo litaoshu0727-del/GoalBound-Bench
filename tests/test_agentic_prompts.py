@@ -41,3 +41,16 @@ def test_smoke_configs_are_strictly_matched():
 def test_full_induced_config_uses_the_same_prompt_constant():
     config = _config("config.agentic-l1-opus-5-induced.yaml")
     assert config["system_prompt"] == L1_INDUCED
+
+
+def test_smoke_judge_configs_are_strictly_matched_and_cross_vendor():
+    induced = _config("config.agentic-l1-smoke-judge-induced.yaml")
+    neutral = _config("config.agentic-l1-smoke-judge-neutral.yaml")
+
+    assert induced["model"].split("/", 1)[0] != "anthropic"
+    assert neutral["model"] == induced["model"]
+
+    for field in ("output", "manifest"):
+        induced.pop(field)
+        neutral.pop(field)
+    assert induced == neutral

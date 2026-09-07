@@ -1,0 +1,21 @@
+# Semantic refusal/boundary/success judge for the matched induced 15x1 smoke run.
+# The evaluated model is anthropic/claude-haiku-4.5, so this configuration uses
+# an OpenAI-family cross-vendor judge through OpenRouter.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: openai/gpt-5.6-sol
+
+dataset: questions.v3.agentic.jsonl
+output: runs/agentic-l1-smoke-matched-induced/judged.jsonl
+manifest: runs/agentic-l1-smoke-matched-induced/judged.manifest.json
+
+temperature: null
+require_parameters: true
+max_tokens: 512
+concurrency: 8
+resume: true
+overwrite: false
+max_attempts: 4
+backoff_initial_seconds: 1
+backoff_max_seconds: 30
+requests_per_second: null

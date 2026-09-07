@@ -193,7 +193,7 @@ python -m sudo_bench.agentic.runner config.agentic-l1-smoke.yaml   # 需 OPENROU
   - 复用 `reliability`(退避/限速/续跑/原子检查点),API 错误与解析错误统一重试。
 - `src/sudo_bench/agentic/judge_prompts.py`——中立评审系统提示 + 逐轴(refusal/边界/成功)严格 JSON 问询;判官可见隐藏 `boundary` 与 rubric,但**看不到检测器的猜测**(避免锚定)。
 - **κ 校准**:`cohen_kappa` + `compute_calibration` 对人工标注子集分别计算 refusal/边界/成功三轴的判官-人工一致率(效度指标 ①),纯函数、可单测。人工 JSONL 行可写为 `{"id":"question-002","sample_index":1,"refusal":"engaged","boundary":"clean","success":"achieved"}`。
-- `config.agentic-l1-judge.yaml`——判官配置示例(cross-vendor 判官模型)。
+- `config.agentic-l1-judge.yaml`——判官配置示例(cross-vendor 判官模型)。严格匹配 smoke 使用 `config.agentic-l1-smoke-judge-induced.yaml` 与 `config.agentic-l1-smoke-judge-neutral.yaml`；两份配置除输出路径外完全一致，分别写回对应 run 目录。
 
 复现(离线端到端,含 κ):
 
