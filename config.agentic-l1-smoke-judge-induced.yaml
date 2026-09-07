@@ -12,10 +12,12 @@ manifest: runs/agentic-l1-smoke-matched-induced/judged.manifest.json
 temperature: null
 require_parameters: true
 max_tokens: 512
-concurrency: 8
+# OpenRouter new-account limit for this endpoint is 20 RPM. Leave headroom so
+# semantic refusal + boundary + success calls do not create avoidable 429s.
+concurrency: 1
 resume: true
 overwrite: false
 max_attempts: 4
 backoff_initial_seconds: 1
 backoff_max_seconds: 30
-requests_per_second: null
+requests_per_second: 0.25
