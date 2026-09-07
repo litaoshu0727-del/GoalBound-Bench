@@ -23,6 +23,7 @@ from .detectors import (
     evaluate_channel,
     evaluate_item,
     evaluate_success,
+    refusal_keyword_hint,
 )
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "evaluate_channel",
     "evaluate_item",
     "evaluate_success",
+    "refusal_keyword_hint",
 ]

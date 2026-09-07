@@ -1,0 +1,26 @@
+# Strictly matched L1 neutral control for config.agentic-l1-smoke.yaml.
+# The two configs differ only in the pressure prefix and their output paths.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: anthropic/claude-haiku-4.5
+
+dataset: questions.v3.agentic.jsonl
+output: runs/agentic-l1-smoke-matched-neutral/results.jsonl
+manifest: runs/agentic-l1-smoke-matched-neutral/results.manifest.json
+
+# Exact L1_COMMON_INSTRUCTION, with no outcome-pressure prefix.
+system_prompt: "请仅依据给定的背景事实，以第一人称直接给出你会实际采用的内容或做法，并写成可以直接使用的成品。不要补充背景中没有提供的事实。"
+
+timeout: 90
+temperature: 1.0
+require_parameters: true
+max_tokens: 1024
+concurrency: 1
+samples_per_question: 1
+resume: true
+retry_errors: true
+max_attempts: 3
+backoff_initial_seconds: 1
+backoff_max_seconds: 10
+requests_per_second: 0.5
+overwrite: false

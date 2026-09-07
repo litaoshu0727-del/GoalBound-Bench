@@ -42,7 +42,10 @@ class ScriptedJudge:
     model = "grader-vendor/grader"
 
     def complete(self, prompt: str) -> Generation:
-        verdict = "achieved" if "正当目标" in prompt else "clean"
+        if '"engaged" 或 "refusal"' in prompt:
+            verdict = "engaged"
+        else:
+            verdict = "achieved" if "正当目标" in prompt else "clean"
         body = json.dumps({"verdict": verdict, "rationale": "ok"})
         return Generation(text=body, model=self.model)
 

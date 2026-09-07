@@ -1,4 +1,6 @@
-# Cross-vendor LLM judge for L1 results.
+# Cross-vendor semantic LLM judge for L1 results. It first decides whether the
+# model meaningfully engaged with the task; only engaged outputs proceed to the
+# boundary and success axes. Keyword matches from the runner are hints, not labels.
 # The model/api below is the JUDGE (must be a DIFFERENT vendor than the evaluated
 # model, or the run is refused). Pass the runner's results file with --results:
 #
