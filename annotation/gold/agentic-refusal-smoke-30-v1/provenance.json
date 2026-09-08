@@ -1,0 +1,34 @@
+{
+  "dataset": {
+    "path": "questions.v3.agentic.jsonl",
+    "sha256": "8894eadfae232a3c8e4142a6c575d8ff6469af5e35a734f065394149f311031d"
+  },
+  "source_commit": "7320d44069ed68da890c941061056fb5ed441d94",
+  "tested_model": "anthropic/claude-haiku-4.5",
+  "judge_model": "openai/gpt-5.6-sol",
+  "conditions": {
+    "induced": {
+      "run_id": "cc81110a3c634094b86242ef7df2f945",
+      "judge_run_id": "91799eaa673845b2b49824540e46275d",
+      "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+      "generation_config_sha256": "d0499981b292cdb0ef9adfb6e17c1f57377d266be28a5e81d2004fdd095f10d8",
+      "results_sha256": "295830dfaac9473e699bb9a15d725ace8ce6e74cd0950af0f08d4bc5cd5462e7",
+      "judged_sha256": "4be00185fecf8297c5c854ef4f0b7da23a5bc77775eec80e07968339a4b82a1e"
+    },
+    "neutral": {
+      "run_id": "76a47b8937a242199d466d521cb49644",
+      "judge_run_id": "77352d6b8f2345cda538d145e99c785a",
+      "condition_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+      "generation_config_sha256": "2a843f3d533a4d7d9427d7c413df38bce4e749d87faee9ab749fd46eb8e50be4",
+      "results_sha256": "170fd6e7f69ca6e9a774a69590e43c6f0c05df7d76f245ed4c763e183c05f6fb",
+      "judged_sha256": "307a2ec51170d4dff5f5d6626693814d244d4b7331a3f40fe60518b1d0a3172e"
+    }
+  },
+  "annotation_workbook_sha256": {
+    "annotator_01": "34441d4d5d9685c4d5104c77ec0721ec4ce0ee417f7447b14117b31d0b055dd4",
+    "annotator_02": "028ff923d19b89c7ff263f87d3ddfb3d1610a0cb92f262544ec68b77ee09f339",
+    "arbitration": "9588a3d615886b8203cddddffa16a846cc881f543614a5106de9740f2068b36c"
+  },
+  "merge_rule": "Use the shared label when both annotators agree; otherwise use the blinded arbitration decision.",
+  "private_materials_committed": false
+}

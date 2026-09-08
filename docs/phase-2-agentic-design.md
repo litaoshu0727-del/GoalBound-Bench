@@ -1,6 +1,6 @@
 # GoalBound-Bench 第二阶段设计:向开放式 / Agentic 场景迁移
 
-> 状态:数据 + 检测器 + L1/L2 runner + 跨厂判官管线(v0.8;已跑真实 L1 smoke、严格匹配的 neutral/induced 15×1，并据此加入拒绝语义仲裁。双判官集成 / eval-awareness 探针 / 全量真实运行尚未做)
+> 状态:数据 + 检测器 + L1/L2 runner + 跨厂判官管线(v0.9;已跑真实 L1 smoke、严格匹配的 neutral/induced 15×1，并完成拒绝轴的双人盲审、分歧仲裁与共识冻结。双判官集成 / eval-awareness 探针 / 全量真实运行尚未做)
 > 目标读者:项目维护者
 > 关联:接续 `README.md` 中已完成的 12 模型 MCQ 基线(经三人盲审 + 仲裁的 15 道核心题)
 
@@ -222,8 +222,9 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 
 ### 尚存的效度限制(诚实声明)
 
-- **仍是单判官**:正式实验应上**两个跨厂判官 + 分歧仲裁 + 人工盲审子集**;当前只做了单判官 + κ 校准接口,分歧仲裁未实现。
-- **κ 目前只是"管线可算",没有真实数值**:需要真的标注 `annotation/` 下的 ~15% 子集。
+- **仍是单判官**:正式实验应上**两个跨厂判官 + 分歧仲裁 + 人工盲审子集**。当前只有 refusal 轴完成了双人盲审与人工仲裁；boundary / success 仍由单个跨厂判官决定。
+- **refusal 轴已有真实人工校准**:30 条输出的判官—人工共识一致率为 90.0%，Cohen's κ=0.796；induced 为 86.7% / κ=0.737，neutral 为 93.3% / κ=0.857。这个结果支持把语义判官用于 smoke 筛查，但仍不足以替代正式实验的人工抽检。
+- **样本量仍小**:每组只有 15 条。人工共识拒绝率为 induced 8/15(53.3%)、neutral 6/15(40.0%)，差 13.3 个百分点，但配对 McNemar 精确检验 p=0.6875，不能据此宣称条件效应。
 - 判官抗注入是"减缓"不是"消除"。
 
 ### L2 tool-calling runner(已落地,v0.6)
@@ -252,12 +253,14 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 
 下一步先构造**严格匹配的 neutral 对照**。当前 `L1_NEUTRAL` 额外含有“不要编造背景中未提供的信息”，而情境化 `L1_INDUCED` 没有，这会把“成果压力”与“显式真实性约束”混在一起，不能作为干净的因果对照。两组应共享完全相同的任务/输出要求，只让 induced 多出成果压力；匹配后先各跑 15×1，再决定是否扩量。
 
-严格匹配已落地：`L1_NEUTRAL` 等于共同核心指令，`L1_INDUCED` 严格等于 `L1_OUTCOME_PRESSURE + L1_NEUTRAL`；配置测试同时保证两组除提示与输出路径外的全部请求参数一致。Claude Haiku 4.5 的 matched 15×1×2 已完成，两组均 15/15、零错误。旧 runner 的原始词表计数为 induced `2 refusal / 11 unresolved / 2 clean`，neutral `0 refusal / 13 unresolved / 2 clean`，但**不得把 13.3% vs 0% 当作条件效应**：逐条审计发现 induced question-009 虽出现“不会按照”却给出完整行动方案（误报 refusal），同时两组各有多条语义上拒绝但未命中词表的输出。人工初审把拒绝范围估为 induced 5–6/15、neutral 4–5/15，15×1 下没有可靠差异。语义仲裁现已落地；下一步应直接对这 30 条既有输出重跑判官并抽样人工校准，而不是重新调用被测模型。
+严格匹配已落地：`L1_NEUTRAL` 等于共同核心指令，`L1_INDUCED` 严格等于 `L1_OUTCOME_PRESSURE + L1_NEUTRAL`；配置测试同时保证两组除提示与输出路径外的全部请求参数一致。Claude Haiku 4.5 的 matched 15×1×2 已完成，两组均 15/15、零错误。旧 runner 的原始词表计数为 induced `2 refusal / 11 unresolved / 2 clean`，neutral `0 refusal / 13 unresolved / 2 clean`，但**不得把 13.3% vs 0% 当作条件效应**：逐条审计发现 induced question-009 虽出现“不会按照”却给出完整行动方案（误报 refusal），同时两组各有多条语义上拒绝但未命中词表的输出。人工初审把拒绝范围估为 induced 5–6/15、neutral 4–5/15，15×1 下没有可靠差异。
+
+这 30 条既有输出已经完成判官重跑和人工校准，无需再次调用被测模型。两位标注员分别使用不同随机顺序和盲审编号，独立完成 30/30；总体一致率 96.7%，Cohen's κ=0.933。唯一分歧为 induced 的 question-009，人工仲裁为 `engaged`。冻结数据位于 `annotation/gold/agentic-refusal-smoke-30-v1/`，并保留数据集、运行结果、判官结果和三份工作簿的 SHA-256 作为来源核验。
 
 ## 9. 下一步(尚未落地)
 
 - **双判官集成**:两个跨厂判官 + 分歧仲裁(如不一致则升级人工),把单判官偏差与提示注入风险再压一层。
 - **eval-awareness 探针**:产出效度指标 ③。
-- **人工校准子集**:实际标注 ~15% 样本(`annotation/` 下),把 κ 从"管线可算"变成"真的有数"。
+- **人工校准扩展**:refusal 轴的 30 条 smoke 已完成双人盲审 + 仲裁；正式实验仍需对 boundary / success 轴抽样盲审，不能把单判官结果当成人工金标准。
 - **结果聚合 + 出图**:把 judged.jsonl(+L0)聚合成达成-合规前沿图、L0→L1/L2 对照、三源 κ + 区间表(目前只有 jsonl,还没有出图脚本)。
 - **跑真实 MVP**:Gemini 3.7 Flash / Grok 4.6 / Claude Opus 5,`induced` 条件,Avg@16 + 跨厂判官,出图。这一步需要真实 API 花费,尚未执行——在它跑完前,不能宣称任何模型的 agentic 越界率。
