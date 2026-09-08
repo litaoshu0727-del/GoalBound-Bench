@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-heldout-calibration-60-v1",
   "preregistered_at": "2026-09-08",
-  "status": "awaiting_blind_adjudication",
+  "status": "human_gold_frozen",
   "purpose": "Prospective held-out calibration of the L1 boundary and success judges.",
   "design": {
     "total_examples": 60,
@@ -39,7 +39,7 @@
     "Only after the freeze are two cross-vendor judges evaluated against the same human gold labels."
   ],
   "judge_runs_started": false,
-  "human_gold_frozen": false,
+  "human_gold_frozen": true,
   "human_annotation": {
     "annotator_01_complete": true,
     "annotator_02_complete": true,
@@ -69,6 +69,12 @@
     "annotator_01_completed_workbook_sha256": "16e7349aa43298dcd011f6cb81c044edf43b588ee042e00fa1f34bbaa1a62862",
     "annotator_02_completed_workbook_sha256": "73c9ee92112c9dd84b4f911f883939d9eda3dedd0021d9e3d07066cd1b79576a",
     "blind_adjudication_workbook_sha256": "d8dd38eb8fb31031e23b32272baf4f35b4d028f9cf9f6c3eb8d9c840e64d15c8",
+    "blind_adjudication_completed_workbook_sha256": "bd3cf9b9eb5846a9c599b26ac7c204a1b19426d09fb0f0bd376ebbe1eccdf586",
+    "frozen_human_gold_sha256": {
+      "labels": "d403ed9b31ba746610f31ae56f5ed0eb7f92f5fa0d038fcc544d8b610dce5d25",
+      "summary": "228cd0e0cd1879a1fb30fd841b7fbef013bde73fb1e0958a852c955177769a27",
+      "readme": "4ba431c26e778e7528f94eaec32f38129a2ba6aa312e3b1fe8fbd69fae1e112e"
+    },
     "private_seed_committed": false,
     "blind_workbooks_committed": false,
     "answer_mappings_committed": false

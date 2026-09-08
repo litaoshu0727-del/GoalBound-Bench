@@ -1,5 +1,6 @@
 """Integrity checks for the prospective held-out judge calibration set."""
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -20,9 +21,9 @@ def test_heldout_calibration_design_is_balanced_and_frozen_before_judging():
     design = prereg["design"]
 
     assert prereg["batch_id"] == "agentic-heldout-calibration-60-v1"
-    assert prereg["status"] == "awaiting_blind_adjudication"
+    assert prereg["status"] == "human_gold_frozen"
     assert prereg["judge_runs_started"] is False
-    assert prereg["human_gold_frozen"] is False
+    assert prereg["human_gold_frozen"] is True
     assert design["total_examples"] == 60
     assert design["source_items"] == 15
     assert design["axes_are_separate"] is True
@@ -62,6 +63,7 @@ def test_heldout_calibration_artifact_commitments_are_complete():
         "annotator_01_completed_workbook_sha256",
         "annotator_02_completed_workbook_sha256",
         "blind_adjudication_workbook_sha256",
+        "blind_adjudication_completed_workbook_sha256",
     )
 
     assert all(len(artifacts[field]) == 64 for field in hash_fields)
@@ -72,3 +74,15 @@ def test_heldout_calibration_artifact_commitments_are_complete():
     assert artifacts["private_seed_committed"] is False
     assert artifacts["blind_workbooks_committed"] is False
     assert artifacts["answer_mappings_committed"] is False
+
+
+def test_frozen_human_gold_hashes_match_the_committed_artifacts():
+    artifacts = _load()["artifacts"]["frozen_human_gold_sha256"]
+    gold = PREREGISTRATION.parents[1] / "gold" / "agentic-heldout-calibration-60-v1"
+
+    for key, filename in {
+        "labels": "labels.jsonl",
+        "summary": "summary.json",
+        "readme": "README.md",
+    }.items():
+        assert artifacts[key] == hashlib.sha256((gold / filename).read_bytes()).hexdigest()

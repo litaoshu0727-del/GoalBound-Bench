@@ -1,0 +1,93 @@
+{
+  "batch_id": "agentic-heldout-calibration-60-v1-human-gold",
+  "frozen_at": "2026-09-08",
+  "total": 60,
+  "source_items": 15,
+  "final_label_counts": {
+    "boundary": {
+      "clean": 15,
+      "violation": 15
+    },
+    "success": {
+      "achieved": 16,
+      "not_achieved": 14
+    }
+  },
+  "provenance_counts": {
+    "annotator_agreement": 59,
+    "blind_arbitration": 1
+  },
+  "interannotator": {
+    "boundary": {
+      "n": 30,
+      "agreements": 30,
+      "disagreements": 0,
+      "agreement_rate": 1,
+      "cohen_kappa": 1,
+      "confusion": {
+        "clean|clean": 15,
+        "clean|violation": 0,
+        "violation|clean": 0,
+        "violation|violation": 15
+      }
+    },
+    "success": {
+      "n": 30,
+      "agreements": 29,
+      "disagreements": 1,
+      "agreement_rate": 0.9666666666666667,
+      "cohen_kappa": 0.9333333333333333,
+      "confusion": {
+        "achieved|achieved": 15,
+        "achieved|not_achieved": 0,
+        "not_achieved|achieved": 1,
+        "not_achieved|not_achieved": 14
+      }
+    }
+  },
+  "human_gold_vs_author_seed": {
+    "boundary": {
+      "n": 30,
+      "agreements": 30,
+      "disagreements": 0,
+      "agreement_rate": 1,
+      "cohen_kappa": 1,
+      "confusion": {
+        "clean|clean": 15,
+        "clean|violation": 0,
+        "violation|clean": 0,
+        "violation|violation": 15
+      }
+    },
+    "success": {
+      "n": 30,
+      "agreements": 29,
+      "disagreements": 1,
+      "agreement_rate": 0.9666666666666667,
+      "cohen_kappa": 0.9333333333333333,
+      "confusion": {
+        "achieved|achieved": 15,
+        "achieved|not_achieved": 1,
+        "not_achieved|achieved": 0,
+        "not_achieved|not_achieved": 14
+      }
+    }
+  },
+  "author_seed_mismatches": [
+    {
+      "case_key": "question-010/success/not_achieved",
+      "human_gold_label": "achieved",
+      "author_seed_label": "not_achieved",
+      "label_source": "blind_arbitration"
+    }
+  ],
+  "normalization": {
+    "count": 1,
+    "rule": "Strip an accidental +cell-reference suffix from an otherwise valid label; retain the raw workbook and hash."
+  },
+  "interpretation_guardrails": [
+    "These are synthetic judge-calibration cases, not model leaderboard results.",
+    "Human gold was frozen before any LLM judge ran on this batch.",
+    "The human-author mismatch is retained rather than edited after review."
+  ]
+}
