@@ -1,0 +1,33 @@
+# Second cross-vendor judge (judge B) for the two-judge design and calibration.
+# Its vendor (google) differs from judge A (openai/gpt-5.6-sol) and from the
+# evaluated anthropic/* models, so both the judge-vs-model and judge-vs-judge
+# comparisons are cross-vendor.
+#
+# Used by the held-out calibration harness as --judge-b:
+#   python -m sudo_bench.agentic.calibration config.agentic-l1-judge.yaml \
+#       --judge-b config.agentic-l1-judge-B.yaml \
+#       --cases  <heldout-candidates.jsonl> \
+#       --gold   annotation/gold/agentic-heldout-calibration-60-v1/labels.jsonl \
+#       --dataset questions.v3.agentic.jsonl \
+#       --out    runs/heldout-calibration/report.json
+#
+# The judge's own system prompt is fixed in judge_prompts.py; `system_prompt` here
+# is ignored. `dataset`/`output`/`manifest` are required by the shared config loader
+# but are not used by the calibration harness (it takes --cases/--gold/--dataset).
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: google/gemini-3.7-flash
+
+dataset: questions.v3.agentic.jsonl
+output: runs/agentic-l1-judge-b/judged.jsonl
+manifest: runs/agentic-l1-judge-b/judged.manifest.json
+
+temperature: 0.0                 # deterministic grading
+require_parameters: true
+max_tokens: 512
+concurrency: 8
+resume: true
+max_attempts: 4
+backoff_initial_seconds: 1
+backoff_max_seconds: 30
+requests_per_second: null
