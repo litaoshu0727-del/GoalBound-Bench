@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "batch_id": "agentic-heldout-calibration-60-v1",
+  "preregistered_at": "2026-09-08",
+  "status": "awaiting_human_annotation",
+  "purpose": "Prospective held-out calibration of the L1 boundary and success judges.",
+  "design": {
+    "total_examples": 60,
+    "source_items": 15,
+    "axes_are_separate": true,
+    "reason_axes_are_separate": "Some success rubrics include compliance constraints, so forcing every boundary-by-success quadrant would create logically invalid examples.",
+    "axis_counts": {
+      "boundary": 30,
+      "success": 30
+    },
+    "author_seed_label_counts": {
+      "clean": 15,
+      "violation": 15,
+      "achieved": 15,
+      "not_achieved": 15
+    },
+    "coverage": "Every one of the 15 source items appears once on each axis in each target class.",
+    "examples_are_synthetic": true
+  },
+  "blinding": {
+    "independent_annotators": 2,
+    "packet_order_randomized_independently": true,
+    "hidden_from_annotators": [
+      "source question id",
+      "author-seeded label",
+      "paired-example linkage",
+      "the other annotator's response"
+    ]
+  },
+  "protocol": [
+    "Two annotators label their packets independently.",
+    "Disagreements are adjudicated without exposing author-seeded labels.",
+    "Human consensus labels are frozen before any LLM judge is run on this batch.",
+    "Only after the freeze are two cross-vendor judges evaluated against the same human gold labels."
+  ],
+  "judge_runs_started": false,
+  "human_gold_frozen": false,
+  "artifacts": {
+    "seed_sha256": "7b23a6ac79aefb2fb4d78f4a1cbc042ffe437a13b9812b7945505bb2a2f269d2",
+    "annotator_01_workbook_sha256": "2860ff0442b3ede5d90662a36c5f79e4583be65bc36797dbfad283a79a56f9ec",
+    "annotator_02_workbook_sha256": "6172ba91300636c17861026b842af50e50862d49decb3e0d9fd64df5ebc87aae",
+    "private_seed_committed": false,
+    "blind_workbooks_committed": false,
+    "answer_mappings_committed": false
+  },
+  "interpretation_guardrails": [
+    "These synthetic examples are judge-calibration cases, not model leaderboard results.",
+    "Author-seeded labels are construction targets, not human gold labels.",
+    "No judge-performance claim may be made until blind human consensus is frozen."
+  ]
+}

@@ -1,6 +1,6 @@
 # GoalBound-Bench 第二阶段设计:向开放式 / Agentic 场景迁移
 
-> 状态:数据 + 检测器 + L1/L2 runner + 跨厂判官管线(v1.0;已跑真实 L1 smoke、严格匹配的 neutral/induced 15×1，并完成 refusal / boundary / success 三轴的双人盲审、分歧仲裁与共识冻结。双判官集成 / eval-awareness 探针 / 全量真实运行尚未做)
+> 状态:数据 + 检测器 + L1/L2 runner + 跨厂判官管线(v1.0;已跑真实 L1 smoke、严格匹配的 neutral/induced 15×1，并完成 refusal / boundary / success 三轴的双人盲审、分歧仲裁与共识冻结。另已在判官运行前预注册独立的 60 条平衡校准集，并生成两份盲审包，正在等待人工标注。双判官集成 / eval-awareness 探针 / 全量真实运行尚未做)
 > 目标读者:项目维护者
 > 关联:接续 `README.md` 中已完成的 12 模型 MCQ 基线(经三人盲审 + 仲裁的 15 道核心题)
 
@@ -258,10 +258,13 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 
 这 30 条既有输出已经完成判官重跑和三轴人工校准，无需再次调用被测模型。refusal 双人独立盲审的总体一致率为 96.7%，Cohen's κ=0.933；唯一分歧经仲裁为 `engaged`。在 16 条人工共识 engaged 输出上，boundary 双人一致 16/16（均 clean，κ 因无标签方差不可计算），success 一致 13/16（81.3%，κ=0），三条 success 分歧经盲仲裁收口为 1 条 achieved、2 条 not_achieved。最终三轴冻结数据位于 `annotation/gold/agentic-refusal-smoke-30-v1/`，并保留数据集、运行结果、判官结果及全部工作簿的 SHA-256 作为来源核验。
 
-## 9. 下一步(尚未落地)
+为避免继续在同一开发集上调提示并高估效果，现已在任何新判官运行之前预注册独立的 `agentic-heldout-calibration-60-v1`。它覆盖全部 15 题，但将两个轴分开校准：boundary 30 条（15 clean / 15 violation），success 30 条（15 achieved / 15 not_achieved）。不强行构造四象限交叉，是因为部分 success rubric 本身包含合规约束，某些象限在逻辑上无效。两份工作簿采用独立随机顺序，并隐藏题号、作者构造标签和配对关系；作者标签只用于构造与平衡，不是人工金标准。两人独立标注、分歧仲裁并冻结共识后，才允许两个跨厂判官接触这批样本。公开承诺与工件哈希位于 `annotation/preregistration/agentic-heldout-calibration-60-v1.json`，答案映射和未完成工作簿不提交仓库。
 
-- **双判官集成**:两个跨厂判官 + 分歧仲裁(如不一致则升级人工),把单判官偏差与提示注入风险再压一层。
+## 9. 下一步
+
+- **完成独立校准集盲审（进行中）**:两位标注者分别填写 60 条平衡样本，随后对分歧做盲仲裁并冻结人工共识；冻结前不运行判官，防止自动标签影响人工金标准。
+- **双判官集成（等待人工冻结）**:冻结后再运行两个跨厂判官，分别报告 boundary / success 的准确率、混淆矩阵和 Cohen's κ；两个判官之间分歧不自动决定金标准。
 - **eval-awareness 探针**:产出效度指标 ③。
-- **校准集加固**:补充明确包含 boundary 违规与 success 未达成的对抗样本，避免全 clean / 类别极不平衡导致 κ 退化；重写 success rubric 与判官提示后，用冻结人工标签回归验证。
+- **校准集加固（已生成，待盲审）**:60 条样本已补充明确的 boundary 违规与 success 未达成案例，避免全 clean / 类别极不平衡导致 κ 退化；只有冻结后的人工标签可用于独立验证。
 - **结果聚合 + 出图**:把 judged.jsonl(+L0)聚合成达成-合规前沿图、L0→L1/L2 对照、三源 κ + 区间表(目前只有 jsonl,还没有出图脚本)。
 - **跑真实 MVP**:Gemini 3.7 Flash / Grok 4.6 / Claude Opus 5,`induced` 条件,Avg@16 + 跨厂判官,出图。这一步需要真实 API 花费,尚未执行——在它跑完前,不能宣称任何模型的 agentic 越界率。
