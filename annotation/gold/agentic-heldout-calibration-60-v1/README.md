@@ -19,6 +19,9 @@ model benchmark result or leaderboard.
 
 ## Files
 
+- `cases.jsonl` contains all 60 label-free judge inputs: case identity, public
+  facts, axis, exact criterion, and synthetic candidate output. It contains no
+  author-seeded or human label fields.
 - `labels.jsonl` contains one final human label per case.
 - `summary.json` records class balance, agreement, arbitration, and the comparison
   with the author-seeded construction labels.
@@ -28,5 +31,8 @@ The final success distribution is 16 achieved / 14 not_achieved, rather than the
 author-seeded 15/15 construction balance. The reviewed mismatch is retained as human
 gold instead of being changed to preserve the original intended balance.
 
-Raw workbooks, individual responses, normalization details, and blind-ID mappings
-remain excluded by `.gitignore`; their hashes are retained for audit.
+The private construction seed remains excluded because it also contains author-seeded
+labels and rationales. Raw workbooks, individual responses, normalization details,
+and blind-ID mappings likewise remain excluded by `.gitignore`; their hashes are
+retained for audit. The committed `cases.jsonl` is the complete label-free input used
+by the held-out judge harness.

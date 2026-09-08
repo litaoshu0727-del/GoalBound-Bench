@@ -10,12 +10,15 @@ from sudo_bench.agentic.build_dataset import DEFAULT_IN, build
 from sudo_bench.agentic.calibration import (
     CalibrationError,
     calibrate,
+    case_sha256,
+    cases_sha256,
     confusion_matrix,
     inter_judge_agreement,
     load_blocks,
     load_heldout_cases,
     run_judge_over_cases,
     two_judge_calibration,
+    validate_case_gold_alignment,
 )
 from sudo_bench.agentic.judge import LLMJudge
 from sudo_bench.api import Generation
@@ -77,19 +80,57 @@ def _write_cases(path, rows):
     path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", "utf-8")
 
 
+def _case(case_key="k", axis="boundary", output="cand"):
+    return {
+        "case_key": case_key,
+        "source_id": "question-002",
+        "axis": axis,
+        "public_facts": ["frozen fact"],
+        "criterion": "frozen criterion",
+        "output": output,
+    }
+
+
 def test_load_heldout_cases_rejects_bad_axis(tmp_path):
     p = tmp_path / "cases.jsonl"
-    _write_cases(p, [{"case_key": "x", "source_id": "question-002", "axis": "nope", "output": "y"}])
+    _write_cases(p, [_case("x", axis="nope", output="y")])
     with pytest.raises(CalibrationError, match="axis"):
         load_heldout_cases(p)
 
 
 def test_load_heldout_cases_rejects_duplicate(tmp_path):
     p = tmp_path / "cases.jsonl"
-    row = {"case_key": "k", "source_id": "question-002", "axis": "boundary", "output": "y"}
+    row = _case(output="y")
     _write_cases(p, [row, dict(row)])
     with pytest.raises(CalibrationError, match="duplicate"):
         load_heldout_cases(p)
+
+
+def test_load_heldout_cases_requires_complete_frozen_prompt_input(tmp_path):
+    p = tmp_path / "cases.jsonl"
+    row = _case()
+    del row["public_facts"]
+    _write_cases(p, [row])
+    with pytest.raises(CalibrationError, match="public_facts"):
+        load_heldout_cases(p)
+
+
+def test_load_heldout_cases_rejects_embedded_labels(tmp_path):
+    p = tmp_path / "cases.jsonl"
+    _write_cases(p, [{**_case(), "expected_label": "clean"}])
+    with pytest.raises(CalibrationError, match="forbidden label fields"):
+        load_heldout_cases(p)
+
+
+def test_validate_case_gold_alignment_is_exact_and_axis_aware():
+    cases = [_case("boundary-case"), _case("success-case", axis="success")]
+    validate_case_gold_alignment(cases, {"boundary-case": "clean", "success-case": "achieved"})
+    with pytest.raises(CalibrationError, match="key mismatch"):
+        validate_case_gold_alignment(cases, {"boundary-case": "clean"})
+    with pytest.raises(CalibrationError, match="invalid for success"):
+        validate_case_gold_alignment(
+            cases, {"boundary-case": "clean", "success-case": "violation"}
+        )
 
 
 # --- judging routes to the right axis -----------------------------------------
@@ -98,10 +139,8 @@ def test_load_heldout_cases_rejects_duplicate(tmp_path):
 def test_run_judge_over_cases_routes_axis(dataset, tmp_path):
     blocks = load_blocks(dataset)
     cases = [
-        {"case_key": "question-002/boundary/violation", "source_id": "question-002",
-         "axis": "boundary", "output": "cand"},
-        {"case_key": "question-002/success/achieved", "source_id": "question-002",
-         "axis": "success", "output": "cand"},
+        _case("question-002/boundary/violation"),
+        _case("question-002/success/achieved", axis="success"),
     ]
     judge = LLMJudge(FakeJudgeClient("openai/x", boundary="violation", success="achieved"))
     judged = run_judge_over_cases(cases, blocks, judge, sleep=_noop)
@@ -110,10 +149,31 @@ def test_run_judge_over_cases_routes_axis(dataset, tmp_path):
     assert by_axis["success"]["verdict"] == "achieved"
 
 
+def test_judge_reads_frozen_case_facts_and_criterion(dataset):
+    class CapturingJudge(FakeJudgeClient):
+        def __init__(self):
+            super().__init__("openai/x")
+            self.prompts = []
+
+        def complete(self, prompt):
+            self.prompts.append(prompt)
+            return super().complete(prompt)
+
+    blocks = load_blocks(dataset)
+    case = _case("question-002/boundary/clean")
+    case["public_facts"] = ["FACT_FROM_FROZEN_CASE"]
+    case["criterion"] = "CRITERION_FROM_FROZEN_CASE"
+    client = CapturingJudge()
+
+    run_judge_over_cases([case], blocks, LLMJudge(client), sleep=_noop)
+
+    assert "FACT_FROM_FROZEN_CASE" in client.prompts[0]
+    assert "CRITERION_FROM_FROZEN_CASE" in client.prompts[0]
+
+
 def test_run_judge_over_cases_resume_skips_completed(dataset, tmp_path):
     blocks = load_blocks(dataset)
-    cases = [{"case_key": "question-002/boundary/violation", "source_id": "question-002",
-              "axis": "boundary", "output": "cand"}]
+    cases = [_case("question-002/boundary/violation")]
     out = tmp_path / "judged.jsonl"
     judge = LLMJudge(FakeJudgeClient("openai/x"))
     run_judge_over_cases(cases, blocks, judge, output=out, sleep=_noop)
@@ -126,6 +186,21 @@ def test_run_judge_over_cases_resume_skips_completed(dataset, tmp_path):
         cases, blocks, LLMJudge(Boom("openai/x")), output=out, resume=True, sleep=_noop
     )
     assert judged[0]["verdict"] == "violation"
+    assert judged[0]["case_sha256"] == case_sha256(cases[0])
+
+
+def test_resume_rejudges_when_candidate_input_changes(dataset, tmp_path):
+    blocks = load_blocks(dataset)
+    out = tmp_path / "judged.jsonl"
+    first = _case("question-002/boundary/violation", output="first candidate")
+    second = _case("question-002/boundary/violation", output="changed candidate")
+    judge = LLMJudge(FakeJudgeClient("openai/x", boundary="violation"))
+    run_judge_over_cases([first], blocks, judge, output=out, sleep=_noop)
+
+    judged = run_judge_over_cases([second], blocks, judge, output=out, resume=True, sleep=_noop)
+
+    assert judged[0]["case_sha256"] == case_sha256(second)
+    assert judged[0]["case_sha256"] != case_sha256(first)
 
 
 # --- calibrate against gold + inter-judge -------------------------------------
@@ -134,8 +209,8 @@ def test_run_judge_over_cases_resume_skips_completed(dataset, tmp_path):
 def test_calibrate_against_gold(dataset, tmp_path):
     blocks = load_blocks(dataset)
     cases = [
-        {"case_key": "c1", "source_id": "question-002", "axis": "boundary", "output": "cand"},
-        {"case_key": "c2", "source_id": "question-002", "axis": "boundary", "output": "cand"},
+        _case("c1"),
+        _case("c2"),
     ]
     gold = {"c1": "violation", "c2": "clean"}  # judge says violation for both
     judge = LLMJudge(FakeJudgeClient("openai/x", boundary="violation"))
@@ -149,13 +224,15 @@ def test_calibrate_against_gold(dataset, tmp_path):
 def test_two_judge_report_has_inter_judge(dataset, tmp_path):
     blocks = load_blocks(dataset)
     cases = [
-        {"case_key": "c1", "source_id": "question-002", "axis": "boundary", "output": "cand"},
-        {"case_key": "c2", "source_id": "question-002", "axis": "success", "output": "cand"},
+        _case("c1"),
+        _case("c2", axis="success"),
     ]
     gold = {"c1": "violation", "c2": "achieved"}
     a = LLMJudge(FakeJudgeClient("openai/a", boundary="violation", success="achieved"))
     b = LLMJudge(FakeJudgeClient("anthropic/b", boundary="clean", success="achieved"))
     report = two_judge_calibration(cases, blocks, gold, a, b, sleep=_noop)
+    assert report["case_count"] == 2
+    assert report["cases_sha256"] == cases_sha256(cases)
     assert report["judge_a"]["boundary"]["accuracy"] == 1.0  # a: violation == gold
     assert report["judge_b"]["boundary"]["accuracy"] == 0.0  # b: clean != gold
     # a and b disagree on boundary, agree on success

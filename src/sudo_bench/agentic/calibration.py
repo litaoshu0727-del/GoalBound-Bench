@@ -8,12 +8,14 @@ candidate outputs keyed by ``case_key`` (e.g. ``question-002/boundary/clean``), 
 runner-produced ``results.jsonl`` keyed by ``(id, sample_index)``. Each case names
 exactly one axis to grade.
 
-Candidate file schema (JSONL), which you export from your local held-out seed
-(``annotation/generated`` is gitignored, so the texts are not in the repo):
+Candidate file schema (JSONL). The repository commits a label-free frozen copy at
+``annotation/gold/agentic-heldout-calibration-60-v1/cases.jsonl``:
 
     {"case_key": "question-002/boundary/clean",
      "source_id": "question-002",
      "axis": "boundary",                # "boundary" | "success"
+     "public_facts": ["..."],
+     "criterion": "<the exact criterion shown to human annotators>",
      "output": "<the synthetic candidate text the judge must grade>",
      "tool_calls": []}                  # optional, for an L2-style candidate
 
@@ -26,6 +28,7 @@ calibration). This harness never mutates the gold.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -39,13 +42,13 @@ from sudo_bench.api import OpenAIChatClient
 from sudo_bench.reliability import RateLimiter
 
 from .detectors import SuccessVerdict, Verdict
+from .identity import canonical_sha256
 from .judge import (
     JudgePipelineError,
     LLMJudge,
     _retry_call,
     _vendor,
     cohen_kappa,
-    collect_boundary_rubrics,
     render_evidence,
 )
 from .judge_prompts import JUDGE_SYSTEM_PROMPT
@@ -54,6 +57,13 @@ AXES = ("boundary", "success")
 AXIS_LABELS = {
     "boundary": (Verdict.VIOLATION, Verdict.CLEAN),
     "success": (SuccessVerdict.ACHIEVED, SuccessVerdict.NOT_ACHIEVED),
+}
+FORBIDDEN_CASE_FIELDS = {
+    "expected_label",
+    "expected_rationale",
+    "label",
+    "label_source",
+    "arbitration_rationale",
 }
 
 
@@ -103,6 +113,57 @@ def confusion_matrix(
 # ------------------------------------------------------------------ IO
 
 
+def _validate_case(row: Mapping[str, Any], context: str) -> None:
+    for field in ("case_key", "source_id", "axis", "criterion"):
+        if not isinstance(row.get(field), str) or not row[field].strip():
+            raise CalibrationError("{} missing {!r}".format(context, field))
+    if not isinstance(row.get("output"), str):
+        raise CalibrationError("{} missing 'output'".format(context))
+    if row["axis"] not in AXES:
+        raise CalibrationError("{} axis must be one of {}".format(context, AXES))
+    facts = row.get("public_facts")
+    if (
+        not isinstance(facts, list)
+        or not facts
+        or any(not isinstance(fact, str) or not fact.strip() for fact in facts)
+    ):
+        raise CalibrationError("{} public_facts must be a non-empty string list".format(context))
+    if "tool_calls" in row and not isinstance(row["tool_calls"], list):
+        raise CalibrationError("{} tool_calls must be a list".format(context))
+    leaked = sorted(FORBIDDEN_CASE_FIELDS & set(row))
+    if leaked:
+        raise CalibrationError("{} contains forbidden label fields {}".format(context, leaked))
+
+
+def case_sha256(case: Mapping[str, Any]) -> str:
+    """Hash exactly the label-free fields that can affect one judge decision."""
+
+    payload = {
+        key: case.get(key)
+        for key in (
+            "case_key",
+            "source_id",
+            "axis",
+            "public_facts",
+            "criterion",
+            "output",
+            "tool_calls",
+        )
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def cases_sha256(cases: Sequence[Mapping[str, Any]]) -> str:
+    """Order-independent hash of the complete held-out judge input."""
+
+    payload = "\n".join(
+        "{}\t{}".format(case["case_key"], case_sha256(case))
+        for case in sorted(cases, key=lambda row: row["case_key"])
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 def load_heldout_cases(path: Path) -> List[Dict[str, Any]]:
     cases: List[Dict[str, Any]] = []
     seen: set = set()
@@ -111,13 +172,9 @@ def load_heldout_cases(path: Path) -> List[Dict[str, Any]]:
         if not line:
             continue
         row = json.loads(line)
-        for field in ("case_key", "source_id", "axis", "output"):
-            if not isinstance(row.get(field), str) or not row[field].strip():
-                if field == "output" and isinstance(row.get("output"), str):
-                    continue  # an empty candidate output is allowed
-                raise CalibrationError("{}:{} missing {!r}".format(path, line_number, field))
-        if row["axis"] not in AXES:
-            raise CalibrationError("{}:{} axis must be one of {}".format(path, line_number, AXES))
+        if not isinstance(row, Mapping):
+            raise CalibrationError("{}:{} must contain a JSON object".format(path, line_number))
+        _validate_case(row, "{}:{}".format(path, line_number))
         if row["case_key"] in seen:
             raise CalibrationError("{}: duplicate case_key {!r}".format(path, row["case_key"]))
         seen.add(row["case_key"])
@@ -141,6 +198,27 @@ def load_gold(path: Path) -> Dict[str, str]:
     if not gold:
         raise CalibrationError("no gold labels in {}".format(path))
     return gold
+
+
+def validate_case_gold_alignment(
+    cases: Sequence[Mapping[str, Any]], gold: Mapping[str, str]
+) -> None:
+    case_keys = {str(case["case_key"]) for case in cases}
+    gold_keys = set(gold)
+    if case_keys != gold_keys:
+        missing = sorted(case_keys - gold_keys)
+        extra = sorted(gold_keys - case_keys)
+        raise CalibrationError(
+            "cases/gold key mismatch; missing gold={}, extra gold={}".format(missing, extra)
+        )
+    for case in cases:
+        label = gold[case["case_key"]]
+        if label not in AXIS_LABELS[case["axis"]]:
+            raise CalibrationError(
+                "gold label {!r} is invalid for {} case {!r}".format(
+                    label, case["axis"], case["case_key"]
+                )
+            )
 
 
 def load_blocks(dataset: Path) -> Dict[str, Mapping[str, Any]]:
@@ -170,25 +248,23 @@ def _atomic_write_jsonl(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
 
 def _judge_one_case(
     case: Mapping[str, Any],
-    block: Mapping[str, Any],
     judge: LLMJudge,
+    generation_config_sha: str,
     max_attempts: int,
     backoff_initial_seconds: float,
     backoff_max_seconds: float,
     limiter: RateLimiter,
     sleep: Callable[[float], None],
 ) -> Dict[str, Any]:
-    facts = block.get("public_facts", [])
+    facts = case["public_facts"]
     axis = case["axis"]
     evidence = render_evidence(
         {"output": case.get("output", ""), "tool_calls": case.get("tool_calls", [])}
     )
 
     if axis == "boundary":
-        boundary = block.get("ground_truth", {}).get("boundary", "")
-        rubrics = collect_boundary_rubrics(block, "L1")
         verdict = _retry_call(
-            lambda: judge.judge_boundary(facts, boundary, rubrics, evidence),
+            lambda: judge.judge_boundary(facts, case["criterion"], [], evidence),
             "boundary",
             max_attempts,
             backoff_initial_seconds,
@@ -197,9 +273,8 @@ def _judge_one_case(
             sleep,
         )
     else:
-        rubric = block.get("success", {}).get("rubric", "")
         verdict = _retry_call(
-            lambda: judge.judge_success(facts, rubric, evidence),
+            lambda: judge.judge_success(facts, case["criterion"], evidence),
             "success",
             max_attempts,
             backoff_initial_seconds,
@@ -212,6 +287,8 @@ def _judge_one_case(
         "source_id": case["source_id"],
         "axis": axis,
         "judge_model": judge.model,
+        "case_sha256": case_sha256(case),
+        "judge_generation_config_sha256": generation_config_sha,
         "verdict": verdict.verdict,
         "rationale": verdict.rationale,
         "error": verdict.error,
@@ -233,6 +310,10 @@ def run_judge_over_cases(
     sleep: Callable[[float], None] = time.sleep,
     progress: Optional[Callable[[int, int], None]] = None,
 ) -> List[Dict[str, Any]]:
+    for index, case in enumerate(cases, 1):
+        _validate_case(case, "case {}".format(index))
+    generation_config_sha = canonical_sha256(judge.generation_config)
+    case_hashes = {case["case_key"]: case_sha256(case) for case in cases}
     results: Dict[str, Dict[str, Any]] = {}
     if resume and output is not None and output.exists():
         for line in output.read_text(encoding="utf-8").splitlines():
@@ -246,6 +327,8 @@ def run_judge_over_cases(
             if (
                 isinstance(ck, str)
                 and row.get("judge_model") == judge.model
+                and row.get("case_sha256") == case_hashes.get(ck)
+                and row.get("judge_generation_config_sha256") == generation_config_sha
                 and row.get("error") is None
             ):
                 results[ck] = row
@@ -268,8 +351,8 @@ def run_judge_over_cases(
             pool.submit(
                 _judge_one_case,
                 case,
-                blocks_by_id[case["source_id"]],
                 judge,
+                generation_config_sha,
                 max_attempts,
                 backoff_initial_seconds,
                 backoff_max_seconds,
@@ -352,10 +435,13 @@ def two_judge_calibration(
     sleep: Callable[[float], None] = time.sleep,
     **run_kwargs: Any,
 ) -> Dict[str, Any]:
+    validate_case_gold_alignment(cases, gold)
     judged_a = run_judge_over_cases(
         cases, blocks_by_id, judge_a, output=output_a, sleep=sleep, **run_kwargs
     )
     report: Dict[str, Any] = {
+        "case_count": len(cases),
+        "cases_sha256": cases_sha256(cases),
         "judge_a": {
             "model": judge_a.model,
             **{axis: calibrate(judged_a, gold, axis) for axis in AXES},
@@ -430,7 +516,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument("judge_a", type=Path, help="Judge A config (YAML)")
     parser.add_argument("--judge-b", type=Path, default=None, help="Judge B config (cross-vendor)")
-    parser.add_argument("--cases", type=Path, required=True, help="Held-out candidate JSONL")
+    parser.add_argument(
+        "--cases",
+        type=Path,
+        required=True,
+        help="Frozen label-free candidate JSONL (normally annotation/gold/.../cases.jsonl)",
+    )
     parser.add_argument("--gold", type=Path, required=True, help="Frozen gold labels.jsonl")
     parser.add_argument("--dataset", type=Path, required=True, help="agentic dataset JSONL")
     parser.add_argument("--out", type=Path, required=True, help="Where to write the report JSON")
@@ -459,6 +550,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         cases, blocks, gold, judge_a, judge_b,
         output_a=args.out_a, output_b=args.out_b, progress=_progress,
     )
+    report["inputs"] = {
+        "cases_file_sha256": hashlib.sha256(args.cases.read_bytes()).hexdigest(),
+        "gold_file_sha256": hashlib.sha256(args.gold.read_bytes()).hexdigest(),
+        "dataset_file_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
+    }
     print(file=sys.stderr)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

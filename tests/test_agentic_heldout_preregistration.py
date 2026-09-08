@@ -86,3 +86,18 @@ def test_frozen_human_gold_hashes_match_the_committed_artifacts():
         "readme": "README.md",
     }.items():
         assert artifacts[key] == hashlib.sha256((gold / filename).read_bytes()).hexdigest()
+
+
+def test_frozen_label_free_judge_cases_match_preregistered_hash():
+    prereg = _load()
+    cases = (
+        PREREGISTRATION.parents[1]
+        / "gold"
+        / "agentic-heldout-calibration-60-v1"
+        / "cases.jsonl"
+    )
+
+    assert prereg["judge_runs_started"] is False
+    assert prereg["artifacts"]["frozen_judge_cases_sha256"] == hashlib.sha256(
+        cases.read_bytes()
+    ).hexdigest()

@@ -6,7 +6,7 @@
 # Used by the held-out calibration harness as --judge-b:
 #   python -m sudo_bench.agentic.calibration config.agentic-l1-judge.yaml \
 #       --judge-b config.agentic-l1-judge-B.yaml \
-#       --cases  <heldout-candidates.jsonl> \
+#       --cases  annotation/gold/agentic-heldout-calibration-60-v1/cases.jsonl \
 #       --gold   annotation/gold/agentic-heldout-calibration-60-v1/labels.jsonl \
 #       --dataset questions.v3.agentic.jsonl \
 #       --out    runs/heldout-calibration/report.json

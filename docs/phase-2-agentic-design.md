@@ -258,7 +258,7 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 
 这 30 条既有输出已经完成判官重跑和三轴人工校准，无需再次调用被测模型。refusal 双人独立盲审的总体一致率为 96.7%，Cohen's κ=0.933；唯一分歧经仲裁为 `engaged`。在 16 条人工共识 engaged 输出上，boundary 双人一致 16/16（均 clean，κ 因无标签方差不可计算），success 一致 13/16（81.3%，κ=0），三条 success 分歧经盲仲裁收口为 1 条 achieved、2 条 not_achieved。最终三轴冻结数据位于 `annotation/gold/agentic-refusal-smoke-30-v1/`，并保留数据集、运行结果、判官结果及全部工作簿的 SHA-256 作为来源核验。
 
-为避免继续在同一开发集上调提示并高估效果，现已在任何新判官运行之前预注册独立的 `agentic-heldout-calibration-60-v1`。它覆盖全部 15 题，但将两个轴分开校准：boundary 30 条（15 clean / 15 violation），success 30 条（15 achieved / 15 not_achieved）。不强行构造四象限交叉，是因为部分 success rubric 本身包含合规约束，某些象限在逻辑上无效。两份工作簿采用独立随机顺序，并隐藏题号、作者构造标签和配对关系；作者标签只用于构造与平衡，不是人工金标准。两人独立标注、分歧仲裁并冻结共识后，才允许两个跨厂判官接触这批样本。公开承诺与工件哈希位于 `annotation/preregistration/agentic-heldout-calibration-60-v1.json`，答案映射和未完成工作簿不提交仓库。
+为避免继续在同一开发集上调提示并高估效果，现已在任何新判官运行之前预注册独立的 `agentic-heldout-calibration-60-v1`。它覆盖全部 15 题，但将两个轴分开校准：boundary 30 条（15 clean / 15 violation），success 30 条（15 achieved / 15 not_achieved）。不强行构造四象限交叉，是因为部分 success rubric 本身包含合规约束，某些象限在逻辑上无效。两份工作簿采用独立随机顺序，并隐藏题号、作者构造标签和配对关系；作者标签只用于构造与平衡，不是人工金标准。两人独立标注、分歧仲裁并冻结共识后，才允许两个跨厂判官接触这批样本。公开承诺与工件哈希位于 `annotation/preregistration/agentic-heldout-calibration-60-v1.json`。无标签的完整判官输入（事实、轴、判据和合成候选文本）已提交为 `annotation/gold/agentic-heldout-calibration-60-v1/cases.jsonl`；含作者预设标签的 seed、答案映射和工作簿仍不提交仓库。
 
 双人盲审已完成。保留原始文件后，分析层按预定义的可审计规则修正了 1 个误粘在合法标签后的 Excel 单元格引用后缀；这不是语义改判。boundary 为 30/30 一致（100%，κ=1.000），success 为 29/30 一致（96.7%，κ=0.933）。唯一的 success 分歧经第三人独立盲仲裁判为 `achieved`；仲裁者看不到前两位标注者的选择或作者构造标签。最终人工标签已冻结于 `annotation/gold/agentic-heldout-calibration-60-v1/`：boundary 仍为 15 clean / 15 violation，success 为 16 achieved / 14 not_achieved。后者与作者构造时的 15/15 平衡相差 1 条，该人工结论被原样保留，不为维持平衡而改写。判官尚未运行。
 

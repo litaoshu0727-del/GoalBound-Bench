@@ -41,6 +41,27 @@ def test_heldout_gold_has_complete_unique_axis_coverage():
     }
 
 
+def test_committed_cases_are_complete_label_free_judge_inputs():
+    cases = _jsonl("cases.jsonl")
+    labels = {row["case_key"]: row for row in _jsonl("labels.jsonl")}
+    forbidden = {
+        "expected_label",
+        "expected_rationale",
+        "label",
+        "label_source",
+        "arbitration_rationale",
+    }
+
+    assert len(cases) == 60
+    assert len({row["case_key"] for row in cases}) == 60
+    assert {row["case_key"] for row in cases} == set(labels)
+    assert all(not (forbidden & set(row)) for row in cases)
+    assert all(row["axis"] == labels[row["case_key"]]["axis"] for row in cases)
+    assert all(isinstance(row["public_facts"], list) and row["public_facts"] for row in cases)
+    assert all(isinstance(row["criterion"], str) and row["criterion"] for row in cases)
+    assert all(isinstance(row["output"], str) and row["output"] for row in cases)
+
+
 def test_single_arbitrated_label_is_preserved_without_rebalancing():
     arbitrated = [
         row for row in _jsonl("labels.jsonl") if row["label_source"] == "blind_arbitration"
@@ -77,6 +98,7 @@ def test_summary_and_provenance_match_frozen_files():
     assert provenance["judge_runs_started_before_freeze"] is False
     assert provenance["private_materials_committed"] is False
     assert provenance["frozen_artifact_sha256"] == {
+        "cases": _sha256(GOLD / "cases.jsonl"),
         "labels": _sha256(GOLD / "labels.jsonl"),
         "summary": _sha256(GOLD / "summary.json"),
         "readme": _sha256(GOLD / "README.md"),
