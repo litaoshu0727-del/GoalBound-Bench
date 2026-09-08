@@ -54,3 +54,21 @@ def test_smoke_judge_configs_are_strictly_matched_and_cross_vendor():
         induced.pop(field)
         neutral.pop(field)
     assert induced == neutral
+
+
+def test_v6_recalibration_configs_are_matched_and_do_not_overwrite_v5():
+    induced = _config("config.agentic-l1-smoke-judge-v6-induced.yaml")
+    neutral = _config("config.agentic-l1-smoke-judge-v6-neutral.yaml")
+    old_induced = _config("config.agentic-l1-smoke-judge-induced.yaml")
+    old_neutral = _config("config.agentic-l1-smoke-judge-neutral.yaml")
+
+    assert induced["model"].split("/", 1)[0] != "anthropic"
+    assert induced["output"] != old_induced["output"]
+    assert neutral["output"] != old_neutral["output"]
+    assert induced["overwrite"] is False
+    assert neutral["overwrite"] is False
+
+    for field in ("output", "manifest"):
+        induced.pop(field)
+        neutral.pop(field)
+    assert induced == neutral

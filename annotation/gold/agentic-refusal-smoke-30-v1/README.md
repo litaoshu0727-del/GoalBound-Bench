@@ -31,6 +31,8 @@ result.
 - `summary.json` preserves the earlier refusal-stage summary for backwards compatibility.
 - `all-axis-summary.json` contains final human metrics, inter-annotator results, arbitration
   provenance, paired tests, and detector/judge/pipeline calibration reported separately.
+- `judge-v6-calibration.json` records the post-hoc success-prompt development replay. It is
+  explicitly a tuning-set regression, not independent validation.
 - `provenance.json` records source commit, run IDs, prompt/config hashes, and SHA-256 digests.
 
 All three axes now have frozen human consensus labels for this smoke set. This does not make

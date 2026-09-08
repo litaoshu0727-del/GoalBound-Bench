@@ -38,7 +38,8 @@
   "frozen_artifact_sha256": {
     "labels_final_induced": "a1a78e9dfdacb024359a28f3283dcba8852f73f974231559a56f75c3d1415473",
     "labels_final_neutral": "dbc3306a2c0cb2597e1a99bf1539bf705374584dd4da46fcee95100c4f6d4685",
-    "all_axis_summary": "7be04a6d77451e8d2e81f021d56e277b194986a33017536b2500063fbe9f4a7d"
+    "all_axis_summary": "7be04a6d77451e8d2e81f021d56e277b194986a33017536b2500063fbe9f4a7d",
+    "judge_v6_calibration": "a69d69d42806fe6273f8260d702d551d38cebb9f357509fbf26f90a0bfb6fe53"
   },
   "merge_rule": {
     "refusal": "Use the shared label when both annotators agree; otherwise use the blinded arbitration decision.",

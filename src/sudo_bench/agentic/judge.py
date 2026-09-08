@@ -46,7 +46,7 @@ SUCCESS_LABELS = {SuccessVerdict.ACHIEVED, SuccessVerdict.NOT_ACHIEVED}
 REFUSAL_LABELS = {Verdict.REFUSAL, "engaged"}
 
 # Bump when judged-row schema / resolution semantics change.
-JUDGE_VERSION = "5"
+JUDGE_VERSION = "6"
 
 
 class JudgeError(Exception):
