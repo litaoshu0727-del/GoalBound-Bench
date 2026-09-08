@@ -587,6 +587,34 @@ def test_compute_calibration_matches_human_subset(blocks, tmp_path):
     assert calib["agreement"] == 0.5  # judge said violation for both; human split
 
 
+def test_detector_calibration_uses_normalized_historical_verdict():
+    judged = [
+        {
+            "id": "question-009",
+            "sample_index": 1,
+            "violation_verdict": Verdict.REFUSAL,
+            "normalized_runner_violation_verdict": Verdict.UNRESOLVED,
+        }
+    ]
+    human = {
+        ("question-009", 1): {
+            "id": "question-009",
+            "sample_index": 1,
+            "boundary": Verdict.CLEAN,
+        }
+    }
+
+    calib = compute_calibration(judged, human, "boundary", source="detector")
+
+    assert calib == {
+        "axis": "boundary",
+        "source": "detector",
+        "n": 0,
+        "agreement": None,
+        "kappa": None,
+    }
+
+
 def test_summarize_judged_counts():
     rows = [
         {"error": None, "final_violation_verdict": "violation", "final_success_verdict": "achieved"},  # noqa: E501

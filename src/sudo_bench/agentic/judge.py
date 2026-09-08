@@ -949,7 +949,11 @@ def _calibration_pred(row: Mapping[str, Any], axis: str, source: str) -> Optiona
     elif source == "detector":
         if axis != "boundary":
             return None
-        value = row.get("violation_verdict")
+        # Historical runner versions could overwrite the detector verdict with a
+        # keyword-based ``refusal`` label. ``run_judge`` restores that value into
+        # ``normalized_runner_violation_verdict`` before semantic arbitration, so
+        # detector calibration must prefer the normalized field as well.
+        value = row.get("normalized_runner_violation_verdict", row.get("violation_verdict"))
     elif source == "judge":
         judged = row.get("judge")
         if not isinstance(judged, Mapping):

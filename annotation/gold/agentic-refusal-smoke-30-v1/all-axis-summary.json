@@ -1,0 +1,376 @@
+{
+  "batch_id": "agentic-l1-smoke-30-all-axis-human-consensus-v1",
+  "created_at": "2026-09-08",
+  "provenance": {
+    "refusal": {
+      "agreement": 29,
+      "arbitration": 1
+    },
+    "boundary": {
+      "agreement": 16,
+      "arbitration": 0
+    },
+    "success": {
+      "agreement": 13,
+      "arbitration": 3
+    }
+  },
+  "interannotator_round_one": {
+    "total": 16,
+    "exact_joint_agreement": 0.8125,
+    "records_requiring_arbitration": 3,
+    "boundary": {
+      "n": 16,
+      "agreement": 1,
+      "cohen_kappa": null,
+      "disagreements": 0,
+      "confusion": {
+        "clean->clean": 16,
+        "clean->violation": 0,
+        "violation->clean": 0,
+        "violation->violation": 0
+      }
+    },
+    "success": {
+      "n": 16,
+      "agreement": 0.8125,
+      "cohen_kappa": 0,
+      "disagreements": 3,
+      "confusion": {
+        "achieved->achieved": 13,
+        "achieved->not_achieved": 0,
+        "not_achieved->achieved": 3,
+        "not_achieved->not_achieved": 0
+      }
+    },
+    "by_condition": {
+      "induced": {
+        "n": 7,
+        "boundary": {
+          "n": 7,
+          "agreement": 1,
+          "cohen_kappa": null,
+          "disagreements": 0,
+          "confusion": {
+            "clean->clean": 7,
+            "clean->violation": 0,
+            "violation->clean": 0,
+            "violation->violation": 0
+          }
+        },
+        "success": {
+          "n": 7,
+          "agreement": 0.7142857142857143,
+          "cohen_kappa": 0,
+          "disagreements": 2,
+          "confusion": {
+            "achieved->achieved": 5,
+            "achieved->not_achieved": 0,
+            "not_achieved->achieved": 2,
+            "not_achieved->not_achieved": 0
+          }
+        }
+      },
+      "neutral": {
+        "n": 9,
+        "boundary": {
+          "n": 9,
+          "agreement": 1,
+          "cohen_kappa": null,
+          "disagreements": 0,
+          "confusion": {
+            "clean->clean": 9,
+            "clean->violation": 0,
+            "violation->clean": 0,
+            "violation->violation": 0
+          }
+        },
+        "success": {
+          "n": 9,
+          "agreement": 0.8888888888888888,
+          "cohen_kappa": 0,
+          "disagreements": 1,
+          "confusion": {
+            "achieved->achieved": 8,
+            "achieved->not_achieved": 0,
+            "not_achieved->achieved": 1,
+            "not_achieved->not_achieved": 0
+          }
+        }
+      }
+    }
+  },
+  "conditions": {
+    "induced": {
+      "total": 15,
+      "engaged": 7,
+      "refusal": 8,
+      "refusal_rate": 0.5333333333333333,
+      "boundary_among_engaged": {
+        "violation": 0,
+        "clean": 7,
+        "violation_rate": 0
+      },
+      "success_among_engaged": {
+        "achieved": 6,
+        "not_achieved": 1,
+        "achieved_rate": 0.8571428571428571
+      },
+      "success_all_samples": {
+        "achieved": 6,
+        "not_achieved": 9,
+        "achieved_rate": 0.4
+      },
+      "judge_human_calibration": {
+        "refusal": {
+          "judge": {
+            "axis": "refusal",
+            "source": "judge",
+            "n": 15,
+            "agreement": 0.8666666666666667,
+            "kappa": 0.736842105263158
+          },
+          "pipeline": {
+            "axis": "refusal",
+            "source": "pipeline",
+            "n": 15,
+            "agreement": 0.8666666666666667,
+            "kappa": 0.736842105263158
+          }
+        },
+        "boundary_engaged_only": {
+          "detector": {
+            "axis": "boundary",
+            "source": "detector",
+            "n": 2,
+            "agreement": 1,
+            "kappa": null
+          },
+          "judge": {
+            "axis": "boundary",
+            "source": "judge",
+            "n": 5,
+            "agreement": 0.8,
+            "kappa": 0
+          },
+          "pipeline": {
+            "axis": "boundary",
+            "source": "pipeline",
+            "n": 7,
+            "agreement": 0.8571428571428571,
+            "kappa": 0
+          }
+        },
+        "success_engaged_only": {
+          "judge": {
+            "axis": "success",
+            "source": "judge",
+            "n": 7,
+            "agreement": 0.42857142857142855,
+            "kappa": -0.27272727272727265
+          },
+          "pipeline": {
+            "axis": "success",
+            "source": "pipeline",
+            "n": 7,
+            "agreement": 0.42857142857142855,
+            "kappa": -0.27272727272727265
+          }
+        },
+        "end_to_end_all_samples": {
+          "boundary_pipeline": {
+            "axis": "boundary",
+            "source": "pipeline",
+            "n": 15,
+            "agreement": 0.8,
+            "kappa": 0.6280991735537191
+          },
+          "success_pipeline": {
+            "axis": "success",
+            "source": "pipeline",
+            "n": 15,
+            "agreement": 0.6666666666666666,
+            "kappa": 0.28571428571428564
+          }
+        }
+      }
+    },
+    "neutral": {
+      "total": 15,
+      "engaged": 9,
+      "refusal": 6,
+      "refusal_rate": 0.4,
+      "boundary_among_engaged": {
+        "violation": 0,
+        "clean": 9,
+        "violation_rate": 0
+      },
+      "success_among_engaged": {
+        "achieved": 8,
+        "not_achieved": 1,
+        "achieved_rate": 0.8888888888888888
+      },
+      "success_all_samples": {
+        "achieved": 8,
+        "not_achieved": 7,
+        "achieved_rate": 0.5333333333333333
+      },
+      "judge_human_calibration": {
+        "refusal": {
+          "judge": {
+            "axis": "refusal",
+            "source": "judge",
+            "n": 15,
+            "agreement": 0.9333333333333333,
+            "kappa": 0.8571428571428572
+          },
+          "pipeline": {
+            "axis": "refusal",
+            "source": "pipeline",
+            "n": 15,
+            "agreement": 0.9333333333333333,
+            "kappa": 0.8571428571428572
+          }
+        },
+        "boundary_engaged_only": {
+          "detector": {
+            "axis": "boundary",
+            "source": "detector",
+            "n": 2,
+            "agreement": 1,
+            "kappa": null
+          },
+          "judge": {
+            "axis": "boundary",
+            "source": "judge",
+            "n": 7,
+            "agreement": 1,
+            "kappa": null
+          },
+          "pipeline": {
+            "axis": "boundary",
+            "source": "pipeline",
+            "n": 9,
+            "agreement": 1,
+            "kappa": null
+          }
+        },
+        "success_engaged_only": {
+          "judge": {
+            "axis": "success",
+            "source": "judge",
+            "n": 9,
+            "agreement": 0.6666666666666666,
+            "kappa": 0.27027027027027023
+          },
+          "pipeline": {
+            "axis": "success",
+            "source": "pipeline",
+            "n": 9,
+            "agreement": 0.6666666666666666,
+            "kappa": 0.27027027027027023
+          }
+        },
+        "end_to_end_all_samples": {
+          "boundary_pipeline": {
+            "axis": "boundary",
+            "source": "pipeline",
+            "n": 15,
+            "agreement": 0.9333333333333333,
+            "kappa": 0.8571428571428572
+          },
+          "success_pipeline": {
+            "axis": "success",
+            "source": "pipeline",
+            "n": 15,
+            "agreement": 0.8,
+            "kappa": 0.6086956521739132
+          }
+        }
+      }
+    }
+  },
+  "induced_minus_neutral": {
+    "refusal_rate": 0.1333333333333333,
+    "boundary_violation_rate_among_engaged": 0,
+    "success_rate_all_samples": -0.1333333333333333
+  },
+  "paired_success_transitions": {
+    "induced_achieved_neutral_not_achieved": 1,
+    "induced_not_achieved_neutral_achieved": 3,
+    "exact_mcnemar_p": 0.625
+  },
+  "judge_human_calibration_overall": {
+    "refusal": {
+      "judge": {
+        "axis": "refusal",
+        "source": "judge",
+        "n": 30,
+        "agreement": 0.9,
+        "kappa": 0.7963800904977376
+      },
+      "pipeline": {
+        "axis": "refusal",
+        "source": "pipeline",
+        "n": 30,
+        "agreement": 0.9,
+        "kappa": 0.7963800904977376
+      }
+    },
+    "boundary_engaged_only": {
+      "detector": {
+        "axis": "boundary",
+        "source": "detector",
+        "n": 4,
+        "agreement": 1,
+        "kappa": null
+      },
+      "judge": {
+        "axis": "boundary",
+        "source": "judge",
+        "n": 12,
+        "agreement": 0.9166666666666666,
+        "kappa": 0
+      },
+      "pipeline": {
+        "axis": "boundary",
+        "source": "pipeline",
+        "n": 16,
+        "agreement": 0.9375,
+        "kappa": 0
+      }
+    },
+    "success_engaged_only": {
+      "judge": {
+        "axis": "success",
+        "source": "judge",
+        "n": 16,
+        "agreement": 0.5625,
+        "kappa": 0.034482758620689655
+      },
+      "pipeline": {
+        "axis": "success",
+        "source": "pipeline",
+        "n": 16,
+        "agreement": 0.5625,
+        "kappa": 0.034482758620689655
+      }
+    },
+    "end_to_end_all_samples": {
+      "boundary_pipeline": {
+        "axis": "boundary",
+        "source": "pipeline",
+        "n": 30,
+        "agreement": 0.8666666666666667,
+        "kappa": 0.7379912663755458
+      },
+      "success_pipeline": {
+        "axis": "success",
+        "source": "pipeline",
+        "n": 30,
+        "agreement": 0.7333333333333333,
+        "kappa": 0.4545454545454545
+      }
+    }
+  }
+}
