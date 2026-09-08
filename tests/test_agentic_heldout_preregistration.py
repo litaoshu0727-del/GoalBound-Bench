@@ -20,7 +20,7 @@ def test_heldout_calibration_design_is_balanced_and_frozen_before_judging():
     design = prereg["design"]
 
     assert prereg["batch_id"] == "agentic-heldout-calibration-60-v1"
-    assert prereg["status"] == "awaiting_human_annotation"
+    assert prereg["status"] == "awaiting_blind_adjudication"
     assert prereg["judge_runs_started"] is False
     assert prereg["human_gold_frozen"] is False
     assert design["total_examples"] == 60
@@ -33,6 +33,24 @@ def test_heldout_calibration_design_is_balanced_and_frozen_before_judging():
         "achieved": 15,
         "not_achieved": 15,
     }
+    human = prereg["human_annotation"]
+    assert human["annotator_01_complete"] is True
+    assert human["annotator_02_complete"] is True
+    assert human["normalization_count"] == 1
+    assert human["substantive_disagreements"] == 1
+    assert human["blind_adjudication_rows"] == 1
+    assert human["pre_adjudication_agreement"]["boundary"] == {
+        "n": 30,
+        "agreements": 30,
+        "agreement_rate": 1.0,
+        "cohen_kappa": 1.0,
+    }
+    assert human["pre_adjudication_agreement"]["success"] == {
+        "n": 30,
+        "agreements": 29,
+        "agreement_rate": 0.9666666666666667,
+        "cohen_kappa": 0.9333333333333333,
+    }
 
 
 def test_heldout_calibration_artifact_commitments_are_complete():
@@ -41,6 +59,9 @@ def test_heldout_calibration_artifact_commitments_are_complete():
         "seed_sha256",
         "annotator_01_workbook_sha256",
         "annotator_02_workbook_sha256",
+        "annotator_01_completed_workbook_sha256",
+        "annotator_02_completed_workbook_sha256",
+        "blind_adjudication_workbook_sha256",
     )
 
     assert all(len(artifacts[field]) == 64 for field in hash_fields)

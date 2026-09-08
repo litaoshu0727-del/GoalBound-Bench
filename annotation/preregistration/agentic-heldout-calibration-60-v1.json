@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-heldout-calibration-60-v1",
   "preregistered_at": "2026-09-08",
-  "status": "awaiting_human_annotation",
+  "status": "awaiting_blind_adjudication",
   "purpose": "Prospective held-out calibration of the L1 boundary and success judges.",
   "design": {
     "total_examples": 60,
@@ -40,10 +40,35 @@
   ],
   "judge_runs_started": false,
   "human_gold_frozen": false,
+  "human_annotation": {
+    "annotator_01_complete": true,
+    "annotator_02_complete": true,
+    "normalization_count": 1,
+    "normalization_rule": "An accidental +cell-reference suffix was stripped from an otherwise valid label; the raw workbook and its hash remain preserved.",
+    "pre_adjudication_agreement": {
+      "boundary": {
+        "n": 30,
+        "agreements": 30,
+        "agreement_rate": 1.0,
+        "cohen_kappa": 1.0
+      },
+      "success": {
+        "n": 30,
+        "agreements": 29,
+        "agreement_rate": 0.9666666666666667,
+        "cohen_kappa": 0.9333333333333333
+      }
+    },
+    "substantive_disagreements": 1,
+    "blind_adjudication_rows": 1
+  },
   "artifacts": {
     "seed_sha256": "7b23a6ac79aefb2fb4d78f4a1cbc042ffe437a13b9812b7945505bb2a2f269d2",
     "annotator_01_workbook_sha256": "2860ff0442b3ede5d90662a36c5f79e4583be65bc36797dbfad283a79a56f9ec",
     "annotator_02_workbook_sha256": "6172ba91300636c17861026b842af50e50862d49decb3e0d9fd64df5ebc87aae",
+    "annotator_01_completed_workbook_sha256": "16e7349aa43298dcd011f6cb81c044edf43b588ee042e00fa1f34bbaa1a62862",
+    "annotator_02_completed_workbook_sha256": "73c9ee92112c9dd84b4f911f883939d9eda3dedd0021d9e3d07066cd1b79576a",
+    "blind_adjudication_workbook_sha256": "d8dd38eb8fb31031e23b32272baf4f35b4d028f9cf9f6c3eb8d9c840e64d15c8",
     "private_seed_committed": false,
     "blind_workbooks_committed": false,
     "answer_mappings_committed": false
