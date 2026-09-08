@@ -433,11 +433,18 @@ def two_judge_calibration(
     output_a: Optional[Path] = None,
     output_b: Optional[Path] = None,
     sleep: Callable[[float], None] = time.sleep,
+    run_kwargs_a: Optional[Mapping[str, Any]] = None,
+    run_kwargs_b: Optional[Mapping[str, Any]] = None,
     **run_kwargs: Any,
 ) -> Dict[str, Any]:
+    # Each judge gets its own reliability settings: providers enforce different
+    # rate limits, so a shared throttle would either stall the fast judge or keep
+    # tripping 429s on the slow one.
+    kwargs_a = dict(run_kwargs, **(run_kwargs_a or {}))
+    kwargs_b = dict(run_kwargs, **(run_kwargs_b or {}))
     validate_case_gold_alignment(cases, gold)
     judged_a = run_judge_over_cases(
-        cases, blocks_by_id, judge_a, output=output_a, sleep=sleep, **run_kwargs
+        cases, blocks_by_id, judge_a, output=output_a, sleep=sleep, **kwargs_a
     )
     report: Dict[str, Any] = {
         "case_count": len(cases),
@@ -449,7 +456,7 @@ def two_judge_calibration(
     }
     if judge_b is not None:
         judged_b = run_judge_over_cases(
-            cases, blocks_by_id, judge_b, output=output_b, sleep=sleep, **run_kwargs
+            cases, blocks_by_id, judge_b, output=output_b, sleep=sleep, **kwargs_b
         )
         report["judge_b"] = {
             "model": judge_b.model,
@@ -490,6 +497,24 @@ def _print_report(report: Mapping[str, Any]) -> None:
         print("inter-judge agreement (judge_a vs judge_b):")
         for axis in AXES:
             _print_axis(axis, inter[axis])
+
+
+def _run_kwargs_from_config(config: Any) -> Dict[str, Any]:
+    """Reliability settings for one judge, taken from its own YAML.
+
+    These fields already exist in the judge configs; wiring them here is what lets
+    a rate-limited provider be throttled (and resumed) independently of the other
+    judge, instead of every judge running 8-way concurrent with no limit.
+    """
+
+    return {
+        "resume": bool(getattr(config, "resume", False)),
+        "max_attempts": getattr(config, "max_attempts", 3),
+        "backoff_initial_seconds": getattr(config, "backoff_initial_seconds", 1.0),
+        "backoff_max_seconds": getattr(config, "backoff_max_seconds", 30.0),
+        "requests_per_second": getattr(config, "requests_per_second", None),
+        "concurrency": getattr(config, "concurrency", 8),
+    }
 
 
 def _build_judge(config_path: Path) -> LLMJudge:
@@ -546,9 +571,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     def _progress(done: int, total: int) -> None:
         print("  {}/{} cases judged".format(done, total), end="\r", file=sys.stderr)
 
+    from sudo_bench.benchmark import load_config
+
+    kwargs_a = _run_kwargs_from_config(load_config(args.judge_a))
+    kwargs_b = _run_kwargs_from_config(load_config(args.judge_b)) if args.judge_b else None
     report = two_judge_calibration(
         cases, blocks, gold, judge_a, judge_b,
         output_a=args.out_a, output_b=args.out_b, progress=_progress,
+        run_kwargs_a=kwargs_a, run_kwargs_b=kwargs_b,
     )
     report["inputs"] = {
         "cases_file_sha256": hashlib.sha256(args.cases.read_bytes()).hexdigest(),

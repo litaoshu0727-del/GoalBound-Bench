@@ -25,9 +25,9 @@ manifest: runs/agentic-l1-claude-opus-5-induced/judged.manifest.json
 temperature: null                # this judge endpoint does not support temperature
 require_parameters: true
 max_tokens: 512
-concurrency: 8
+concurrency: 1
 resume: true
-max_attempts: 4
+max_attempts: 8
 backoff_initial_seconds: 1
-backoff_max_seconds: 30
-requests_per_second: null
+backoff_max_seconds: 90
+requests_per_second: 0.25   # new-account RPM limit; 429s otherwise
