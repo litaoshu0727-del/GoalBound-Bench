@@ -1,0 +1,45 @@
+# Judge C candidate: moonshotai/kimi-k3
+#
+# Why a third judge at all: judge B is google/gemini-3.7-flash, and one of the three
+# evaluated models is also google/gemini-3.7-flash, so `assert_cross_vendor` refuses
+# to let B grade that arm. Judge C's vendor is disjoint from ALL THREE evaluated
+# models (anthropic / google / x-ai) AND from judge A (openai), so the SAME judge
+# pair {A, C} can grade all three arms -- no per-arm judge substitution, no
+# confound between which model was evaluated and who graded it.
+#
+# This file is a CANDIDATE, not the selected judge. Selection rule, threshold and
+# the acknowledged selection bias are preregistered in
+# annotation/preregistration/agentic-judge-c-selection-v1.json, frozen before any
+# candidate was run. Select with:
+#
+#   python -m sudo_bench.agentic.calibration config.agentic-l1-judge.yaml \
+#       --judge-b config.agentic-l1-judge-c-candidate-kimi-k3.yaml \
+#       --cases  annotation/gold/agentic-heldout-calibration-60-v1/cases.jsonl \
+#       --gold   annotation/gold/agentic-heldout-calibration-60-v1/labels.jsonl \
+#       --dataset questions.v3.agentic.jsonl \
+#       --out    runs/judge-c-selection/kimi-k3.json
+#
+# The judge's own system prompt is fixed in judge_prompts.py; `system_prompt` here
+# is ignored. `dataset`/`output`/`manifest` are required by the shared config loader
+# but unused by the calibration harness.
+api_key: ${OPENROUTER_API_KEY}
+base_url: https://openrouter.ai/api/v1
+model: moonshotai/kimi-k3
+
+dataset: questions.v3.agentic.jsonl
+output: runs/agentic-l1-judge-c-kimi-k3/judged.jsonl
+manifest: runs/agentic-l1-judge-c-kimi-k3/judged.manifest.json
+
+temperature: 0.0                 # deterministic grading, same as judge B
+require_parameters: true
+max_tokens: 512
+concurrency: 3      # the limiter is the gate; >1 so a slow call does not idle
+                    # the 3.3s send interval
+resume: true
+max_attempts: 8
+backoff_initial_seconds: 1
+backoff_max_seconds: 90
+# Measured 2026-09-09: 20 rpm PER MODEL for this account (new-account-rpm key,
+# fixed 60s window). 0.3 rps = 18 rpm keeps 10% headroom.
+# See reports/openrouter-rate-limit-probe/.
+requests_per_second: 0.3
