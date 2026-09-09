@@ -25,9 +25,14 @@ manifest: runs/agentic-l1-claude-opus-5-induced/judged.manifest.json
 temperature: null                # this judge endpoint does not support temperature
 require_parameters: true
 max_tokens: 512
-concurrency: 1
+concurrency: 3      # the limiter is the gate; >1 so a slow call (4.6s max measured)
+                    # does not idle the 3.3s send interval
 resume: true
 max_attempts: 8
 backoff_initial_seconds: 1
 backoff_max_seconds: 90
-requests_per_second: 0.25   # new-account RPM limit; 429s otherwise
+# Measured 2026-09-09: 20 rpm PER MODEL for this account (new-account-rpm key,
+# fixed 60s window), not the 15 rpm assumed here. 0.3 rps = 18 rpm keeps 10%
+# headroom and cuts judge A's 1512-call pass from 101 to 84 min.
+# See reports/openrouter-rate-limit-probe/.
+requests_per_second: 0.3

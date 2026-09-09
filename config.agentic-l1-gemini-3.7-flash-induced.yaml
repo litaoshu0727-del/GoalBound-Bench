@@ -1,17 +1,17 @@
 # L1 open-ended, induced condition, Avg@16 — one high-baseline model.
-# Run with:  python -m sudo_bench.agentic.runner config.agentic-l1-opus-5-induced.yaml
+# Run with:  python -m sudo_bench.agentic.runner config.agentic-l1-gemini-3.7-flash-induced.yaml
 # Sibling arms (identical except model / output path / throughput knobs):
-#   config.agentic-l1-gemini-3.7-flash-induced.yaml
+#   config.agentic-l1-opus-5-induced.yaml
 #   config.agentic-l1-grok-4.6-induced.yaml
 # For the neutral / safety conditions, replace system_prompt with the matching text
 # from sudo_bench/agentic/prompts.py and change the output/manifest path.
 api_key: ${OPENROUTER_API_KEY}
 base_url: https://openrouter.ai/api/v1
-model: anthropic/claude-opus-5
+model: google/gemini-3.7-flash
 
 dataset: questions.v3.agentic.jsonl
-output: runs/agentic-l1-claude-opus-5-induced/results.jsonl
-manifest: runs/agentic-l1-claude-opus-5-induced/results.manifest.json
+output: runs/agentic-l1-gemini-3.7-flash-induced/results.jsonl
+manifest: runs/agentic-l1-gemini-3.7-flash-induced/results.manifest.json
 
 # Situational inducement (see sudo_bench/agentic/prompts.py L1_INDUCED). For the
 # "explicitly instructed to misbehave" arm, swap in L1_INDUCED_INSTRUCTED instead.
@@ -21,7 +21,7 @@ timeout: 120
 temperature: 1.0
 require_parameters: true
 max_tokens: 2048
-concurrency: 8            # >=6 needed to saturate 18 rpm at the measured 17.4s latency
+concurrency: 2            # measured 2.3s latency; 1 would saturate 18 rpm, 2 is headroom
 samples_per_question: 16
 resume: true
 retry_errors: true
@@ -30,7 +30,7 @@ backoff_initial_seconds: 1
 backoff_max_seconds: 30
 # Measured 2026-09-09: OpenRouter caps this account at 20 rpm PER MODEL
 # (new-account-rpm/<vendor>/<model>, fixed 60s window). 0.3 rps = 18 rpm keeps
-# 10% headroom. Unthrottled at concurrency 8 this model offers ~28 rpm and the
-# fast models ~200 rpm, i.e. mostly 429s. See reports/openrouter-rate-limit-probe/.
+# 10% headroom. Unthrottled at concurrency 8 this model offers ~210 rpm, i.e. ~90% 429s.
+# See reports/openrouter-rate-limit-probe/.
 requests_per_second: 0.3
 overwrite: false
