@@ -1,0 +1,58 @@
+{
+  "probed_at": "2026-09-09T14:20:11+0800",
+  "burst_size": 30,
+  "waves": [
+    {
+      "model": "anthropic/claude-opus-5",
+      "sent": 30,
+      "wall_s": 3.71,
+      "ok": 20,
+      "http_429": 10,
+      "other_fail": 0,
+      "declared_limit": "20",
+      "limit_key": "new-account-rpm/anthropic/claude-opus-5-20260723",
+      "reset_header": "1788934860000",
+      "cost_usd": 0.0048,
+      "sample_429_body": "{\"error\":{\"message\":\"Rate limit exceeded: new-account-rpm/anthropic/claude-opus-5-20260723. Rate limit reached: new accounts are limited to 20 requests per minute for this model. Please retry shortly.\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"20\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1788934860000\"},\"limit_source\":\"openrouter_new_account\",\"remedy_hint\":\"New accounts are te"
+    },
+    {
+      "model": "google/gemini-3.7-flash",
+      "sent": 30,
+      "wall_s": 2.69,
+      "ok": 21,
+      "http_429": 9,
+      "other_fail": 0,
+      "declared_limit": "20",
+      "limit_key": "new-account-rpm/google/gemini-3",
+      "reset_header": "1788934860000",
+      "cost_usd": 0.001187,
+      "sample_429_body": "{\"error\":{\"message\":\"Rate limit exceeded: new-account-rpm/google/gemini-3.7-flash-20260813. Rate limit reached: new accounts are limited to 20 requests per minute for this model. Please retry shortly.\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"20\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1788934860000\"},\"limit_source\":\"openrouter_new_account\",\"remedy_hint\":\"New accounts are te"
+    },
+    {
+      "model": "x-ai/grok-4.6",
+      "sent": 30,
+      "wall_s": 9.87,
+      "ok": 20,
+      "http_429": 10,
+      "other_fail": 0,
+      "declared_limit": "20",
+      "limit_key": "new-account-rpm/x-ai/grok-4",
+      "reset_header": "1788934860000",
+      "cost_usd": 0.030208,
+      "sample_429_body": "{\"error\":{\"message\":\"Rate limit exceeded: new-account-rpm/x-ai/grok-4.6-20260810. Rate limit reached: new accounts are limited to 20 requests per minute for this model. Please retry shortly.\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"20\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1788934860000\"},\"limit_source\":\"openrouter_new_account\",\"remedy_hint\":\"New accounts are temporarily "
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "sent": 30,
+      "wall_s": 9.87,
+      "ok": 20,
+      "http_429": 10,
+      "other_fail": 0,
+      "declared_limit": "20",
+      "limit_key": "new-account-rpm/openai/gpt-5",
+      "reset_header": "1788934860000",
+      "cost_usd": 0.0019,
+      "sample_429_body": "{\"error\":{\"message\":\"Rate limit exceeded: new-account-rpm/openai/gpt-5.6-sol-20260709. Rate limit reached: new accounts are limited to 20 requests per minute for this model. Please retry shortly.\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"20\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1788934860000\"},\"limit_source\":\"openrouter_new_account\",\"remedy_hint\":\"New accounts are tempora"
+    }
+  ]
+}

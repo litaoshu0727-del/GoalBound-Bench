@@ -1,0 +1,213 @@
+{
+  "probed_at": "2026-09-09T14:13:40+0800",
+  "real_prompt_question": "question-002",
+  "note": "limits are per-model per-account; distinct models probed in parallel",
+  "models": [
+    {
+      "model": "anthropic/claude-opus-5",
+      "roles": [
+        "subject"
+      ],
+      "phases": {
+        "discover": {
+          "sent": 12,
+          "concurrency": 12,
+          "wall_s": 3.57,
+          "ok": 12,
+          "http_429": 0,
+          "declared_limit_rpm": null,
+          "limit_key": null,
+          "rate_limit_headers": {},
+          "latency_p50_s": 3.34,
+          "cost_usd": 0.00288
+        },
+        "confirm_at_declared_rate": {
+          "target_rpm": 20,
+          "sent": 24,
+          "concurrency": 1,
+          "wall_s": 72.25,
+          "ok": 24,
+          "http_429": 0,
+          "other_fail": 0,
+          "achieved_rpm": 19.9,
+          "latency_p50_s": 2.077,
+          "cost_usd": 0.00631,
+          "first_error": null
+        },
+        "real_l1": {
+          "sent": 3,
+          "concurrency": 1,
+          "max_tokens": 2048,
+          "ok": 3,
+          "http_429": 0,
+          "latency_p50_s": 17.426,
+          "latency_min_s": 16.048,
+          "latency_max_s": 19.106,
+          "completion_tokens_p50": 800,
+          "prompt_tokens_p50": 223,
+          "finish_reasons": [
+            "stop"
+          ],
+          "cost_usd_total": 0.06312,
+          "cost_usd_per_call": 0.02104,
+          "first_error": null
+        }
+      }
+    },
+    {
+      "model": "google/gemini-3.7-flash",
+      "roles": [
+        "subject",
+        "judge-B"
+      ],
+      "phases": {
+        "discover": {
+          "sent": 12,
+          "concurrency": 12,
+          "wall_s": 3.22,
+          "ok": 12,
+          "http_429": 0,
+          "declared_limit_rpm": null,
+          "limit_key": null,
+          "rate_limit_headers": {},
+          "latency_p50_s": 2.252,
+          "cost_usd": 0.000678
+        },
+        "confirm_at_declared_rate": {
+          "target_rpm": 20,
+          "sent": 24,
+          "concurrency": 1,
+          "wall_s": 70.35,
+          "ok": 24,
+          "http_429": 0,
+          "other_fail": 0,
+          "achieved_rpm": 20.5,
+          "latency_p50_s": 1.737,
+          "cost_usd": 0.001367,
+          "first_error": null
+        },
+        "real_l1": {
+          "sent": 3,
+          "concurrency": 1,
+          "max_tokens": 2048,
+          "ok": 3,
+          "http_429": 0,
+          "latency_p50_s": 2.288,
+          "latency_min_s": 2.154,
+          "latency_max_s": 2.771,
+          "completion_tokens_p50": 466,
+          "prompt_tokens_p50": 139,
+          "finish_reasons": [
+            "stop"
+          ],
+          "cost_usd_total": 0.0053,
+          "cost_usd_per_call": 0.001767,
+          "first_error": null
+        }
+      }
+    },
+    {
+      "model": "x-ai/grok-4.6",
+      "roles": [
+        "subject"
+      ],
+      "phases": {
+        "discover": {
+          "sent": 12,
+          "concurrency": 12,
+          "wall_s": 5.56,
+          "ok": 12,
+          "http_429": 0,
+          "declared_limit_rpm": null,
+          "limit_key": null,
+          "rate_limit_headers": {},
+          "latency_p50_s": 4.309,
+          "cost_usd": 0.015264
+        },
+        "confirm_at_declared_rate": {
+          "target_rpm": 20,
+          "sent": 18,
+          "concurrency": 1,
+          "wall_s": 74.29,
+          "ok": 18,
+          "http_429": 0,
+          "other_fail": 0,
+          "achieved_rpm": 14.5,
+          "latency_p50_s": 3.85,
+          "cost_usd": 0.024708,
+          "first_error": null
+        },
+        "real_l1": {
+          "sent": 3,
+          "concurrency": 1,
+          "max_tokens": 2048,
+          "ok": 3,
+          "http_429": 0,
+          "latency_p50_s": 28.419,
+          "latency_min_s": 23.292,
+          "latency_max_s": 32.927,
+          "completion_tokens_p50": 1590,
+          "prompt_tokens_p50": 349,
+          "finish_reasons": [
+            "stop"
+          ],
+          "cost_usd_total": 0.029724,
+          "cost_usd_per_call": 0.009908,
+          "first_error": null
+        }
+      }
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "roles": [
+        "judge-A"
+      ],
+      "phases": {
+        "discover": {
+          "sent": 12,
+          "concurrency": 12,
+          "wall_s": 2.75,
+          "ok": 12,
+          "http_429": 0,
+          "declared_limit_rpm": null,
+          "limit_key": null,
+          "rate_limit_headers": {},
+          "latency_p50_s": 1.687,
+          "cost_usd": 0.001134
+        },
+        "confirm_at_declared_rate": {
+          "target_rpm": 20,
+          "sent": 24,
+          "concurrency": 1,
+          "wall_s": 70.54,
+          "ok": 24,
+          "http_429": 0,
+          "other_fail": 0,
+          "achieved_rpm": 20.4,
+          "latency_p50_s": 1.558,
+          "cost_usd": 0.002288,
+          "first_error": null
+        },
+        "real_l1": {
+          "sent": 3,
+          "concurrency": 1,
+          "max_tokens": 512,
+          "ok": 3,
+          "http_429": 0,
+          "latency_p50_s": 2.566,
+          "latency_min_s": 2.499,
+          "latency_max_s": 4.613,
+          "completion_tokens_p50": 109,
+          "prompt_tokens_p50": 164,
+          "finish_reasons": [
+            "stop"
+          ],
+          "cost_usd_total": 0.004124,
+          "cost_usd_per_call": 0.001375,
+          "first_error": null
+        }
+      }
+    }
+  ],
+  "total_cost_usd": 0.156897
+}
