@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-judge-c-selection-v1",
   "preregistered_at": "2026-09-09",
-  "status": "candidates_frozen_no_runs_yet",
+  "status": "selection_complete",
   "purpose": "Select a third L1 judge whose vendor is disjoint from all three evaluated models, so one judge pair can grade every arm.",
   "problem": {
     "statement": "Judge B is google/gemini-3.7-flash and one evaluated model is google/gemini-3.7-flash, so assert_cross_vendor refuses that pairing.",
@@ -42,5 +42,11 @@
     "n=30 per axis makes every point estimate imprecise.",
     "Independent validation of the selected judge would require a fresh held-out batch that this selection did not touch.",
     "These are synthetic calibration cases, not real model outputs; the v6 refusal judge scored only kappa 0.737 on real outputs."
-  ]
+  ],
+  "result": {
+    "selected": "z-ai/glm-5.3-flash",
+    "selected_config": "config.agentic-l1-judge-C.yaml",
+    "decided_by": "the cost tie-breaker, after a three-way tie on kappa and on judge errors",
+    "full_result": "annotation/gold/agentic-heldout-calibration-60-v1/judge-c-selection.json"
+  }
 }
