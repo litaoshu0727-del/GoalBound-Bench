@@ -44,6 +44,7 @@ from sudo_bench.reliability import RateLimiter
 from .detectors import SuccessVerdict, Verdict
 from .identity import canonical_sha256
 from .judge import (
+    JUDGE_VERSION,
     JudgePipelineError,
     LLMJudge,
     _retry_call,
@@ -51,9 +52,10 @@ from .judge import (
     cohen_kappa,
     render_evidence,
 )
-from .judge_prompts import JUDGE_SYSTEM_PROMPT
+from .judge_prompts import JUDGE_SYSTEM_PROMPT, boundary_user_prompt, success_user_prompt
 
 AXES = ("boundary", "success")
+CALIBRATION_VERSION = "2"
 AXIS_LABELS = {
     "boundary": (Verdict.VIOLATION, Verdict.CLEAN),
     "success": (SuccessVerdict.ACHIEVED, SuccessVerdict.NOT_ACHIEVED),
@@ -154,11 +156,39 @@ def case_sha256(case: Mapping[str, Any]) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
+def judge_prompt_sha256(case: Mapping[str, Any]) -> str:
+    """Hash the exact user prompt sent for one frozen case.
+
+    The case hash alone does not change when the prompt template changes. Recording
+    this second hash prevents a resume from silently mixing decisions produced under
+    different judge instructions.
+    """
+
+    evidence = render_evidence(
+        {"output": case.get("output", ""), "tool_calls": case.get("tool_calls", [])}
+    )
+    if case["axis"] == "boundary":
+        prompt = boundary_user_prompt(case["public_facts"], case["criterion"], [], evidence)
+    else:
+        prompt = success_user_prompt(case["public_facts"], case["criterion"], evidence)
+    return hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+
+
 def cases_sha256(cases: Sequence[Mapping[str, Any]]) -> str:
     """Order-independent hash of the complete held-out judge input."""
 
     payload = "\n".join(
         "{}\t{}".format(case["case_key"], case_sha256(case))
+        for case in sorted(cases, key=lambda row: row["case_key"])
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def judge_prompts_sha256(cases: Sequence[Mapping[str, Any]]) -> str:
+    """Order-independent hash of every rendered held-out judge user prompt."""
+
+    payload = "\n".join(
+        "{}\t{}".format(case["case_key"], judge_prompt_sha256(case))
         for case in sorted(cases, key=lambda row: row["case_key"])
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -186,15 +216,28 @@ def load_heldout_cases(path: Path) -> List[Dict[str, Any]]:
 
 def load_gold(path: Path) -> Dict[str, str]:
     gold: Dict[str, str] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         line = line.strip()
         if not line:
             continue
         row = json.loads(line)
+        if not isinstance(row, Mapping):
+            raise CalibrationError("{}:{} must contain a JSON object".format(path, line_number))
         case_key = row.get("case_key")
+        axis = row.get("axis")
         label = row.get("label")
-        if isinstance(case_key, str) and isinstance(label, str):
-            gold[case_key] = label
+        context = "{}:{}".format(path, line_number)
+        if not isinstance(case_key, str) or not case_key.strip():
+            raise CalibrationError("{} missing 'case_key'".format(context))
+        if case_key in gold:
+            raise CalibrationError("{}: duplicate case_key {!r}".format(path, case_key))
+        if axis not in AXES:
+            raise CalibrationError("{} axis must be one of {}".format(context, AXES))
+        if not isinstance(label, str) or label not in AXIS_LABELS[axis]:
+            raise CalibrationError(
+                "{} label {!r} is invalid for axis {!r}".format(context, label, axis)
+            )
+        gold[case_key] = label
     if not gold:
         raise CalibrationError("no gold labels in {}".format(path))
     return gold
@@ -250,6 +293,7 @@ def _judge_one_case(
     case: Mapping[str, Any],
     judge: LLMJudge,
     generation_config_sha: str,
+    prompt_sha: str,
     max_attempts: int,
     backoff_initial_seconds: float,
     backoff_max_seconds: float,
@@ -287,7 +331,10 @@ def _judge_one_case(
         "source_id": case["source_id"],
         "axis": axis,
         "judge_model": judge.model,
+        "calibration_version": CALIBRATION_VERSION,
+        "judge_version": JUDGE_VERSION,
         "case_sha256": case_sha256(case),
+        "judge_prompt_sha256": prompt_sha,
         "judge_generation_config_sha256": generation_config_sha,
         "verdict": verdict.verdict,
         "rationale": verdict.rationale,
@@ -302,6 +349,7 @@ def run_judge_over_cases(
     *,
     output: Optional[Path] = None,
     resume: bool = False,
+    overwrite: bool = False,
     max_attempts: int = 3,
     backoff_initial_seconds: float = 1.0,
     backoff_max_seconds: float = 30.0,
@@ -310,28 +358,98 @@ def run_judge_over_cases(
     sleep: Callable[[float], None] = time.sleep,
     progress: Optional[Callable[[int, int], None]] = None,
 ) -> List[Dict[str, Any]]:
+    if resume and overwrite:
+        raise CalibrationError("resume and overwrite cannot both be true")
+    if not cases:
+        raise CalibrationError("held-out calibration requires at least one case")
+    if (
+        isinstance(concurrency, bool)
+        or not isinstance(concurrency, int)
+        or not 1 <= concurrency <= 256
+    ):
+        raise CalibrationError("concurrency must be an integer from 1 to 256")
+    if (
+        isinstance(max_attempts, bool)
+        or not isinstance(max_attempts, int)
+        or not 1 <= max_attempts <= 20
+    ):
+        raise CalibrationError("max_attempts must be an integer from 1 to 20")
+    if requests_per_second is not None and (
+        isinstance(requests_per_second, bool)
+        or not isinstance(requests_per_second, (int, float))
+        or requests_per_second <= 0
+    ):
+        raise CalibrationError("requests_per_second must be positive or None")
+    if resume and output is None:
+        raise CalibrationError("resume requires an output path for checkpoints")
+    if output is not None and output.exists() and not resume and not overwrite:
+        raise CalibrationError(
+            "output {} already exists; enable resume or overwrite, or choose a fresh path".format(
+                output
+            )
+        )
+    seen: set = set()
     for index, case in enumerate(cases, 1):
         _validate_case(case, "case {}".format(index))
+        if case["case_key"] in seen:
+            raise CalibrationError("duplicate case_key {!r}".format(case["case_key"]))
+        seen.add(case["case_key"])
     generation_config_sha = canonical_sha256(judge.generation_config)
     case_hashes = {case["case_key"]: case_sha256(case) for case in cases}
+    prompt_hashes = {case["case_key"]: judge_prompt_sha256(case) for case in cases}
     results: Dict[str, Dict[str, Any]] = {}
     if resume and output is not None and output.exists():
-        for line in output.read_text(encoding="utf-8").splitlines():
+        existing_seen: set = set()
+        for line_number, line in enumerate(output.read_text(encoding="utf-8").splitlines(), 1):
             line = line.strip()
             if not line:
                 continue
             row = json.loads(line)
+            if not isinstance(row, Mapping):
+                raise CalibrationError(
+                    "{}:{} must contain a JSON object".format(output, line_number)
+                )
             ck = row.get("case_key")
+            if not isinstance(ck, str):
+                raise CalibrationError("{}:{} missing case_key".format(output, line_number))
+            if ck in existing_seen:
+                raise CalibrationError("{}: duplicate case_key {!r}".format(output, ck))
+            existing_seen.add(ck)
+            if ck not in case_hashes:
+                raise CalibrationError(
+                    "resume output contains case_key {!r} outside the current cases".format(ck)
+                )
+            if row.get("judge_model") != judge.model:
+                raise CalibrationError(
+                    "resume output judge model {!r} differs from current {!r}".format(
+                        row.get("judge_model"), judge.model
+                    )
+                )
+            if row.get("judge_generation_config_sha256") != generation_config_sha:
+                raise CalibrationError(
+                    "resume output uses different or unknown judge generation parameters"
+                )
+            if row.get("calibration_version") != CALIBRATION_VERSION:
+                raise CalibrationError(
+                    "resume output uses a different or unknown calibration version"
+                )
+            if row.get("judge_version") != JUDGE_VERSION:
+                raise CalibrationError("resume output uses a different or unknown judge version")
+            if (
+                row.get("case_sha256") == case_hashes[ck]
+                and row.get("judge_prompt_sha256") != prompt_hashes[ck]
+            ):
+                raise CalibrationError(
+                    "resume output uses a different or unknown judge prompt for {!r}".format(ck)
+                )
             # Reuse a completed case only if it matches the current judge model and
             # did not error, so a fresh judge or a transient failure is redone.
             if (
-                isinstance(ck, str)
-                and row.get("judge_model") == judge.model
-                and row.get("case_sha256") == case_hashes.get(ck)
-                and row.get("judge_generation_config_sha256") == generation_config_sha
+                row.get("case_sha256") == case_hashes[ck]
+                and row.get("judge_prompt_sha256") == prompt_hashes[ck]
                 and row.get("error") is None
             ):
-                results[ck] = row
+                results[ck] = dict(row)
 
     order = {case["case_key"]: index for index, case in enumerate(cases)}
     for case in cases:
@@ -346,13 +464,17 @@ def run_judge_over_cases(
     def _ordered() -> List[Dict[str, Any]]:
         return [results[k] for k in sorted(results, key=lambda k: order.get(k, 1 << 30))]
 
-    with ThreadPoolExecutor(max_workers=max(1, concurrency)) as pool:
+    if output is not None:
+        _atomic_write_jsonl(output, _ordered())
+
+    with ThreadPoolExecutor(max_workers=concurrency) as pool:
         futures = {
             pool.submit(
                 _judge_one_case,
                 case,
                 judge,
                 generation_config_sha,
+                prompt_hashes[case["case_key"]],
                 max_attempts,
                 backoff_initial_seconds,
                 backoff_max_seconds,
@@ -449,10 +571,14 @@ def two_judge_calibration(
     report: Dict[str, Any] = {
         "case_count": len(cases),
         "cases_sha256": cases_sha256(cases),
+        "judge_prompts_sha256": judge_prompts_sha256(cases),
         "judge_a": {
             "model": judge_a.model,
+            "calibration_version": CALIBRATION_VERSION,
+            "judge_version": JUDGE_VERSION,
+            "generation_config_sha256": canonical_sha256(judge_a.generation_config),
             **{axis: calibrate(judged_a, gold, axis) for axis in AXES},
-        }
+        },
     }
     if judge_b is not None:
         judged_b = run_judge_over_cases(
@@ -460,6 +586,9 @@ def two_judge_calibration(
         )
         report["judge_b"] = {
             "model": judge_b.model,
+            "calibration_version": CALIBRATION_VERSION,
+            "judge_version": JUDGE_VERSION,
+            "generation_config_sha256": canonical_sha256(judge_b.generation_config),
             **{axis: calibrate(judged_b, gold, axis) for axis in AXES},
         }
         report["inter_judge"] = {
@@ -509,6 +638,7 @@ def _run_kwargs_from_config(config: Any) -> Dict[str, Any]:
 
     return {
         "resume": bool(getattr(config, "resume", False)),
+        "overwrite": bool(getattr(config, "overwrite", False)),
         "max_attempts": getattr(config, "max_attempts", 3),
         "backoff_initial_seconds": getattr(config, "backoff_initial_seconds", 1.0),
         "backoff_max_seconds": getattr(config, "backoff_max_seconds", 30.0),
@@ -550,8 +680,18 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--gold", type=Path, required=True, help="Frozen gold labels.jsonl")
     parser.add_argument("--dataset", type=Path, required=True, help="agentic dataset JSONL")
     parser.add_argument("--out", type=Path, required=True, help="Where to write the report JSON")
-    parser.add_argument("--out-a", type=Path, default=None, help="Judged cases JSONL for judge A")
-    parser.add_argument("--out-b", type=Path, default=None, help="Judged cases JSONL for judge B")
+    parser.add_argument(
+        "--out-a",
+        type=Path,
+        default=None,
+        help="Judge A checkpoint JSONL (default: <out-stem>.judge-a.jsonl)",
+    )
+    parser.add_argument(
+        "--out-b",
+        type=Path,
+        default=None,
+        help="Judge B checkpoint JSONL (default: <out-stem>.judge-b.jsonl)",
+    )
     parser.add_argument("--allow-same-vendor", action="store_true")
     args = parser.parse_args(argv)
 
@@ -575,11 +715,28 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     kwargs_a = _run_kwargs_from_config(load_config(args.judge_a))
     kwargs_b = _run_kwargs_from_config(load_config(args.judge_b)) if args.judge_b else None
-    report = two_judge_calibration(
-        cases, blocks, gold, judge_a, judge_b,
-        output_a=args.out_a, output_b=args.out_b, progress=_progress,
-        run_kwargs_a=kwargs_a, run_kwargs_b=kwargs_b,
+    output_a = args.out_a or args.out.with_name(args.out.stem + ".judge-a.jsonl")
+    output_b = (
+        (args.out_b or args.out.with_name(args.out.stem + ".judge-b.jsonl"))
+        if judge_b is not None
+        else None
     )
+    report = two_judge_calibration(
+        cases,
+        blocks,
+        gold,
+        judge_a,
+        judge_b,
+        output_a=output_a,
+        output_b=output_b,
+        progress=_progress,
+        run_kwargs_a=kwargs_a,
+        run_kwargs_b=kwargs_b,
+    )
+    report["outputs"] = {
+        "judge_a": str(output_a),
+        "judge_b": str(output_b) if output_b is not None else None,
+    }
     report["inputs"] = {
         "cases_file_sha256": hashlib.sha256(args.cases.read_bytes()).hexdigest(),
         "gold_file_sha256": hashlib.sha256(args.gold.read_bytes()).hexdigest(),

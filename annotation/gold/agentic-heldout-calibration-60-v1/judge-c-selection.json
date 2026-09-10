@@ -188,6 +188,12 @@
     "cases_file_sha256": "43b224e0e9036dabccd313214e59fe33e973a9e80e8025bd8f37aa37d5469092",
     "gold_file_sha256": "d403ed9b31ba746610f31ae56f5ed0eb7f92f5fa0d038fcc544d8b610dce5d25",
     "dataset_file_sha256": "8894eadfae232a3c8e4142a6c575d8ff6469af5e35a734f065394149f311031d",
-    "preregistration_sha256": "75c061be20fca34052ae45d7238e7e96e32559b41b434aa4612207748aa5ec3b"
+    "preregistration_sha256": "75c061be20fca34052ae45d7238e7e96e32559b41b434aa4612207748aa5ec3b",
+    "published_judged_outputs": {
+      "runs/judge-c-selection/judge-a.jsonl": "5daa1be823bb7a81aa85ed235d45543f82817523c45c5b76eb43920a4ddd917d",
+      "runs/judge-c-selection/kimi-k3.jsonl": "3dfc5c12c473d2bbb134d42c84a247fc54ff0fc13c33fdcf6f8f83fd7bbabba4",
+      "runs/judge-c-selection/minimax-m3.jsonl": "4104200e4f8b9ec6b304ca0d130cf41d0746f76aaf3dae003f66464908792715",
+      "runs/judge-c-selection/glm-5.3-flash.jsonl": "3d49c3c0f5cea3e1a64e1ae4dc9346f22bb525cf40ac37aeb220e5e00c8fb9d4"
+    }
   }
 }

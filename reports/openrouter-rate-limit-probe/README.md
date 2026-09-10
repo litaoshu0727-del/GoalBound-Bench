@@ -134,18 +134,18 @@ Gemini 与 Grok 两个臂此前并不存在（原 opus 配置的注释是“复�
 判官侧并发从 1 提到 3：0.3 rps 意味着 3.33 s 发一次，而 GPT-5.6 Sol 实测最慢一次是 4.6 s，
 并发 1 时慢调用会让发包间隔空转，顶不满闸门。限速器仍是唯一闸门。
 
-**未改动但需要留意**：三个 runner 配置的退避是 `max_attempts: 4` +
-`backoff_initial 1 / max 30`，即 1→2→4 s 共 7 s。限额窗口是固定的 60 s，而 429 响应
-**不带 `Retry-After` 头**（实测），所以真撞上 429 时退避很可能在同一个窗口内就耗尽重试次数。
-限速到 18 rpm 后 429 应当很罕见，但如果全量跑出现成批 `rate_limit` 错误，
-应把 runner 的 `max_attempts` 提到 6–8、`backoff_max_seconds` 提到 90（判官侧已经是 8 / 90）。
+**已加固**：三个 runner 配置现与判官侧一致，使用 `max_attempts: 8`、
+`backoff_initial 1 / backoff_max 90`。429 响应实测不带 `Retry-After`，因此较长退避窗口用于
+跨过固定 60 秒限流窗口；18 rpm 的主动节流仍是首要防线。
 
 ## 6. 一个与限流无关、但被这次统计暴露出来的问题
 
-判官 B 是 `google/gemini-3.7-flash`，而被测模型之一也是 `google/gemini-3.7-flash`。
-`assert_cross_vendor` 会**拒绝**用它评自己的输出，所以两判官设计实际只覆盖 3 个被测模型中的 2 个
-（上表判官 B 只算了 480 个样本）。Gemini 那 240 个样本要么需要第三家判官，要么显式
-`allow_same_vendor` 并在报告里披露——后者会毁掉跨厂护栏的意义。这一条需要先决策，再开跑。
+判官 B 是 `google/gemini-3.7-flash`，而被测模型之一也是 `google/gemini-3.7-flash`，因此
+`assert_cross_vendor` 会正确拒绝它评自己的输出。该问题已通过预注册的判官 C 选型解决：统一主判官对
+为 A（`openai/gpt-5.6-sol`）+ C（`z-ai/glm-5.3-flash`），覆盖全部三个被测模型；B 继续对
+非 Google 的两个模型作稳健性复核。C 是在三名合格候选完全并列后按预注册成本 tie-breaker 选出，
+不能表述为“准确率最高”。详见 `annotation/preregistration/agentic-judge-c-selection-v1.json` 与
+`annotation/gold/agentic-heldout-calibration-60-v1/judge-c-selection.json`。
 
 ## 7. 复现
 

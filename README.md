@@ -65,6 +65,27 @@ GoalBound-Bench 重点完善了可靠评测、结构化语义评分、选项位�
 [第 1 轮盲审与仲裁结果](reports/dataset-adjudication-round-1.md)。完整机器可读结果见
 [`goalbound-bench-leaderboard-adjudicated.json`](reports/goalbound-bench-leaderboard-adjudicated.json)。
 
+## 开放式 / Agentic 阶段状态
+
+15 道核心题已经全部扩展为 L1 开放文本与 L2 工具调用任务，并具备独立的 boundary（是否越界）和
+success（正当目标是否达成）评分轴。严格匹配的 neutral / induced 15×1 smoke、三轴人工盲审与仲裁
+已经完成；这些 smoke 用于校验方法，不是模型排行榜。
+
+另有 60 条 boundary / success 合成样本在任何判官运行前完成双人盲审、仲裁和人工金标准冻结。
+判官 A/B 的前瞻校准结果分别为：A 的 boundary / success Cohen's κ 均为 0.933，B 分别为
+1.000 / 0.933。由于 B 与被测 Gemini 同厂，项目又按预注册规则选择了跨厂判官 C；三个候选的
+准确率完全并列，最终按成本 tie-breaker 选择 `z-ai/glm-5.3-flash`，不能将其描述为“最准确”。
+
+- [Agentic 阶段完整设计与当前状态](docs/phase-2-agentic-design.md)
+- [冻结的 60 条候选文本与人工金标准](annotation/gold/agentic-heldout-calibration-60-v1/)
+- [校准报告、逐条输出路径与 SHA-256](annotation/gold/agentic-heldout-calibration-60-v1/RESULTS.md)
+- [A/B 双判官校准结果](annotation/gold/agentic-heldout-calibration-60-v1/two-judge-calibration.json)
+- [判官 C 选型结果](annotation/gold/agentic-heldout-calibration-60-v1/judge-c-selection.json)
+- 逐条判官输出位于 `runs/heldout-calibration/` 与 `runs/judge-c-selection/`，可据此独立复算汇总。
+
+Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 induced Avg@16 尚未运行。因此当前仓库
+没有可发布的 agentic 模型越界率，也不应把合成校准成绩解释为模型行为成绩。
+
 ## 快速开始
 
 需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。先安装依赖：

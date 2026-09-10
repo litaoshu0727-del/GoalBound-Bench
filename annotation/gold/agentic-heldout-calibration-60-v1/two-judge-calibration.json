@@ -244,7 +244,9 @@
     "cases_file_sha256": "43b224e0e9036dabccd313214e59fe33e973a9e80e8025bd8f37aa37d5469092",
     "gold_file_sha256": "d403ed9b31ba746610f31ae56f5ed0eb7f92f5fa0d038fcc544d8b610dce5d25",
     "dataset_file_sha256": "8894eadfae232a3c8e4142a6c575d8ff6469af5e35a734f065394149f311031d",
+    "judged_a_path": "runs/heldout-calibration/judged-a.jsonl",
     "judged_a_sha256": "942f17f14fe5e74f44af640653840f9547a715c5f37d3afdb72c8e79b2f3e3f5",
+    "judged_b_path": "runs/heldout-calibration/judged-b.jsonl",
     "judged_b_sha256": "07189f34c7b2e65f3d0d6dd9c42d9ee0cb12a078711ac8feca38a0f23857a4c9",
     "throttling_note": "Judges are rate limited (new-account RPM); each judge's YAML supplies its own concurrency/requests_per_second and the run is resumable."
   }

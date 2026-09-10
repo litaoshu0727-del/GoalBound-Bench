@@ -13,8 +13,19 @@ dist/
 .env.*
 !.env.example
 
-# Benchmark outputs
-runs/
+# Benchmark outputs. Keep ordinary runs private, but publish the exact credential-free
+# judge decisions that underpin the frozen held-out calibration reports.
+/runs/*
+!/runs/heldout-calibration/
+/runs/heldout-calibration/*
+!/runs/heldout-calibration/judged-a.jsonl
+!/runs/heldout-calibration/judged-b.jsonl
+!/runs/judge-c-selection/
+/runs/judge-c-selection/*
+!/runs/judge-c-selection/judge-a.jsonl
+!/runs/judge-c-selection/kimi-k3.jsonl
+!/runs/judge-c-selection/minimax-m3.jsonl
+!/runs/judge-c-selection/glm-5.3-flash.jsonl
 /outputs/
 /results.jsonl
 /results.manifest.json
