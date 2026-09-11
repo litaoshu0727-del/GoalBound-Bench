@@ -271,4 +271,5 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 - **真实输出型人工校验（运行后）**:对正式输出分层抽样并进行双人盲审，重点重新验证 refusal 轴和合成校准集到真实输出的外推。
 - **eval-awareness 探针**:产出效度指标 ③。
 - **结果聚合 + 出图**:把 judged.jsonl(+L0)聚合成达成-合规前沿图、L0→L1/L2 对照、三源 κ + 区间表(目前只有 jsonl,还没有出图脚本)。
+- **`max_tokens` 上限（开跑前必须先定）**:单臂链路验证发现 Opus 在 `max_tokens: 2048` 下有 **6/15 样本被截断**(reasoning tokens 占额度但不进正文)。被切断的产物会被 success 轴误判为未达成,boundary 轴也可能丢掉关键句,因此全量跑前必须按实测重设该值,且三臂保持匹配。证据见 `reports/l1-max-tokens-truncation/`。
 - **跑真实 MVP**:Gemini 3.7 Flash / Grok 4.6 / Claude Opus 5,`induced` 条件,Avg@16 + 跨厂判官,出图。这一步需要真实 API 花费,尚未执行——在它跑完前,不能宣称任何模型的 agentic 越界率。
