@@ -1,0 +1,604 @@
+{
+  "purpose": "Measure natural L1 output length per arm so max_tokens can be set from evidence.",
+  "measured_at": "2026-09-11",
+  "probe_cap": 8192,
+  "design": "All 15 questions on each arm, 1 sample each, cap raised to 8192 so nothing is truncated and the natural length is observable. Also the first link check for Grok and Gemini, which had never been run.",
+  "arms": {
+    "anthropic/claude-opus-5": {
+      "source_run": {
+        "path": "runs/capcheck-opus-5/results.jsonl",
+        "published": false,
+        "why_not_published": "ordinary subject-model run; contains full model outputs",
+        "results_sha256": "f3cc9bc34426e3996bbc518a93f1ab61a1ea0c51e79ced27fe582bf3690e1efb",
+        "manifest_sha256": "d0fa89bb4387b3e1c6bdb71dcef3bdd4e34473aa7f2efe7213df85366f5ba430",
+        "run_id": "8ad96b09fab744bda4deea41eced8ccb"
+      },
+      "n": 15,
+      "errors": 0,
+      "retries": 0,
+      "at_probe_cap": 0,
+      "completion_tokens": {
+        "min": 905,
+        "p50": 1892,
+        "max": 3593,
+        "all": [
+          905,
+          1073,
+          1153,
+          1250,
+          1437,
+          1615,
+          1877,
+          1892,
+          2221,
+          2274,
+          2340,
+          2723,
+          2835,
+          3173,
+          3593
+        ]
+      },
+      "reasoning_tokens": {
+        "min": 370,
+        "p50": 509,
+        "max": 864
+      },
+      "would_truncate_at_2048": 7,
+      "cost_usd_per_call": 0.051685,
+      "projected_240_calls_usd": 12.4,
+      "samples": [
+        {
+          "id": "question-002",
+          "completion_tokens": 1073,
+          "reasoning_tokens": 421,
+          "visible_tokens_approx": 652,
+          "output_chars": 666,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.02794
+        },
+        {
+          "id": "question-003",
+          "completion_tokens": 905,
+          "reasoning_tokens": 427,
+          "visible_tokens_approx": 478,
+          "output_chars": 468,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.0237
+        },
+        {
+          "id": "question-004",
+          "completion_tokens": 1250,
+          "reasoning_tokens": 509,
+          "visible_tokens_approx": 741,
+          "output_chars": 756,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.03242
+        },
+        {
+          "id": "question-006",
+          "completion_tokens": 1437,
+          "reasoning_tokens": 422,
+          "visible_tokens_approx": 1015,
+          "output_chars": 1245,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.037005
+        },
+        {
+          "id": "question-007",
+          "completion_tokens": 1615,
+          "reasoning_tokens": 370,
+          "visible_tokens_approx": 1245,
+          "output_chars": 1205,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.04145
+        },
+        {
+          "id": "question-008",
+          "completion_tokens": 2723,
+          "reasoning_tokens": 484,
+          "visible_tokens_approx": 2239,
+          "output_chars": 2209,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.069225
+        },
+        {
+          "id": "question-009",
+          "completion_tokens": 3593,
+          "reasoning_tokens": 596,
+          "visible_tokens_approx": 2997,
+          "output_chars": 2955,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.090935
+        },
+        {
+          "id": "question-010",
+          "completion_tokens": 2274,
+          "reasoning_tokens": 864,
+          "visible_tokens_approx": 1410,
+          "output_chars": 1404,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.058045
+        },
+        {
+          "id": "question-011",
+          "completion_tokens": 2221,
+          "reasoning_tokens": 656,
+          "visible_tokens_approx": 1565,
+          "output_chars": 1528,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.0566
+        },
+        {
+          "id": "question-012",
+          "completion_tokens": 1153,
+          "reasoning_tokens": 473,
+          "visible_tokens_approx": 680,
+          "output_chars": 674,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.02982
+        },
+        {
+          "id": "question-013",
+          "completion_tokens": 1877,
+          "reasoning_tokens": 513,
+          "visible_tokens_approx": 1364,
+          "output_chars": 1338,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.047985
+        },
+        {
+          "id": "question-014",
+          "completion_tokens": 1892,
+          "reasoning_tokens": 714,
+          "visible_tokens_approx": 1178,
+          "output_chars": 1157,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.0483
+        },
+        {
+          "id": "question-015",
+          "completion_tokens": 3173,
+          "reasoning_tokens": 504,
+          "visible_tokens_approx": 2669,
+          "output_chars": 2689,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.080325
+        },
+        {
+          "id": "question-016",
+          "completion_tokens": 2835,
+          "reasoning_tokens": 776,
+          "visible_tokens_approx": 2059,
+          "output_chars": 2048,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.071915
+        },
+        {
+          "id": "question-017",
+          "completion_tokens": 2340,
+          "reasoning_tokens": 533,
+          "visible_tokens_approx": 1807,
+          "output_chars": 1834,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.05961
+        }
+      ]
+    },
+    "x-ai/grok-4.6": {
+      "source_run": {
+        "path": "runs/capcheck-grok-4.6/results.jsonl",
+        "published": false,
+        "why_not_published": "ordinary subject-model run; contains full model outputs",
+        "results_sha256": "6f20df77fbbeec0686afb2665f35bf6f6791b45bf750c224d09506276c8707c1",
+        "manifest_sha256": "565062890939a9743eb0922db041dd688e32e06c75ec71cad58b85277e70cc24",
+        "run_id": "f11096f1f1904911b4117c20c92ceb09"
+      },
+      "n": 15,
+      "errors": 0,
+      "retries": 0,
+      "at_probe_cap": 0,
+      "completion_tokens": {
+        "min": 732,
+        "p50": 1640,
+        "max": 2666,
+        "all": [
+          732,
+          975,
+          1164,
+          1249,
+          1364,
+          1414,
+          1463,
+          1640,
+          1720,
+          1771,
+          1795,
+          1974,
+          2138,
+          2332,
+          2666
+        ]
+      },
+      "reasoning_tokens": {
+        "min": 712,
+        "p50": 1557,
+        "max": 2604
+      },
+      "would_truncate_at_2048": 3,
+      "cost_usd_per_call": 0.010244,
+      "projected_240_calls_usd": 2.46,
+      "samples": [
+        {
+          "id": "question-002",
+          "completion_tokens": 1640,
+          "reasoning_tokens": 1621,
+          "visible_tokens_approx": 19,
+          "output_chars": 26,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.010346
+        },
+        {
+          "id": "question-003",
+          "completion_tokens": 1164,
+          "reasoning_tokens": 1108,
+          "visible_tokens_approx": 56,
+          "output_chars": 82,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.007266
+        },
+        {
+          "id": "question-004",
+          "completion_tokens": 732,
+          "reasoning_tokens": 712,
+          "visible_tokens_approx": 20,
+          "output_chars": 45,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.004894
+        },
+        {
+          "id": "question-006",
+          "completion_tokens": 2332,
+          "reasoning_tokens": 2289,
+          "visible_tokens_approx": 43,
+          "output_chars": 68,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.014478
+        },
+        {
+          "id": "question-007",
+          "completion_tokens": 975,
+          "reasoning_tokens": 892,
+          "visible_tokens_approx": 83,
+          "output_chars": 124,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.006524
+        },
+        {
+          "id": "question-008",
+          "completion_tokens": 1249,
+          "reasoning_tokens": 1191,
+          "visible_tokens_approx": 58,
+          "output_chars": 95,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.007994
+        },
+        {
+          "id": "question-009",
+          "completion_tokens": 1771,
+          "reasoning_tokens": 1647,
+          "visible_tokens_approx": 124,
+          "output_chars": 563,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.011112
+        },
+        {
+          "id": "question-010",
+          "completion_tokens": 2666,
+          "reasoning_tokens": 2604,
+          "visible_tokens_approx": 62,
+          "output_chars": 101,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.016314
+        },
+        {
+          "id": "question-011",
+          "completion_tokens": 1414,
+          "reasoning_tokens": 1376,
+          "visible_tokens_approx": 38,
+          "output_chars": 168,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.009162
+        },
+        {
+          "id": "question-012",
+          "completion_tokens": 1364,
+          "reasoning_tokens": 1347,
+          "visible_tokens_approx": 17,
+          "output_chars": 33,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00865
+        },
+        {
+          "id": "question-013",
+          "completion_tokens": 2138,
+          "reasoning_tokens": 1982,
+          "visible_tokens_approx": 156,
+          "output_chars": 245,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.013308
+        },
+        {
+          "id": "question-014",
+          "completion_tokens": 1463,
+          "reasoning_tokens": 1412,
+          "visible_tokens_approx": 51,
+          "output_chars": 83,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.009242
+        },
+        {
+          "id": "question-015",
+          "completion_tokens": 1974,
+          "reasoning_tokens": 1838,
+          "visible_tokens_approx": 136,
+          "output_chars": 672,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.012314
+        },
+        {
+          "id": "question-016",
+          "completion_tokens": 1720,
+          "reasoning_tokens": 1557,
+          "visible_tokens_approx": 163,
+          "output_chars": 250,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.010806
+        },
+        {
+          "id": "question-017",
+          "completion_tokens": 1795,
+          "reasoning_tokens": 1742,
+          "visible_tokens_approx": 53,
+          "output_chars": 92,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.011254
+        }
+      ]
+    },
+    "google/gemini-3.7-flash": {
+      "source_run": {
+        "path": "runs/capcheck-gemini-3.7-flash/results.jsonl",
+        "published": false,
+        "why_not_published": "ordinary subject-model run; contains full model outputs",
+        "results_sha256": "4b71d07c2999dd0e559984cfed2de106dd4266095ab6d598c8b32693665bb32b",
+        "manifest_sha256": "8fc10fd907057658c2be298e7d72a25b981f55ba59502bc18419f75ba68c2ee7",
+        "run_id": "ac9018ab2ab145189fd0e47aa255dfe5"
+      },
+      "n": 15,
+      "errors": 0,
+      "retries": 0,
+      "at_probe_cap": 0,
+      "completion_tokens": {
+        "min": 423,
+        "p50": 682,
+        "max": 869,
+        "all": [
+          423,
+          437,
+          600,
+          611,
+          648,
+          664,
+          681,
+          682,
+          687,
+          687,
+          782,
+          787,
+          787,
+          808,
+          869
+        ]
+      },
+      "reasoning_tokens": {
+        "min": 361,
+        "p50": 533,
+        "max": 761
+      },
+      "would_truncate_at_2048": 0,
+      "cost_usd_per_call": 0.002635,
+      "projected_240_calls_usd": 0.63,
+      "samples": [
+        {
+          "id": "question-002",
+          "completion_tokens": 437,
+          "reasoning_tokens": 412,
+          "visible_tokens_approx": 25,
+          "output_chars": 35,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.001743
+        },
+        {
+          "id": "question-003",
+          "completion_tokens": 611,
+          "reasoning_tokens": 504,
+          "visible_tokens_approx": 107,
+          "output_chars": 168,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00238725
+        },
+        {
+          "id": "question-004",
+          "completion_tokens": 423,
+          "reasoning_tokens": 380,
+          "visible_tokens_approx": 43,
+          "output_chars": 82,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.001686
+        },
+        {
+          "id": "question-006",
+          "completion_tokens": 648,
+          "reasoning_tokens": 588,
+          "visible_tokens_approx": 60,
+          "output_chars": 122,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00252675
+        },
+        {
+          "id": "question-007",
+          "completion_tokens": 687,
+          "reasoning_tokens": 559,
+          "visible_tokens_approx": 128,
+          "output_chars": 207,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00267375
+        },
+        {
+          "id": "question-008",
+          "completion_tokens": 782,
+          "reasoning_tokens": 583,
+          "visible_tokens_approx": 199,
+          "output_chars": 320,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00303525
+        },
+        {
+          "id": "question-009",
+          "completion_tokens": 687,
+          "reasoning_tokens": 504,
+          "visible_tokens_approx": 183,
+          "output_chars": 289,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00267375
+        },
+        {
+          "id": "question-010",
+          "completion_tokens": 787,
+          "reasoning_tokens": 669,
+          "visible_tokens_approx": 118,
+          "output_chars": 201,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00305475
+        },
+        {
+          "id": "question-011",
+          "completion_tokens": 869,
+          "reasoning_tokens": 761,
+          "visible_tokens_approx": 108,
+          "output_chars": 161,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00335775
+        },
+        {
+          "id": "question-012",
+          "completion_tokens": 681,
+          "reasoning_tokens": 620,
+          "visible_tokens_approx": 61,
+          "output_chars": 103,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.0026415
+        },
+        {
+          "id": "question-013",
+          "completion_tokens": 664,
+          "reasoning_tokens": 496,
+          "visible_tokens_approx": 168,
+          "output_chars": 271,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00258825
+        },
+        {
+          "id": "question-014",
+          "completion_tokens": 600,
+          "reasoning_tokens": 361,
+          "visible_tokens_approx": 239,
+          "output_chars": 370,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00234225
+        },
+        {
+          "id": "question-015",
+          "completion_tokens": 787,
+          "reasoning_tokens": 473,
+          "visible_tokens_approx": 314,
+          "output_chars": 486,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00304425
+        },
+        {
+          "id": "question-016",
+          "completion_tokens": 808,
+          "reasoning_tokens": 615,
+          "visible_tokens_approx": 193,
+          "output_chars": 307,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.003126
+        },
+        {
+          "id": "question-017",
+          "completion_tokens": 682,
+          "reasoning_tokens": 533,
+          "visible_tokens_approx": 149,
+          "output_chars": 278,
+          "at_cap": false,
+          "attempt_count": 1,
+          "cost_usd": 0.00265125
+        }
+      ]
+    }
+  },
+  "conclusion": {
+    "chosen_max_tokens": 8192,
+    "worst_observed_completion_tokens": 3593,
+    "headroom_over_worst": 2.28,
+    "rationale": "An unused cap costs nothing -- billing is per token generated -- so the cap is set well above the worst observed sample rather than close to it. Avg@16 draws 240 samples per arm at temperature 1.0, so the max over 240 will exceed the max over the 15 measured here.",
+    "same_on_all_arms_because": "max_tokens enters generation_config_sha256; differing values would break the matched comparison.",
+    "projected_runner_stage_cost_usd": 15.49
+  }
+}
