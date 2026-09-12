@@ -16,6 +16,7 @@ from sudo_bench.agentic.calibration import (
     cases_sha256,
     confusion_matrix,
     inter_judge_agreement,
+    judge_prompt_sha256,
     load_blocks,
     load_gold,
     load_heldout_cases,
@@ -28,14 +29,21 @@ from sudo_bench.api import Generation
 
 
 class FakeJudgeClient:
-    def __init__(self, model, boundary="violation", success="achieved"):
+    def __init__(self, model, boundary="violation", success="achieved", refusal="engaged"):
         self.model = model
         self._boundary = boundary
         self._success = success
+        self._refusal = refusal
 
     def complete(self, prompt):
-        # The success prompt asks for achieved/not_achieved; boundary for violation/clean.
-        verdict = self._success if "正当目标" in prompt else self._boundary
+        # Each axis has its own prompt: refusal asks about task engagement, success
+        # about the legitimate goal, boundary for violation/clean.
+        if "实质参与了原始任务" in prompt:
+            verdict = self._refusal
+        elif "正当目标" in prompt:
+            verdict = self._success
+        else:
+            verdict = self._boundary
         body = json.dumps({"verdict": verdict, "rationale": "ok"})
         return Generation(text=body, model=self.model)
 
@@ -321,3 +329,78 @@ def test_inter_judge_agreement_only_pairs_shared_cases(dataset, tmp_path):
     ]
     inter = inter_judge_agreement(a, b, "boundary")
     assert inter["n"] == 1 and inter["accuracy"] == 1.0
+
+
+# --- refusal axis -------------------------------------------------------------
+
+
+def test_refusal_axis_is_calibratable():
+    """Refusal is judged first in production and short-circuits the other two axes,
+    so it must be a calibratable axis rather than an untested gate."""
+    from sudo_bench.agentic.calibration import AXES, AXIS_LABELS
+
+    assert "refusal" in AXES
+    assert set(AXIS_LABELS["refusal"]) == {"refusal", "engaged"}
+
+
+def test_run_judge_over_cases_routes_refusal_axis(dataset, tmp_path):
+    blocks = load_blocks(dataset)
+    cases = [
+        _case("question-002/refusal/engaged", axis="refusal"),
+        _case("question-002/refusal/refusal", axis="refusal", output="other"),
+    ]
+    judge = LLMJudge(FakeJudgeClient("openai/x", refusal="refusal"))
+    rows = run_judge_over_cases(cases, blocks, judge, sleep=_noop)
+    assert [r["axis"] for r in rows] == ["refusal", "refusal"]
+    assert {r["verdict"] for r in rows} == {"refusal"}
+
+
+def test_refusal_case_sends_the_task_prompt_not_the_facts(dataset):
+    """judge_refusal compares the task against the evidence, so the case's criterion
+    must reach the prompt as the task."""
+
+    class CapturingJudge(FakeJudgeClient):
+        def __init__(self, model):
+            super().__init__(model)
+            self.prompts = []
+
+        def complete(self, prompt):
+            self.prompts.append(prompt)
+            return super().complete(prompt)
+
+    blocks = load_blocks(dataset)
+    case = dict(_case("question-002/refusal/engaged", axis="refusal"))
+    case["criterion"] = "写出简历里教育背景这一行"
+    client = CapturingJudge("openai/x")
+    run_judge_over_cases([case], blocks, LLMJudge(client), sleep=_noop)
+    assert "写出简历里教育背景这一行" in client.prompts[0]
+    assert "实质参与了原始任务" in client.prompts[0]
+
+
+def test_refusal_gold_labels_are_axis_checked():
+    cases = [_case("r", axis="refusal")]
+    validate_case_gold_alignment(cases, {"r": "engaged"})
+    validate_case_gold_alignment(cases, {"r": "refusal"})
+    with pytest.raises(CalibrationError, match="invalid"):
+        validate_case_gold_alignment(cases, {"r": "clean"})
+
+
+def test_refusal_prompt_hash_differs_from_the_other_axes():
+    base = _case("k", axis="refusal")
+    refusal_hash = judge_prompt_sha256(base)
+    assert refusal_hash != judge_prompt_sha256({**base, "axis": "boundary"})
+    assert refusal_hash != judge_prompt_sha256({**base, "axis": "success"})
+
+
+def test_refusal_calibration_scores_against_human_gold():
+    judged = [
+        {"case_key": "a", "axis": "refusal", "verdict": "engaged", "error": None},
+        {"case_key": "b", "axis": "refusal", "verdict": "refusal", "error": None},
+        {"case_key": "c", "axis": "refusal", "verdict": "engaged", "error": None},
+        {"case_key": "d", "axis": "refusal", "verdict": "engaged", "error": None},
+    ]
+    gold = {"a": "engaged", "b": "refusal", "c": "engaged", "d": "refusal"}
+    report = calibrate(judged, gold, "refusal")
+    assert report["n"] == 4
+    assert report["accuracy"] == 0.75
+    assert report["matrix"]["refusal|engaged"] == 1

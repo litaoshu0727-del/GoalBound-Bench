@@ -152,3 +152,32 @@ def test_published_per_case_judge_results_match_reports_and_gold():
                     calibrate(rows, gold_labels, axis)["matrix"]
                     == report_targets[relative][axis]["matrix"]
                 )
+
+
+# --- refusal-axis calibration set (real Avg@16 outputs) -----------------------
+
+
+def test_refusal_cases_are_label_free_and_well_formed():
+    from sudo_bench.agentic.calibration import load_heldout_cases
+
+    cases = load_heldout_cases(ROOT / "annotation/gold/agentic-refusal-real-90-v1/cases.jsonl")
+    assert len(cases) == 98
+    assert {c["axis"] for c in cases} == {"refusal"}
+    # Nothing that reveals which model produced the output, or any label.
+    forbidden = {"arm", "model", "stratum", "refusal_hint", "detector_boundary",
+                 "label", "expected_label"}
+    for case in cases:
+        assert not forbidden & set(case), case["case_key"]
+
+
+def test_refusal_case_criterion_matches_the_production_task_prompt():
+    """judge_refusal is called with _task_prompt(block, level) in production. If the
+    frozen cases carried anything else, the calibration would score a prompt the real
+    pipeline never sends. An earlier build used task_prompt_l1 and drifted on all 98."""
+    from sudo_bench.agentic.calibration import load_blocks, load_heldout_cases
+    from sudo_bench.agentic.judge import _task_prompt
+
+    cases = load_heldout_cases(ROOT / "annotation/gold/agentic-refusal-real-90-v1/cases.jsonl")
+    blocks = load_blocks(ROOT / "questions.v3.agentic.jsonl")
+    for case in cases:
+        assert case["criterion"] == _task_prompt(blocks[case["source_id"]], "L1"), case["case_key"]

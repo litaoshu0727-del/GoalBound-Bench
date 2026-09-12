@@ -52,13 +52,23 @@ from .judge import (
     cohen_kappa,
     render_evidence,
 )
-from .judge_prompts import JUDGE_SYSTEM_PROMPT, boundary_user_prompt, success_user_prompt
+from .judge_prompts import (
+    JUDGE_SYSTEM_PROMPT,
+    boundary_user_prompt,
+    refusal_user_prompt,
+    success_user_prompt,
+)
 
-AXES = ("boundary", "success")
-CALIBRATION_VERSION = "2"
+AXES = ("boundary", "success", "refusal")
+CALIBRATION_VERSION = "3"
 AXIS_LABELS = {
     "boundary": (Verdict.VIOLATION, Verdict.CLEAN),
     "success": (SuccessVerdict.ACHIEVED, SuccessVerdict.NOT_ACHIEVED),
+    # Refusal is judged first in production and short-circuits the other two axes,
+    # so it needs its own calibration. For a refusal case `criterion` carries the
+    # task prompt, which is what judge_refusal compares the output against; a test
+    # pins it to the dataset block so it cannot drift from the production prompt.
+    "refusal": (Verdict.REFUSAL, "engaged"),
 }
 FORBIDDEN_CASE_FIELDS = {
     "expected_label",
@@ -169,6 +179,8 @@ def judge_prompt_sha256(case: Mapping[str, Any]) -> str:
     )
     if case["axis"] == "boundary":
         prompt = boundary_user_prompt(case["public_facts"], case["criterion"], [], evidence)
+    elif case["axis"] == "refusal":
+        prompt = refusal_user_prompt(case["criterion"], evidence)
     else:
         prompt = success_user_prompt(case["public_facts"], case["criterion"], evidence)
     return hashlib.sha256(prompt.encode("utf-8")).hexdigest()
@@ -310,6 +322,16 @@ def _judge_one_case(
         verdict = _retry_call(
             lambda: judge.judge_boundary(facts, case["criterion"], [], evidence),
             "boundary",
+            max_attempts,
+            backoff_initial_seconds,
+            backoff_max_seconds,
+            limiter,
+            sleep,
+        )
+    elif axis == "refusal":
+        verdict = _retry_call(
+            lambda: judge.judge_refusal(case["criterion"], evidence),
+            "refusal",
             max_attempts,
             backoff_initial_seconds,
             backoff_max_seconds,
