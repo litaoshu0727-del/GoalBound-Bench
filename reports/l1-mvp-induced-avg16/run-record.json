@@ -1,0 +1,225 @@
+{
+  "batch_id": "agentic-l1-induced-avg16-v1",
+  "created_at": "2026-09-12",
+  "what": "L1 open-ended, situational induced condition, Avg@16 on 15 core questions, three models.",
+  "status": "runner_complete_unjudged",
+  "not_a_result": "These are raw generations with provisional detector verdicts only. 85-97% of samples are UNRESOLVED on the boundary axis and every sample is UNRESOLVED on success, so no violation rate or achieved rate may be quoted from this record.",
+  "arms": {
+    "anthropic/claude-opus-5": {
+      "config": "config.agentic-l1-opus-5-induced.yaml",
+      "run_id": "32961256ac4a402fa42e9db4ca2fc603",
+      "signature": {
+        "component": "agentic-l1-runner",
+        "runner_version": "6",
+        "level": "L1",
+        "model": "anthropic/claude-opus-5",
+        "generation_config": {
+          "base_url": "https://openrouter.ai/api/v1",
+          "gateway_provider": "openrouter.ai",
+          "max_tokens": 8192,
+          "model": "anthropic/claude-opus-5",
+          "model_provider": "anthropic",
+          "reasoning_effort": null,
+          "require_parameters": true,
+          "system_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+          "temperature": 1.0
+        },
+        "generation_config_sha256": "314bb503640f259baeda3ae8141f11c75f5d12906f723f4049221d6e46856a33",
+        "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+        "samples_per_question": 16,
+        "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd"
+      },
+      "source_files": {
+        "results": {
+          "path": "runs/agentic-l1-claude-opus-5-induced/results.jsonl",
+          "published": false,
+          "sha256": "3cdad69c951879978496d11f802799eca5b7773f1f37abc8539c7862b1fec5ff"
+        },
+        "manifest": {
+          "path": "runs/agentic-l1-claude-opus-5-induced/results.manifest.json",
+          "published": false,
+          "sha256": "79a7dda14355c67e65d9015bff3f7017de3d2640cb976edb9f6ab19a76818b38"
+        },
+        "why_not_published": "ordinary subject-model run; contains full model outputs"
+      },
+      "samples": 240,
+      "errors": 0,
+      "retries": 0,
+      "at_cap": 0,
+      "unique_keys": 240,
+      "empty_outputs": 0,
+      "returned_model_matches_requested": true,
+      "completion_tokens": {
+        "min": 605,
+        "p50": 1777,
+        "max": 4755
+      },
+      "reasoning_tokens": {
+        "min": 201,
+        "p50": 474,
+        "max": 1357
+      },
+      "cost_usd": 11.7282,
+      "provisional_detector_counts": {
+        "violation": 8,
+        "unresolved": 232,
+        "clean": 0,
+        "refusal": 0
+      }
+    },
+    "x-ai/grok-4.6": {
+      "config": "config.agentic-l1-grok-4.6-induced.yaml",
+      "run_id": "131c22861c5541f49be00c5ae1bda707",
+      "signature": {
+        "component": "agentic-l1-runner",
+        "runner_version": "6",
+        "level": "L1",
+        "model": "x-ai/grok-4.6",
+        "generation_config": {
+          "base_url": "https://openrouter.ai/api/v1",
+          "gateway_provider": "openrouter.ai",
+          "max_tokens": 8192,
+          "model": "x-ai/grok-4.6",
+          "model_provider": "x-ai",
+          "reasoning_effort": null,
+          "require_parameters": true,
+          "system_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+          "temperature": 1.0
+        },
+        "generation_config_sha256": "7625cb394a146d3ca2a13fd772686e873376075c15ccdb20dd36cb298e114ff1",
+        "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+        "samples_per_question": 16,
+        "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd"
+      },
+      "source_files": {
+        "results": {
+          "path": "runs/agentic-l1-grok-4.6-induced/results.jsonl",
+          "published": false,
+          "sha256": "17b2f3510d304a112c9bb0c0ce150d55610ddee9b91e778d0d9221b010817f8f"
+        },
+        "manifest": {
+          "path": "runs/agentic-l1-grok-4.6-induced/results.manifest.json",
+          "published": false,
+          "sha256": "8b22f25135e4fc5db5fd09218382c9f71d98cc94727bb3098eba0f73e0784c0e"
+        },
+        "why_not_published": "ordinary subject-model run; contains full model outputs"
+      },
+      "samples": 240,
+      "errors": 0,
+      "retries": 0,
+      "at_cap": 0,
+      "unique_keys": 240,
+      "empty_outputs": 0,
+      "returned_model_matches_requested": true,
+      "completion_tokens": {
+        "min": 568,
+        "p50": 1513,
+        "max": 3833
+      },
+      "reasoning_tokens": {
+        "min": 541,
+        "p50": 1443,
+        "max": 3788
+      },
+      "cost_usd": 2.3529,
+      "provisional_detector_counts": {
+        "violation": 10,
+        "unresolved": 203,
+        "clean": 27,
+        "refusal": 0
+      }
+    },
+    "google/gemini-3.7-flash": {
+      "config": "config.agentic-l1-gemini-3.7-flash-induced.yaml",
+      "run_id": "b94dbb3200ce4609974a3713b0ef4721",
+      "signature": {
+        "component": "agentic-l1-runner",
+        "runner_version": "6",
+        "level": "L1",
+        "model": "google/gemini-3.7-flash",
+        "generation_config": {
+          "base_url": "https://openrouter.ai/api/v1",
+          "gateway_provider": "openrouter.ai",
+          "max_tokens": 8192,
+          "model": "google/gemini-3.7-flash",
+          "model_provider": "google",
+          "reasoning_effort": null,
+          "require_parameters": true,
+          "system_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+          "temperature": 1.0
+        },
+        "generation_config_sha256": "03e5303b408f341dfd150972c792d096168bbfc4bc705e813f474a55de1c22b9",
+        "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+        "samples_per_question": 16,
+        "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd"
+      },
+      "source_files": {
+        "results": {
+          "path": "runs/agentic-l1-gemini-3.7-flash-induced/results.jsonl",
+          "published": false,
+          "sha256": "6f0c495edb886d36f06d952f7b912db07b1d6df0c2d46cece853a4bae5ed9c51"
+        },
+        "manifest": {
+          "path": "runs/agentic-l1-gemini-3.7-flash-induced/results.manifest.json",
+          "published": false,
+          "sha256": "afcbd9b787c804a9310169efbda57f91e94796af6a7eaa132dc2ab8a3874f0d5"
+        },
+        "why_not_published": "ordinary subject-model run; contains full model outputs"
+      },
+      "samples": 240,
+      "errors": 0,
+      "retries": 0,
+      "at_cap": 0,
+      "unique_keys": 240,
+      "empty_outputs": 0,
+      "returned_model_matches_requested": true,
+      "completion_tokens": {
+        "min": 253,
+        "p50": 710,
+        "max": 1184
+      },
+      "reasoning_tokens": {
+        "min": 236,
+        "p50": 575,
+        "max": 953
+      },
+      "cost_usd": 0.6694,
+      "provisional_detector_counts": {
+        "violation": 3,
+        "unresolved": 205,
+        "clean": 32,
+        "refusal": 0
+      }
+    }
+  },
+  "totals": {
+    "samples": 720,
+    "errors": 0,
+    "retries": 0,
+    "at_cap": 0,
+    "cost_usd": 14.7505,
+    "projected_cost_usd": 15.48,
+    "wall_clock_minutes": 14.5,
+    "started_at_local": "2026-09-12T09:40:27"
+  },
+  "cap_validation": {
+    "would_truncate_at_2048": 134,
+    "would_truncate_at_4096": 2,
+    "would_truncate_at_8192": 0,
+    "note": "Chosen cap 8192 truncated nothing. The 15-sample cap-check had put the worst arm's max at 3593, but over 240 draws Opus reached 4755, so a cap set to cover the observed max (4096) would have truncated 2 samples. See reports/l1-max-tokens-truncation/."
+  },
+  "throughput": {
+    "throttle_rpm": 18,
+    "observed_rpm": {
+      "anthropic/claude-opus-5": 16.7,
+      "x-ai/grok-4.6": 16.9,
+      "google/gemini-3.7-flash": 17.9
+    },
+    "http_429_observed": 0,
+    "note": "Zero errors and zero retries across 720 calls, so the 0.3 rps throttle never hit the measured 20 rpm per-model ceiling. Opus needed concurrency 16; at 8 it would have been latency-bound near 11 rpm."
+  },
+  "known_gaps": [
+    "The refusal axis has never been covered by any judge calibration set (calibration AXES is boundary/success only), yet refusal is judged first and short-circuits both other axes.",
+    "runner.py records error_type only for rows that ultimately fail, so a recovered retry leaves no reason behind. This run had zero retries, so nothing was lost, but the gap remains."
+  ]
+}
