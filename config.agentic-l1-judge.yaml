@@ -25,14 +25,16 @@ manifest: runs/agentic-l1-claude-opus-5-induced/judged.manifest.json
 temperature: null                # this judge endpoint does not support temperature
 require_parameters: true
 max_tokens: 512
-concurrency: 3      # the limiter is the gate; >1 so a slow call (4.6s max measured)
-                    # does not idle the 3.3s send interval
+concurrency: 8      # measured judge latency 0.9-3.0s; 8 in flight reaches the
+                    # 120 rpm throttle, which remains the gate
 resume: true
 max_attempts: 8
 backoff_initial_seconds: 1
 backoff_max_seconds: 90
-# Measured 2026-09-09: 20 rpm PER MODEL for this account (new-account-rpm key,
-# fixed 60s window), not the 15 rpm assumed here. 0.3 rps = 18 rpm keeps 10%
-# headroom and cuts judge A's 1512-call pass from 101 to 84 min.
-# See reports/openrouter-rate-limit-probe/.
-requests_per_second: 0.3
+# Measured 2026-09-17: the 20 rpm per-model new-account cap is gone (240 concurrent,
+# zero 429s; floor >=240 rpm, ceiling not found). 2.0 rps = 120 rpm is half the measured
+# floor, so the limiter stays the gate rather than relying on the provider not to push
+# back. This cuts the 720-sample judging pass from ~111 min to ~17 min; cost is
+# unchanged, since throttling changes speed and not token count.
+# See reports/openrouter-rate-limit-probe/recheck-2026-09-17.json.
+requests_per_second: 2.0

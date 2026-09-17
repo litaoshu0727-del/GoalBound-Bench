@@ -36,6 +36,10 @@ retry_errors: true
 max_attempts: 8
 backoff_initial_seconds: 1
 backoff_max_seconds: 90
+# SUPERSEDED 2026-09-17: that new-account cap is gone (>=240 rpm measured). The frozen
+# Avg@16 run was executed under the throttle below, with zero 429s and zero retries, so
+# its results stand; a re-run could go far faster. See
+# reports/openrouter-rate-limit-probe/recheck-2026-09-17.json.
 # Measured 2026-09-09: OpenRouter caps this account at 20 rpm PER MODEL
 # (new-account-rpm/<vendor>/<model>, fixed 60s window). 0.3 rps = 18 rpm keeps
 # 10% headroom. Unthrottled at concurrency 8 this model offers ~28 rpm and the

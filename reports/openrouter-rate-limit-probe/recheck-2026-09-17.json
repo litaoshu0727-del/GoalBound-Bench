@@ -1,0 +1,95 @@
+{
+  "rechecked_at": "2026-09-17",
+  "finding": "The 20 rpm per-model new-account cap measured on 2026-09-09 is gone. 240 simultaneous requests now succeed with zero 429s on every model tested.",
+  "why_rechecked": "The limit key was new-account-rpm/<vendor>/<model>, an explicitly account-age/spend tier. Account spend has since gone from $0.169 to $17.41, so the tier was worth re-measuring before committing to a 111-minute judging run paced at the old ceiling.",
+  "account_usage_usd": {
+    "at_first_probe": 0.169,
+    "at_recheck": 17.406
+  },
+  "burst_30_all_models": [
+    {
+      "model": "anthropic/claude-opus-5",
+      "ok": 30,
+      "http_429": 0,
+      "declared_limit": null
+    },
+    {
+      "model": "google/gemini-3.7-flash",
+      "ok": 30,
+      "http_429": 0,
+      "declared_limit": null
+    },
+    {
+      "model": "x-ai/grok-4.6",
+      "ok": 30,
+      "http_429": 0,
+      "declared_limit": null
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "ok": 30,
+      "http_429": 0,
+      "declared_limit": null
+    },
+    {
+      "model": "z-ai/glm-5.3-flash",
+      "ok": 30,
+      "http_429": 0,
+      "declared_limit": null
+    }
+  ],
+  "staircase_judges": [
+    {
+      "model": "openai/gpt-5.6-sol",
+      "n": 60,
+      "ok": 60,
+      "http_429": 0,
+      "wall_s": 6.3
+    },
+    {
+      "model": "z-ai/glm-5.3-flash",
+      "n": 60,
+      "ok": 60,
+      "http_429": 0,
+      "wall_s": 11.2
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "n": 120,
+      "ok": 120,
+      "http_429": 0,
+      "wall_s": 7.4
+    },
+    {
+      "model": "z-ai/glm-5.3-flash",
+      "n": 120,
+      "ok": 120,
+      "http_429": 0,
+      "wall_s": 11.0
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "n": 240,
+      "ok": 240,
+      "http_429": 0,
+      "wall_s": 6.0
+    },
+    {
+      "model": "z-ai/glm-5.3-flash",
+      "n": 240,
+      "ok": 240,
+      "http_429": 0,
+      "wall_s": 13.0
+    }
+  ],
+  "conclusion": {
+    "measured_floor_rpm": 240,
+    "ceiling_found": false,
+    "note": "The staircase was stopped at 240 concurrent rather than pushed further: going higher is load on the provider for no decision value, since 240 already removes the rate limit as the binding constraint.",
+    "fastest_observed": "openai/gpt-5.6-sol served 240 concurrent requests in 6.0 s",
+    "new_binding_constraint": "latency and concurrency, no longer the account rate limit"
+  },
+  "supersedes": "The '20 RPM per model' result in this directory's README, and the throttle comments in the six agentic L1 configs. Those were correct when measured -- the 429 bodies named the limit explicitly -- and are now stale.",
+  "what_is_unaffected": "The 2026-09-12 Avg@16 runner run was executed under the old 0.3 rps throttle and completed with zero 429s and zero retries. Its results are unaffected; only the time it took was constrained.",
+  "probe_cost_usd": 0.0385
+}
