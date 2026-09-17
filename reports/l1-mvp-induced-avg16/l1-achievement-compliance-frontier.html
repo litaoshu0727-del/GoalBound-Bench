@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoalBound-Bench L1 达成-合规前沿</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#eef2f6;color:#17202b;font-family:'Geist','PingFang SC',-apple-system,sans-serif;
+padding:24px;display:grid;justify-items:center;gap:24px}
+svg{display:block;width:min(1600px,100%);height:auto}
+table{border-collapse:collapse;font-size:15px;background:#fff;width:min(1100px,100%)}
+caption{text-align:left;padding:12px 0;font-weight:600}
+th,td{border:1px solid #d7dde5;padding:8px 12px;text-align:right}
+th[scope=row]{text-align:left} thead th{background:#f3f6fa;text-align:right}
+p.note{width:min(1100px,100%);color:#5e6b78;font-size:14px;line-height:1.6}
+@media (prefers-color-scheme:dark){body{background:#121211;color:#e9e8e2}
+table{background:#1a1a19} th,td{border-color:#33332f} thead th{background:#232320}
+p.note{color:#9b9a91}}
+</style></head><body>
+<svg viewBox="0 0 1600 1080" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ft fd">
+  <title id="ft">GoalBound-Bench L1 达成-合规前沿</title>
+  <desc id="fd">Scatter of three models. Horizontal axis is the legitimate-goal achieved rate, vertical axis is the boundary violation rate, so the desirable corner is bottom right. Each marker is the resolved value and the box extends to the upper bound produced by samples the two judges left unresolved. Refusal rate is printed beside each marker because refusing the task lowers both rates at once.</desc>
+  <style>:root{
+    --surface-1:#fcfcfb; --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#6f6e69;
+    --grid:#e6e5e0; --axis:#c9c8c2; --warn:#8a3f2b;
+    --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a;
+    }
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+    --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9b9a91;
+    --grid:#2e2e2b; --axis:#4a4a45; --warn:#e0a08c;
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+    }}
+:root[data-theme=dark]{
+    --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9b9a91;
+    --grid:#2e2e2b; --axis:#4a4a45; --warn:#e0a08c;
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+    }
+
+
+    .title { font: 700 42px 'Geist','PingFang SC','Microsoft YaHei',-apple-system,sans-serif;
+             fill: var(--text-primary); letter-spacing:-0.02em; }
+    .subtitle { font: 500 19px 'Geist','PingFang SC',-apple-system,sans-serif;
+                fill: var(--text-secondary); }
+    .warning { font: 600 17px 'Geist','PingFang SC',-apple-system,sans-serif; fill: var(--warn); }
+    .tick { font: 500 17px 'Geist Mono',ui-monospace,monospace; fill: var(--text-muted); }
+    .axlabel { font: 600 20px 'Geist','PingFang SC',-apple-system,sans-serif;
+               fill: var(--text-secondary); }
+    .hint { font: 600 17px 'Geist','PingFang SC',sans-serif; fill: var(--text-muted); }
+    .grid { stroke: var(--grid); stroke-width: 1; }
+    .axis { stroke: var(--axis); stroke-width: 2; }
+    .plab { font: 700 23px 'Geist','PingFang SC',sans-serif; fill: var(--text-primary); }
+    .pval { font: 500 17px 'Geist Mono',ui-monospace,monospace; fill: var(--text-secondary); }
+    .legtitle { font: 700 19px 'Geist','PingFang SC',sans-serif; fill: var(--text-muted); }
+    .leg { font: 600 21px 'Geist','PingFang SC',sans-serif; fill: var(--text-primary); }
+    .legsub { font: 500 16px 'Geist','PingFang SC',sans-serif; fill: var(--text-secondary); }
+    .pt { cursor: default; } .pt:hover circle, .pt:focus circle { r: 14; }
+    </style>
+  <rect x="0" y="0" width="1600" height="1080" fill="var(--surface-1)"/>
+  <text class="title" x="170" y="96">GoalBound-Bench L1 达成-合规前沿</text>
+  <text class="subtitle" x="170" y="136">情境化 induced 条件 · 15 题 × 16 样本 · 每模型 n=240 · 判官对 gpt-5.6-sol + glm-5.3-flash</text>
+  <text class="warning" x="170" y="176">纵轴越高越容易越界，横轴越靠右越能达成正当目标；理想位置在右下角。方框是未决样本造成的不确定区间，不是置信区间。</text>
+  <text class="warning" x="170" y="208">这不是能力排行榜：拒绝任务会同时压低越界率和达成率，所以低越界率本身不代表更好。</text>
+  <line class="grid" x1="170" y1="880.0" x2="1180" y2="880.0"/>
+  <text class="tick" x="152" y="887.0" text-anchor="end">0%</text>
+  <line class="grid" x1="170" y1="725.0" x2="1180" y2="725.0"/>
+  <text class="tick" x="152" y="732.0" text-anchor="end">4%</text>
+  <line class="grid" x1="170" y1="570.0" x2="1180" y2="570.0"/>
+  <text class="tick" x="152" y="577.0" text-anchor="end">8%</text>
+  <line class="grid" x1="170" y1="415.0" x2="1180" y2="415.0"/>
+  <text class="tick" x="152" y="422.0" text-anchor="end">12%</text>
+  <line class="grid" x1="170" y1="260.0" x2="1180" y2="260.0"/>
+  <text class="tick" x="152" y="267.0" text-anchor="end">16%</text>
+  <line class="grid" x1="170.0" y1="260" x2="170.0" y2="880"/>
+  <text class="tick" x="170.0" y="922" text-anchor="middle">0%</text>
+  <line class="grid" x1="372.0" y1="260" x2="372.0" y2="880"/>
+  <text class="tick" x="372.0" y="922" text-anchor="middle">20%</text>
+  <line class="grid" x1="574.0" y1="260" x2="574.0" y2="880"/>
+  <text class="tick" x="574.0" y="922" text-anchor="middle">40%</text>
+  <line class="grid" x1="776.0" y1="260" x2="776.0" y2="880"/>
+  <text class="tick" x="776.0" y="922" text-anchor="middle">60%</text>
+  <line class="grid" x1="978.0" y1="260" x2="978.0" y2="880"/>
+  <text class="tick" x="978.0" y="922" text-anchor="middle">80%</text>
+  <line class="grid" x1="1180.0" y1="260" x2="1180.0" y2="880"/>
+  <text class="tick" x="1180.0" y="922" text-anchor="middle">100%</text>
+  <line class="axis" x1="170" y1="880" x2="1180" y2="880"/>
+  <line class="axis" x1="170" y1="260" x2="170" y2="880"/>
+  <text class="axlabel" x="675" y="972" text-anchor="middle">正当目标达成率 →（越高越好）</text>
+  <text class="axlabel" transform="translate(74,570) rotate(-90)" text-anchor="middle">越界率 ↑（越高越差）</text>
+  <text class="hint" x="1172" y="864" text-anchor="end">理想区域 ↘</text>
+  <g class="pt" tabindex="0" role="listitem" aria-label="Claude Opus 5 达成率 99.2% 至 100.0%，越界率 3.8% 至 5.8%，拒绝率 0.0%"><rect x="1171.6" y="654.1" width="8.4" height="80.6" fill="var(--series-1)" opacity="0.13"/><line x1="1171.6" y1="734.7" x2="1180.0" y2="734.7" stroke="var(--series-1)" stroke-width="2" opacity="0.55"/><line x1="1171.6" y1="734.7" x2="1171.6" y2="654.1" stroke="var(--series-1)" stroke-width="2" opacity="0.55"/><line x1="1180.0" y1="727.7" x2="1180.0" y2="741.7" stroke="var(--series-1)" stroke-width="2" opacity="0.55"/><line x1="1164.6" y1="654.1" x2="1178.6" y2="654.1" stroke="var(--series-1)" stroke-width="2" opacity="0.55"/><circle cx="1171.6" cy="734.7" r="11" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2"/><text class="plab" x="1147.6" y="788.7" text-anchor="end">Claude Opus 5</text><text class="pval" x="1147.6" y="814.7" text-anchor="end">越界 3.8% · 达成 99.2% · 拒绝 0.0%</text></g>
+  <g class="pt" tabindex="0" role="listitem" aria-label="Gemini 3.7 Flash 达成率 67.1% 至 81.2%，越界率 9.6% 至 14.2%，拒绝率 0.0%"><rect x="847.5" y="330.9" width="143.1" height="177.9" fill="var(--series-2)" opacity="0.13"/><line x1="847.5" y1="508.8" x2="990.6" y2="508.8" stroke="var(--series-2)" stroke-width="2" opacity="0.55"/><line x1="847.5" y1="508.8" x2="847.5" y2="330.9" stroke="var(--series-2)" stroke-width="2" opacity="0.55"/><line x1="990.6" y1="501.8" x2="990.6" y2="515.8" stroke="var(--series-2)" stroke-width="2" opacity="0.55"/><line x1="840.5" y1="330.9" x2="854.5" y2="330.9" stroke="var(--series-2)" stroke-width="2" opacity="0.55"/><circle cx="847.5" cy="508.8" r="11" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="2"/><text class="plab" x="871.5" y="560.8" text-anchor="start">Gemini 3.7 Flash</text><text class="pval" x="871.5" y="586.8" text-anchor="start">越界 9.6% · 达成 67.1% · 拒绝 0.0%</text></g>
+  <g class="pt" tabindex="0" role="listitem" aria-label="Grok 4.6 达成率 41.2% 至 52.5%，越界率 7.5% 至 7.5%，拒绝率 23.3%"><line x1="586.6" y1="589.4" x2="700.2" y2="589.4" stroke="var(--series-3)" stroke-width="2" opacity="0.55"/><line x1="586.6" y1="589.4" x2="586.6" y2="589.4" stroke="var(--series-3)" stroke-width="2" opacity="0.55"/><line x1="700.2" y1="582.4" x2="700.2" y2="596.4" stroke="var(--series-3)" stroke-width="2" opacity="0.55"/><line x1="579.6" y1="589.4" x2="593.6" y2="589.4" stroke="var(--series-3)" stroke-width="2" opacity="0.55"/><circle cx="586.6" cy="589.4" r="11" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width="2"/><text class="plab" x="564.6" y="563.4" text-anchor="end">Grok 4.6</text><text class="pval" x="564.6" y="589.4" text-anchor="end">越界 7.5% · 达成 41.2% · 拒绝 23.3%</text></g>
+  <text class="legtitle" x="1240" y="270">模型</text>
+  <circle cx="1250" cy="309" r="9" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2"/>
+  <text class="leg" x="1270" y="314">Claude Opus 5</text>
+  <text class="legsub" x="1270" y="340">拒绝 0.0%｜排除拒绝后越界 3.8%</text>
+  <circle cx="1250" cy="387" r="9" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="2"/>
+  <text class="leg" x="1270" y="392">Gemini 3.7 Flash</text>
+  <text class="legsub" x="1270" y="418">拒绝 0.0%｜排除拒绝后越界 9.6%</text>
+  <circle cx="1250" cy="465" r="9" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width="2"/>
+  <text class="leg" x="1270" y="470">Grok 4.6</text>
+  <text class="legsub" x="1270" y="496">拒绝 23.3%｜排除拒绝后越界 9.8%</text>
+</svg>
+
+<table><caption>数据表（同一批 judged 结果，供无法读图时使用）</caption>
+<thead><tr><th scope="col">模型</th><th scope="col">越界率</th><th scope="col">越界上界</th>
+<th scope="col">达成率</th><th scope="col">达成上界</th><th scope="col">拒绝率</th>
+<th scope="col">排除拒绝后越界率</th></tr></thead>
+<tbody><tr><th scope="row">Claude Opus 5</th><td>3.8%</td><td>5.8%</td><td>99.2%</td><td>100.0%</td><td>0.0%</td><td>3.8%</td></tr>
+<tr><th scope="row">Gemini 3.7 Flash</th><td>9.6%</td><td>14.2%</td><td>67.1%</td><td>81.2%</td><td>0.0%</td><td>9.6%</td></tr>
+<tr><th scope="row">Grok 4.6</th><td>7.5%</td><td>7.5%</td><td>41.2%</td><td>52.5%</td><td>23.3%</td><td>9.8%</td></tr></tbody></table>
+<p class="note">上界来自两位判官判定不一致而留为 UNRESOLVED 的样本，
+按“全部算越界”“全部算达成”解读得出；它是分歧造成的区间，不是统计置信区间。
+boundary 与 success 两轴尚无真实输出上的人工校准，
+refusal 门仅在 Grok 上被验证过。完整限制见 judged-results.json。</p>
+</body></html>
