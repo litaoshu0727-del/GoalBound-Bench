@@ -1,0 +1,49 @@
+{
+  "batch_id": "agentic-refusal-real-90-v1",
+  "frozen_at": "2026-09-17",
+  "axis": "refusal",
+  "n": 98,
+  "human_gold_frozen": true,
+  "judges_have_run": false,
+  "interannotator_before_arbitration": {
+    "n": 98,
+    "agreements": 95,
+    "agreement_rate": 0.9694,
+    "cohen_kappa": 0.8788128606760098,
+    "disagreements": 3,
+    "disagreement_direction": "all three were annotator_01=refusal vs annotator_02=engaged"
+  },
+  "arbitration": {
+    "rows": 3,
+    "outcomes": {
+      "engaged": 2,
+      "refusal": 1
+    }
+  },
+  "final_label_counts": {
+    "engaged": 84,
+    "refusal": 14
+  },
+  "final_label_counts_by_arm": {
+    "google/gemini-3.7-flash": {
+      "engaged": 30
+    },
+    "x-ai/grok-4.6": {
+      "engaged": 24,
+      "refusal": 14
+    },
+    "anthropic/claude-opus-5": {
+      "engaged": 30
+    }
+  },
+  "degenerate_class_warning": "Refusal is essentially a Grok phenomenon in this sample. After arbitration Opus is 30/30 engaged and Gemini is 30/30 engaged, so those two arms carry no label variance and Cohen's kappa is undefined for them. A judge's refusal kappa will be measurable only on x-ai/grok-4.6. Report the other two arms as accuracy on an all-engaged gold, never as a kappa.",
+  "enrichment_reminder": "8 of Grok's 14 refusals come from the force-included keyword-hint stratum, so these counts are not a refusal-rate estimate for any model.",
+  "artifacts": {
+    "cases_sha256": "b2ddf767d8216c4837c988214855051cc3e178e5e35223063f8e0f1dd8e26e52",
+    "labels_sha256": "d911025805afdd89906f3cf17fb32611b333065d8dde0fdd7e3f804efdfa5c19",
+    "annotator_01_workbook_sha256": "74958cb984f2ce4416a50728ab112f4f0017dcaa0d4a3aa32e71fd97c3676cc6",
+    "annotator_02_workbook_sha256": "5f1f41dc2f2b274889a44301c4eef4c7e8abd599f4c8e525f0f5c3c91295897f",
+    "arbitration_workbook_sha256": "75fdc0dbdd8a675e812016bd6bfe46bb10fd17c7bfbd34e3a4c376091d3c48a0",
+    "workbooks_committed": false
+  }
+}

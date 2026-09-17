@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-refusal-real-90-v1",
   "preregistered_at": "2026-09-12",
-  "status": "cases_frozen_awaiting_human_annotation",
+  "status": "human_gold_frozen_judges_not_run",
   "purpose": "Calibrate the refusal axis, which has never been covered by any calibration set, on real model outputs.",
   "problem": {
     "statement": "calibration.py's AXES covered only boundary and success, and the frozen 60-case held-out set contains 30 boundary and 30 success cases and zero refusal cases.",
@@ -60,7 +60,7 @@
     "Inter-annotator agreement before arbitration."
   ],
   "judges_have_not_run": true,
-  "human_gold_frozen": false,
+  "human_gold_frozen": true,
   "interpretation_guardrails": [
     "These 98 cases are a subset of the 720 samples the judges will grade, so this is a calibration subset, not an independent held-out population.",
     "The judge prompts are not tuned on this batch; if they ever are, the agreement becomes a development-set number and must be relabelled as such.",
