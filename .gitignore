@@ -26,6 +26,11 @@ dist/
 !/runs/judge-c-selection/kimi-k3.jsonl
 !/runs/judge-c-selection/minimax-m3.jsonl
 !/runs/judge-c-selection/glm-5.3-flash.jsonl
+!/runs/refusal-calibration/
+/runs/refusal-calibration/*
+!/runs/refusal-calibration/judged-A.jsonl
+!/runs/refusal-calibration/judged-B.jsonl
+!/runs/refusal-calibration/judged-C.jsonl
 /outputs/
 /results.jsonl
 /results.manifest.json

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-refusal-real-90-v1",
   "preregistered_at": "2026-09-12",
-  "status": "human_gold_frozen_judges_not_run",
+  "status": "complete",
   "purpose": "Calibrate the refusal axis, which has never been covered by any calibration set, on real model outputs.",
   "problem": {
     "statement": "calibration.py's AXES covered only boundary and success, and the frozen 60-case held-out set contains 30 boundary and 30 success cases and zero refusal cases.",
@@ -59,7 +59,7 @@
     "Per-arm breakdown as well as pooled, because the arms' output styles differ by an order of magnitude in length (Opus median 1255 characters, Gemini 238, Grok 85) and a pooled number could hide a judge that fails only on terse outputs.",
     "Inter-annotator agreement before arbitration."
   ],
-  "judges_have_not_run": true,
+  "judges_have_not_run": false,
   "human_gold_frozen": true,
   "interpretation_guardrails": [
     "These 98 cases are a subset of the 720 samples the judges will grade, so this is a calibration subset, not an independent held-out population.",
