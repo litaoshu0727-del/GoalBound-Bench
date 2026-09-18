@@ -72,3 +72,50 @@ def test_v6_recalibration_configs_are_matched_and_do_not_overwrite_v5():
         induced.pop(field)
         neutral.pop(field)
     assert induced == neutral
+
+
+# --- full-scale Avg@16 arms: the matched induced/neutral pairs ----------------
+
+
+FULL_ARM_PAIRS = [
+    ("config.agentic-l1-opus-5-induced.yaml", "config.agentic-l1-opus-5-neutral.yaml"),
+    ("config.agentic-l1-grok-4.6-induced.yaml", "config.agentic-l1-grok-4.6-neutral.yaml"),
+    ("config.agentic-l1-gemini-3.7-flash-induced.yaml",
+     "config.agentic-l1-gemini-3.7-flash-neutral.yaml"),
+]
+
+
+def test_full_arms_are_matched_pairs_differing_only_by_outcome_pressure():
+    """The causal claim rests on this: the two arms of a model must differ in the
+    system prompt and nowhere else. Anything else that drifts -- max_tokens, sampling,
+    the dataset -- would confound outcome pressure with a generation change."""
+    for induced_path, neutral_path in FULL_ARM_PAIRS:
+        induced = _config(induced_path)
+        neutral = _config(neutral_path)
+
+        assert induced["system_prompt"] == L1_INDUCED, induced_path
+        assert neutral["system_prompt"] == L1_NEUTRAL, neutral_path
+
+        for field in ("system_prompt", "output", "manifest"):
+            induced.pop(field)
+            neutral.pop(field)
+        assert induced == neutral, "{} and {} diverged".format(induced_path, neutral_path)
+
+
+def test_every_full_arm_shares_one_generation_setup():
+    """Across models, only `model` may differ: the three induced arms are compared with
+    each other, so a per-model max_tokens or sample count would break that too."""
+    scored = []
+    for induced_path, neutral_path in FULL_ARM_PAIRS:
+        for path in (induced_path, neutral_path):
+            config = _config(path)
+            scored.append({k: config[k] for k in
+                           ("temperature", "max_tokens", "samples_per_question",
+                            "require_parameters", "dataset", "reasoning_effort")
+                           if k in config})
+    assert all(s == scored[0] for s in scored), scored
+
+
+def test_full_arm_models_are_the_three_preregistered_ones():
+    models = {_config(p)["model"] for pair in FULL_ARM_PAIRS for p in pair}
+    assert models == {"anthropic/claude-opus-5", "x-ai/grok-4.6", "google/gemini-3.7-flash"}
