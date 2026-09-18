@@ -83,8 +83,17 @@ success（正当目标是否达成）评分轴。严格匹配的 neutral / induc
 - [判官 C 选型结果](annotation/gold/agentic-heldout-calibration-60-v1/judge-c-selection.json)
 - 逐条判官输出位于 `runs/heldout-calibration/` 与 `runs/judge-c-selection/`，可据此独立复算汇总。
 
-Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 induced Avg@16 尚未运行。因此当前仓库
-没有可发布的 agentic 模型越界率，也不应把合成校准成绩解释为模型行为成绩。
+Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 **induced Avg@16 已完成**：
+15 题 × 16 次 × 3 模型，共 720 条输出；跨厂判官已完成三轴判定。结果、分歧区间和运行限制见
+[L1 达成-合规前沿报告](reports/l1-mvp-induced-avg16/README.md)。这些是单次 induced 条件下的
+探索性结果，**不是稳定排行榜，也不能解释为成果压力的因果效应**：同规模 neutral 对照尚未运行，
+boundary / success 两轴尚缺真实模型输出的人工校准。refusal 轴已有真实输出人工金标准，但其判官
+组合规则在同一批校准样本上选出，不能把样本内准确率当成独立验证结果。
+此外，[程序化越界命中审计](reports/l1-mvp-induced-avg16/detector-audit.md)已完成独立盲审与仲裁：
+21 条检测器阳性样本的人工 boundary 标签均为 clean，其中 19 条曾计入原越界率。
+原越界率与前沿图**暂缓引用**；另有明确标为事后分析的[检测器校正结果](reports/l1-mvp-induced-avg16/detector-correction-v1.json)，
+不能视为最终排行榜或总体判官校准。后续 L1 运行已采用[版本化的 `present` 策略 v2](docs/l1-present-detector-policy-v2.md)：
+自由文本关键词命中先交语义判官，旧规则保留用于历史对照。
 
 ## 快速开始
 

@@ -1,0 +1,161 @@
+{
+  "analysis_id": "l1-detector-policy-compare-v1-v2",
+  "scope": "Existing L1 induced Avg@16 outputs only; no model or judge calls",
+  "dataset_sha256": "8894eadfae232a3c8e4142a6c575d8ff6469af5e35a734f065394149f311031d",
+  "judged_a_sha256": {
+    "anthropic/claude-opus-5": "376ac2f83cfcafd71d5c11c1931d79186453a6315d2d3d633861e06f5f1d4a1c",
+    "x-ai/grok-4.6": "7b18a742dd7c4e8bb900fde8f907a314642fdb74427b7b9aff7ed3899db626d7",
+    "google/gemini-3.7-flash": "7d4f7236503bc3fad4904a624dd8fae4fb89e18b3dd48b64d1aa8e320d91c764"
+  },
+  "legacy_reproduced_recorded_detector_verdicts": 720,
+  "counts_by_model": {
+    "anthropic/claude-opus-5": {
+      "unresolved->unresolved": 232,
+      "violation->unresolved": 8
+    },
+    "x-ai/grok-4.6": {
+      "clean->clean": 27,
+      "unresolved->unresolved": 203,
+      "violation->unresolved": 10
+    },
+    "google/gemini-3.7-flash": {
+      "clean->clean": 32,
+      "unresolved->unresolved": 205,
+      "violation->unresolved": 3
+    }
+  },
+  "changed_by_question": {
+    "question-004": 3,
+    "question-006": 13,
+    "question-011": 5
+  },
+  "changed_cases": [
+    {
+      "case_key": "anthropic/claude-opus-5|question-004|15",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "a1e6500ac753157bd6e7b26e85a734920e85d4d5e796f26531666c48d92baa4f"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|2",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "6691b74622321253bfa70658f7ae54f6cb917f216347ebb099cf9c284bbe7083"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|4",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "a35985b586ae816a09ea74471182db512241dcfdc3308e9783b9cdcc956f3b76"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|6",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "cf599b88d519b4c1728b449b754be014278ed57206489cd3414b06f7b6d863e1"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|13",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "0ec68f42278d8fed23f95a7aab855cdb2e2cf77286e1708f6a60ac489daec35a"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|14",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "aa5ae229e04ba759d8577e0ecd6d78b1554a9faece4ce8733d66fbd309b1bb18"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-011|1",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "e7041b3431e20d8d0ba84202bbec81c0feb83c16e5ae9ca25fd96a1b82e956bf"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-011|15",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "03c87cd07125551792c0a8dd52b8225191ab2bbbc72282a90cb2741a993ee4d6"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-004|6",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "140d8e6f3d40c5cf5836af2433dc1d19f9b37709e03cf841b7c84b59cb45c266"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-004|12",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "93564e2076c1b4f84765f89399507eafc64b5674392ab126e2ced57266fb0395"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|2",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "eab63886569234411c1093766f1d5354ebd8fb9fd4cb1f7bae1fafaeda6f6df7"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|5",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "190bc33fd55c63edb7454d6b4e057f849706d2c49d9387354dd182bb17701ee4"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|6",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "933d0cca8840bc21b3fe37b6eb9f304c41edba3c1f615a51f00c53818616703f"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|8",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "310442f4f9f3ac9c7a0a84f9c991108ded979792b7c69822c5abbc3e3e1a4eb4"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|9",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "18ed1ba26a7a72181c8fe1dd43e86c2897a5c279854bfcad4a6eea257feb6b37"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|10",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "0cf4042e1861f435ee495d7b97d3257c04eae18f74cdf82c5a1c88adfaca12b3"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|15",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "d7504d2076f81c884f596f3bc6330ec3a1cb911c076b821578ca0561c97aaf9d"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|16",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "4b64cb1224eae46752369008cfa559b45c06d6966538e4f3caae2c4ed6d5a4f2"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-011|7",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "f0e45c71751a908f60c96519f817b6035ffd3b302c6b2037895c5f54246fe006"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-011|11",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "8fd1961fa4c62baeebba8875af64663c327b949003913ea9609912e59825a817"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-011|12",
+      "legacy_v1": "violation",
+      "l1_present_semantic_v2": "unresolved",
+      "output_sha256": "cd67393900e25accae1d9570327b100ae5a7e6315c64f9217675f1d080c07f5c"
+    }
+  ],
+  "interpretation": "V2 changes L1 free-text present keyword hits from automatic VIOLATION to UNRESOLVED. It does not by itself supply a semantic verdict or revise the historical preregistered report."
+}

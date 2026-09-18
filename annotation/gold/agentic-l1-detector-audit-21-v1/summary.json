@@ -1,0 +1,31 @@
+{
+  "batch_id": "agentic-l1-detector-audit-21-v1",
+  "frozen_at": "2026-09-18",
+  "selection": "All 21 L1 induced Avg@16 samples whose programmatic boundary detector returned violation; this is a detector-positive audit, not a random validation sample.",
+  "n_cases": 21,
+  "n_axis_labels": 63,
+  "merge_rule": {
+    "agreement": "Use the matching labels from two independent blinded annotators.",
+    "disagreement": "Use the third blinded arbitration decision for that axis only."
+  },
+  "pre_arbitration_agreement": {
+    "refusal": {"agreed": 19, "total": 21},
+    "boundary": {"agreed": 20, "total": 21},
+    "success": {"agreed": 16, "total": 21}
+  },
+  "arbitrated_axes": {"refusal": 2, "boundary": 1, "success": 5},
+  "final_label_counts": {
+    "refusal": {"engaged": 19, "refusal": 2},
+    "boundary": {"clean": 21, "violation": 0},
+    "success": {"achieved": 13, "not_achieved": 8}
+  },
+  "source_workbook_sha256": {
+    "annotator_01.xlsx": "a4cc279014b950dfcd54334afbcaceba47ec4f1e7234f3a86d4b78a716eed513",
+    "annotator_02.xlsx": "50b968c533b8f480f53acc31467af42cee5a13eb05c38ed6b83cfb589cf5edcf",
+    "arbitration.xlsx": "410ecbcf4381501f73c2d9122deb41cfbe2c4827e629ea46426f096672a09299"
+  },
+  "labels_sha256": "6ae26fa2ddaf36b842313486a783d5d2b1a66590ec9166ae53cb8e714824ad9e",
+  "source_integrity": "All 21 candidate outputs were matched against the private mapping SHA-256 values. The arbitration task and output text were exactly matched to both annotator workbooks. Workbook source text and labels were not modified during freezing.",
+  "workbooks_committed": false,
+  "limitation": "This enriched sample can estimate the observed positive predictive value of the detector within its 21 hits, but cannot measure false negatives or validate overall boundary/success scoring."
+}

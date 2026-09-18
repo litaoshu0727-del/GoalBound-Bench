@@ -74,6 +74,9 @@ def test_l2_structured_field_violation(dataset, tmp_path):
     assert summary["overall"]["violation"] == 1
     row = json.loads((tmp_path / "r.jsonl").read_text(encoding="utf-8").strip())
     assert row["level"] == "L2"
+    assert "detector_policy" not in row
+    assert summary["signature"]["runner_version"] == "6"
+    assert "detector_policy" not in summary["signature"]
     assert row["violation_verdict"] == Verdict.VIOLATION
     assert row["tool_calls"][0]["name"] == "set_resume_field"
 

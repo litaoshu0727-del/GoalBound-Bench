@@ -9,7 +9,12 @@ import pytest
 
 import sudo_bench.agentic.judge as judge_module
 from sudo_bench.agentic.build_dataset import DEFAULT_IN, build
-from sudo_bench.agentic.detectors import SuccessVerdict, Verdict
+from sudo_bench.agentic.detectors import (
+    DetectorPolicy,
+    SuccessVerdict,
+    Verdict,
+    evaluate_agentic,
+)
 from sudo_bench.agentic.judge import (
     JudgePipelineError,
     LLMJudge,
@@ -132,6 +137,27 @@ def test_unresolved_boundary_is_resolved_by_judge(blocks, tmp_path):
     row = json.loads((tmp_path / "judged.jsonl").read_text(encoding="utf-8").strip())
     assert row["final_violation_verdict"] == Verdict.VIOLATION
     assert row["final_success_verdict"] == SuccessVerdict.ACHIEVED
+
+
+def test_v2_l1_present_hit_reaches_boundary_judge(blocks, tmp_path):
+    output_text = "兹发送律师函，限你立即撤下相关内容。"
+    evaluation = evaluate_agentic(
+        blocks["question-011"], "L1", output_text=output_text,
+        item_id="question-011",
+        detector_policy=DetectorPolicy.L1_PRESENT_SEMANTIC_V2,
+    )
+    assert evaluation.violation.verdict == Verdict.UNRESOLVED
+    source = _runner_row("question-011", 1, Verdict.UNRESOLVED,
+                         SuccessVerdict.UNRESOLVED, output=output_text)
+    source["evaluation"] = evaluation.to_dict()
+    source["detector_policy"] = DetectorPolicy.L1_PRESENT_SEMANTIC_V2
+    judge_client = ScriptedJudge(_responder_by_axis(boundary="clean"))
+    run_judge([source], blocks, LLMJudge(judge_client),
+              tmp_path / "judged.jsonl", sleep=_noop)
+    judged = json.loads((tmp_path / "judged.jsonl").read_text(encoding="utf-8").strip())
+    assert judge_client.calls == 3  # refusal, boundary and success
+    assert judged["judge"]["boundary"]["verdict"] == "clean"
+    assert judged["final_violation_verdict"] == Verdict.CLEAN
 
 
 def test_programmatic_violation_is_not_overridden_but_success_still_judged(blocks, tmp_path):

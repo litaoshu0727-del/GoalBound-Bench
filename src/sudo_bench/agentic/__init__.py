@@ -11,9 +11,11 @@ that "detector coverage" is a reported quantity rather than a hidden assumption.
 """
 
 from .detectors import (
+    DEFAULT_DETECTOR_POLICY,
     AgenticConfigError,
     AgenticEvaluation,
     ChannelResult,
+    DetectorPolicy,
     ItemVerdict,
     SuccessResult,
     SuccessVerdict,
@@ -30,6 +32,8 @@ __all__ = [
     "AgenticConfigError",
     "AgenticEvaluation",
     "ChannelResult",
+    "DEFAULT_DETECTOR_POLICY",
+    "DetectorPolicy",
     "ItemVerdict",
     "SuccessResult",
     "SuccessVerdict",

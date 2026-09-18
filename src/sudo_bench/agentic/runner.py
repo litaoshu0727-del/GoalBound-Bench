@@ -37,14 +37,22 @@ from uuid import uuid4
 from sudo_bench.api import Generation, OpenAIChatClient
 from sudo_bench.reliability import RateLimiter, classify_exception, retry_delay
 
-from .detectors import SuccessVerdict, Verdict, evaluate_agentic, refusal_keyword_hint
+from .detectors import (
+    DEFAULT_DETECTOR_POLICY,
+    DetectorPolicy,
+    SuccessVerdict,
+    Verdict,
+    evaluate_agentic,
+    refusal_keyword_hint,
+)
 from .identity import canonical_generation_config, canonical_sha256
 
 ResultKey = Tuple[str, int]
 
 # Bump when the result-row schema or scoring semantics change, so a resume onto an
 # older run is refused rather than silently mixed.
-RUNNER_VERSION = "6"
+RUNNER_VERSION = "7"
+L2_RUNNER_VERSION = "6"  # L2 scoring and historical resume identity are unchanged.
 
 
 class RunnerError(Exception):
@@ -163,13 +171,16 @@ def run_signature(
     items: Sequence[AgenticItem],
     generation_config: Optional[Mapping[str, Any]] = None,
     level: str = "L1",
+    detector_policy: str = DEFAULT_DETECTOR_POLICY,
 ) -> Dict[str, Any]:
     """A fingerprint of everything that must match for a resume to be valid."""
 
+    if detector_policy not in (DetectorPolicy.LEGACY_V1, DetectorPolicy.L1_PRESENT_SEMANTIC_V2):
+        raise RunnerError("unknown detector policy: {!r}".format(detector_policy))
     request_config = dict(generation_config or {"model": model})
-    return {
+    signature = {
         "component": "agentic-{}-runner".format(level.lower()),
-        "runner_version": RUNNER_VERSION,
+        "runner_version": RUNNER_VERSION if level == "L1" else L2_RUNNER_VERSION,
         "level": level,
         "model": model,
         "generation_config": request_config,
@@ -178,6 +189,9 @@ def run_signature(
         "samples_per_question": samples_per_question,
         "dataset_sha256": _dataset_sha256(items),
     }
+    if level == "L1":
+        signature["detector_policy"] = detector_policy
+    return signature
 
 
 def _read_manifest(manifest: Optional[Path]) -> Optional[Mapping[str, Any]]:
@@ -247,6 +261,7 @@ def _assert_resume_compatible(
         for key in (
             "runner_version",
             "level",
+            "detector_policy",
             "model",
             "generation_config_sha256",
             "condition_prompt_sha256",
@@ -259,6 +274,9 @@ def _assert_resume_compatible(
                     "or a fresh output path".format(key, prior.get(key), signature.get(key))
                 )
     for (_qid, idx), row in existing.items():
+        if (signature["level"] == "L1"
+                and row.get("detector_policy") != signature["detector_policy"]):
+            raise RunnerError("resume refused: detector policy changed or is missing")
         if row.get("level") not in (None, signature["level"]):
             raise RunnerError(
                 "resume refused: existing results are level {!r}, current run is {!r}; "
@@ -381,6 +399,7 @@ def _score_row(
     attempts: int,
     generation: Generation,
     level: str,
+    detector_policy: str,
 ) -> Dict[str, Any]:
     # Pass both axes of evidence; evaluate_agentic uses whichever the level's
     # channels reference (output text for L1, tool-call args for L2).
@@ -390,6 +409,7 @@ def _score_row(
         output_text=generation.text,
         tool_calls=generation.tool_calls,
         item_id=item.id,
+        detector_policy=detector_policy,
     )
     violation_verdict = evaluation.violation.verdict
     success_verdict = evaluation.success.verdict
@@ -427,7 +447,7 @@ def _score_row(
     # Every successful generation needs semantic refusal adjudication, even when
     # the boundary detector itself was decisive.
     needs_judge = True
-    return {
+    row = {
         "id": item.id,
         "sample_index": sample_index,
         "level": level,
@@ -456,6 +476,9 @@ def _score_row(
         "evaluation": evaluation.to_dict(),
         "usage": dict(generation.usage),
     }
+    if level == "L1":
+        row["detector_policy"] = detector_policy
+    return row
 
 
 def _error_row(
@@ -468,9 +491,10 @@ def _error_row(
     attempts: int,
     exc: Exception,
     level: str,
+    detector_policy: str,
 ) -> Dict[str, Any]:
     info = classify_exception(exc)
-    return {
+    row = {
         "id": item.id,
         "sample_index": sample_index,
         "level": level,
@@ -491,6 +515,9 @@ def _error_row(
         "success_verdict": None,
         "needs_judge": None,
     }
+    if level == "L1":
+        row["detector_policy"] = detector_policy
+    return row
 
 
 def _call_model(client: CompletionClient, item: AgenticItem, level: str) -> Generation:
@@ -512,6 +539,7 @@ def _run_one(
     limiter: RateLimiter,
     sleep: Callable[[float], None],
     level: str,
+    detector_policy: str,
 ) -> Dict[str, Any]:
     last_exc: Optional[Exception] = None
     for local_attempt in range(1, max_attempts + 1):
@@ -538,6 +566,7 @@ def _run_one(
                 local_attempt,
                 exc,
                 level,
+                detector_policy,
             )
         return _score_row(
             item,
@@ -549,6 +578,7 @@ def _run_one(
             local_attempt,
             generation,
             level,
+            detector_policy,
         )
     # Unreachable in practice; keeps the type checker happy.
     assert last_exc is not None
@@ -562,6 +592,7 @@ def _run_one(
         max_attempts,
         last_exc,
         level,
+        detector_policy,
     )
 
 
@@ -575,6 +606,7 @@ def _run_level(
     output: Path,
     *,
     condition_prompt: str,
+    detector_policy: str = DEFAULT_DETECTOR_POLICY,
     manifest: Optional[Path] = None,
     samples_per_question: int = 1,
     concurrency: int = 8,
@@ -606,6 +638,7 @@ def _run_level(
         items,
         generation_config=generation_config,
         level=level,
+        detector_policy=detector_policy,
     )
     order = {item.id: index for index, item in enumerate(items)}
 
@@ -677,6 +710,7 @@ def _run_level(
                 limiter,
                 sleep,
                 level,
+                detector_policy,
             ): (item.id, sample_index)
             for item, sample_index in jobs
         }
@@ -700,6 +734,8 @@ def _run_level(
             "signature": signature,
         }
     )
+    if level == "L1":
+        summary["detector_policy"] = detector_policy
     return summary
 
 
@@ -802,6 +838,8 @@ def write_manifest(manifest: Path, summary: Mapping[str, Any], dataset: Path, le
         "samples_per_question": summary.get("samples_per_question"),
         "overall": summary.get("overall"),
     }
+    if level == "L1":
+        payload["detector_policy"] = summary.get("detector_policy")
     manifest.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -869,6 +907,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--level", choices=["L1", "L2"], default="L1", help="L1 free-text (default) or L2 tools"
     )
+    parser.add_argument(
+        "--detector-policy",
+        choices=[DetectorPolicy.L1_PRESENT_SEMANTIC_V2, DetectorPolicy.LEGACY_V1],
+        default=DEFAULT_DETECTOR_POLICY,
+        help="versioned boundary detector rule; v2 routes L1 free-text keyword hits to judge",
+    )
     args = parser.parse_args(argv)
 
     config = load_config(args.config)
@@ -894,6 +938,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         client,
         config.output,
         condition_prompt=config.system_prompt,
+        detector_policy=args.detector_policy,
         manifest=config.manifest,
         samples_per_question=config.samples_per_question,
         concurrency=config.concurrency,

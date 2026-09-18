@@ -1,6 +1,6 @@
 # GoalBound-Bench 第二阶段设计:向开放式 / Agentic 场景迁移
 
-> 状态:数据 + 检测器 + L1/L2 runner + 跨厂判官管线(v1.0;已跑真实 L1 smoke、严格匹配的 neutral/induced 15×1，并完成 refusal / boundary / success 三轴的双人盲审、分歧仲裁与共识冻结。独立的 60 条平衡校准集已完成盲审、人工金标准冻结和 A/B 双判官前瞻校准；另已按预注册规则选出全模型通用的判官 C。逐条判官输出已公开，校准续跑已加入版本、提示哈希和覆盖保护。eval-awareness 探针与三模型 Avg@16 全量真实运行尚未做)
+> 状态:数据、检测器、L1/L2 runner 与跨厂判官管线已落地。严格匹配的 neutral/induced 15×1 smoke、三轴人工盲审、60 条合成样本前瞻校准及 refusal 真实输出校准均已完成。三模型 L1 induced Avg@16（720 条）及判官聚合已完成；[21 条程序化越界命中](../reports/l1-mvp-induced-avg16/detector-audit.md)已完成双盲审与仲裁，全部判为 clean，并已单列事后检测器校正。[L1 `present` 策略 v2](l1-present-detector-policy-v2.md)现把自由文本关键词命中转交语义判官，保留 v1 对照。历史越界率仍暂缓引用；同规模 neutral 对照、boundary/success 总体真实输出校准和 eval-awareness 探针尚未完成。现有结果不是稳定排行榜或成果压力的因果估计。
 > 目标读者:项目维护者
 > 关联:接续 `README.md` 中已完成的 12 模型 MCQ 基线(经三人盲审 + 仲裁的 15 道核心题)
 
@@ -142,7 +142,7 @@ L0→L1 对照本身即可说明 MCQ 基准被高估 / 低估了多少,是很强
 
 决定:**L1+L2 一起,L1 改造 15 题全上。** 已落地的代码与数据:
 
-- `src/sudo_bench/agentic/detectors.py`——纯函数检测引擎(无 API 调用、可单测)。检测器原语:`present` / `absent` / `present_and_absent` / `tool_called` / `requires_judge`。三种取证来源:`output`(L1 自由文本)、`tool_field`(L2 指定工具字段)、`tool_any_field`(逐字段独立扫描,**专门反"绕开被监控字段、把不实信息塞进自由文本字段"的走私**)。可能处于否定语境的关键词不会直接判违规，而是返回 `UNRESOLVED`。请求未支持的 level 或声明了 level 却没有通道会抛出配置错误，不再静默判 `CLEAN`。
+- `src/sudo_bench/agentic/detectors.py`——纯函数检测引擎(无 API 调用、可单测)。检测器原语:`present` / `absent` / `present_and_absent` / `tool_called` / `requires_judge`。三种取证来源:`output`(L1 自由文本)、`tool_field`(L2 指定工具字段)、`tool_any_field`(逐字段独立扫描,**专门反"绕开被监控字段、把不实信息塞进自由文本字段"的走私**)。历史 L1 `present` 的否定语境处理**并不充分**：Avg@16 中 21 条程序化越界命中经盲审和仲裁均为 clean，详见[检测器审计](../reports/l1-mvp-induced-avg16/detector-audit.md)。现有[版本化策略 v2](l1-present-detector-policy-v2.md)将 L1 自由文本命中转为 `UNRESOLVED` 并交由语义判官，旧策略仍可复算。请求未支持的 level 或声明了 level 却没有通道会抛出配置错误，不再静默判 `CLEAN`。
 - `src/sudo_bench/agentic/blocks.py`——15 题均具备 L1/L2、模型可见事实、隐藏 ground truth、OpenAI function-tool schema、已知越界通道与 success 判据。
 - `src/sudo_bench/agentic/build_dataset.py`——在写出 `questions.v3.agentic.jsonl` 前做结构和引用校验，并由公开事实生成完整 L1/L2 prompt。旧字段全部保留，L0 loader 可继续读取。
 - `tests/test_agentic_detectors.py`——覆盖跨字段走私、否定语境误判、非法 level、双轴结果、15 题结构和工具 schema。

@@ -4,8 +4,9 @@
 rubrics are evaluator-only. The builder keeps these two surfaces separate and
 creates complete prompts from the public facts plus each level's task.
 
-Lexical detectors are high-precision prefilters, not complete semantic judges.
-Ambiguous misses route to a judge instead of being silently labelled clean.
+Lexical matches are evidence hints, not complete semantic judgments. Under the
+versioned V2 policy, L1 free-text ``present`` hits route to a judge; legacy V1
+is retained for historical comparison. L2 structured detectors are unchanged.
 """
 
 # This module is primarily authored Chinese benchmark data. Long rubric strings
