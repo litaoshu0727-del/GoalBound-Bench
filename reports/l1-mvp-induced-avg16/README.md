@@ -69,9 +69,12 @@ Opus 本次最长样本 **4755 tokens**，超过 15 条 cap-check 观测到的�
 
 ## 仍然开着的缺口
 
-1. **refusal 轴从未进过任何判官校准集**（`calibration.py` 的 `AXES` 只有 boundary 和
-   success），而它是每个样本的第一个判官调用且会短路另外两轴。判这批数据之前必须先决定
-   如何处理这一点。
+1. ~~**refusal 轴从未进过任何判官校准集**~~（2026-09-17 已解决）：从这 720 条中抽取的
+   98 条 refusal 人工金标准已冻结（[`agentic-refusal-real-90-v1`](../../annotation/gold/agentic-refusal-real-90-v1/)），
+   判官 A/B/C 的 pooled κ 为 0.811 / 0.911 / 0.911，并据此预注册了
+   [A/C 组合规则](../../annotation/preregistration/agentic-l1-judge-combination-rule-v1.json)。
+   仍开着的是 boundary 与 success 的真实输出校准，见
+   [120 条盲审预注册](../../annotation/preregistration/l1-real-output-audit-120-v1.json)。
 2. **`runner.py` 只给最终失败的行写 `error_type`**，重试成功的行不留原因。本次 0 重试，
    没有造成损失，但记录能力仍缺。
 
