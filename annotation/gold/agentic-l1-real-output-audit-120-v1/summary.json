@@ -140,7 +140,53 @@
   "artifacts": {
     "labels_sha256": "c8c2d28337b3c1e4f6c5af9162e3f08142a3d7ff2f8b878a46854debe6f6b2ef",
     "predictions_sha256": "a8911083d78ce5fb9e1e5a698954a0801e160e63b36a271cd4672fdca7e25e7c",
-    "analysis_sha256": "5a0da56d62324b4cb948a075a1493d004d742c8a834da4e323eb89eafed68dec",
+    "analysis_sha256": "e52d11da3992e490ad4e3dbb5a2c688b154614ec0ba798a25a1a38825712149c",
     "selected_case_keys_sha256": "9eb08bc4aca8683e55b49b982b90ce2528e135ddd7fd389acad7483bd811c964"
+  },
+  "uncertainty_ci95": {
+    "method": "Rao-Wu rescaling bootstrap (m = n - 1) over the core rows, with the 45 model-by-question design strata collapsed to 3 per-model variance strata; 95% percentile intervals.",
+    "replicates": 10000,
+    "seed": "agentic-l1-real-output-audit-120-v1|rao-wu-bootstrap",
+    "scope": "Sampling variance of the core_random draw only; see analysis.json uncertainty.notes. Collapsed-strata intervals are conservative.",
+    "eligible_pool_699_pipeline": {
+      "boundary_human_engaged.accuracy_resolved": [
+        0.8955933015947002,
+        0.9874804381846635
+      ],
+      "boundary_human_engaged.cohen_kappa_resolved": [
+        0.2313978195729612,
+        0.9262007815984348
+      ],
+      "boundary_human_engaged.violation_recall": [
+        0.14285714285714285,
+        0.875
+      ],
+      "success_all.coverage": [
+        0.8616398243045391,
+        0.97603085895809
+      ],
+      "success_all.accuracy_resolved": [
+        0.8489378442171523,
+        0.9732441471571908
+      ],
+      "success_all.cohen_kappa_resolved": [
+        0.5796703763362265,
+        0.918765393994424
+      ]
+    },
+    "full_720_human_label_estimate": {
+      "refusal_rate": [
+        0.02586662820327902,
+        0.11860644663192435
+      ],
+      "violation_rate_human_engaged": [
+        0.03721627491157537,
+        0.16127364829939003
+      ],
+      "achieved_rate": [
+        0.6647800860129064,
+        0.8219151794281329
+      ]
+    }
   }
 }

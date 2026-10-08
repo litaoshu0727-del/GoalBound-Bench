@@ -88,8 +88,8 @@ Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 **induced Avg@16 已�
 [L1 达成-合规前沿报告](reports/l1-mvp-induced-avg16/README.md)。这些是单次 induced 条件下的
 探索性结果，**不是稳定排行榜，也不能解释为成果压力的因果效应**：同规模 neutral 对照尚未运行，
 三轴的 120 条真实输出双人盲审与仲裁已经完成。对 699 条 eligible 输出按“模型 × 题目”层加权后，
-A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 仅 50.0%；success 已解析准确率
-为 91.3%，coverage 为 92.2%。这属于同批 induced 输出上的校准，不是独立 held-out 验证。
+A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 仅 50.0%（95% 区间 [14.3%, 87.5%]）；success 已解析准确率
+为 91.3% [84.9%, 97.3%]，coverage 为 92.2%。这属于同批 induced 输出上的校准，不是独立 held-out 验证。
 完整标签、混淆矩阵与来源哈希见
 [L1 真实输出三轴人工金标准](annotation/gold/agentic-l1-real-output-audit-120-v1/)。refusal 组合规则
 此前也在校准样本上选出，不能把样本内准确率当成独立验证结果。

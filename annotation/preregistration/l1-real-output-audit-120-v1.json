@@ -3,7 +3,16 @@
   "batch_id": "l1-real-output-audit-120-v1",
   "preregistered_at": "2026-10-06",
   "selection_generated_at_utc": "2026-09-18T08:48:34.581Z",
-  "status": "selection_frozen_annotation_not_started",
+  "status": "protocol_recorded_after_annotator_01_completed",
+  "status_as_originally_committed": "selection_frozen_annotation_not_started",
+  "amendment": {
+    "amended_at": "2026-10-08",
+    "correction": "The original commit (6a7c9c6, 2026-10-06T21:04:26+08:00) recorded status selection_frozen_annotation_not_started. That was wrong: annotator 01's completed workbook predates the commit. This file is therefore a protocol record, not a strict public preregistration.",
+    "what_still_holds": "The deterministic selection manifest, selected_case_keys_sha256 and blank-workbook hashes were generated on 2026-09-18, before any labeling, and the frozen gold reproduces the selected-case hash.",
+    "what_does_not_hold": "The analysis plan below was made public only after one annotator had finished, so it cannot be cited as committed before any labels existed.",
+    "evidence": "annotation/gold/agentic-l1-real-output-audit-120-v1/provenance.json (protocol_record.timing_limitation)",
+    "original_fields_left_unchanged": "Every other field is as committed in 6a7c9c6; preregistered_at records that commit date, not a pre-annotation date."
+  },
   "purpose": "Calibrate boundary and success, and re-check refusal, on real L1 outputs. Until now boundary and success had only 30 synthetic cases each, and the only real-output boundary evidence is the 21 detector positives, which measure positive predictive value and nothing else.",
   "source": {
     "run_record": "reports/l1-mvp-induced-avg16/run-record.json",

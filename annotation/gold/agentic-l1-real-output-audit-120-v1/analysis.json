@@ -1942,5 +1942,198 @@
         }
       }
     }
+  },
+  "uncertainty": {
+    "method": "Rao-Wu rescaling bootstrap (m = n - 1) over the core rows, with the 45 model-by-question design strata collapsed to 3 per-model variance strata; 95% percentile intervals.",
+    "replicates": 10000,
+    "seed": "agentic-l1-real-output-audit-120-v1|rao-wu-bootstrap",
+    "notes": [
+      "Only sampling variance from drawing 2 of each stratum's eligible outputs is captured. Annotator disagreement, arbitration and judge run-to-run variance are not.",
+      "With 2 rows per design stratum the within-stratum variance is zero whenever both rows agree, so the design strata are collapsed to models for variance estimation. Collapsing and the absent finite-population correction (2 of up to 16 per stratum) both make the intervals conservative.",
+      "The 21 detector-positive census cases are held fixed in every replicate.",
+      "A degenerate interval (low equals high) means no event or disagreement was observed in the sampled rows, not that the rate is zero; by the rule of three the unobserved rate could still be up to about 10% for one model's 30 rows or about 3% for all 90.",
+      "undefined_replicates counts replicates where a ratio had a zero denominator or kappa had no label variance; intervals use the defined replicates only.",
+      "risk_enriched has no population weight and gets no interval."
+    ],
+    "eligible_pool_699_pipeline": {
+      "refusal.accuracy_resolved": {
+        "point": 1.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "undefined_replicates": 0
+      },
+      "boundary_human_engaged.coverage": {
+        "point": 0.9754224270353302,
+        "ci95": [
+          0.9367076079657637,
+          1.0
+        ],
+        "undefined_replicates": 0
+      },
+      "boundary_human_engaged.accuracy_resolved": {
+        "point": 0.9496062992125984,
+        "ci95": [
+          0.8955933015947002,
+          0.9874804381846635
+        ],
+        "undefined_replicates": 0
+      },
+      "boundary_human_engaged.cohen_kappa_resolved": {
+        "point": 0.6426561620709061,
+        "ci95": [
+          0.2313978195729612,
+          0.9262007815984348
+        ],
+        "undefined_replicates": 3
+      },
+      "boundary_human_engaged.violation_recall": {
+        "point": 0.5,
+        "ci95": [
+          0.14285714285714285,
+          0.875
+        ],
+        "undefined_replicates": 3
+      },
+      "boundary_human_engaged.violation_precision": {
+        "point": 1.0,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "undefined_replicates": 176
+      },
+      "success_all.coverage": {
+        "point": 0.9220314735336195,
+        "ci95": [
+          0.8616398243045391,
+          0.97603085895809
+        ],
+        "undefined_replicates": 0
+      },
+      "success_all.accuracy_resolved": {
+        "point": 0.91311093871218,
+        "ci95": [
+          0.8489378442171523,
+          0.9732441471571908
+        ],
+        "undefined_replicates": 0
+      },
+      "success_all.cohen_kappa_resolved": {
+        "point": 0.7636411263916174,
+        "ci95": [
+          0.5796703763362265,
+          0.918765393994424
+        ],
+        "undefined_replicates": 0
+      }
+    },
+    "full_720_human_label_estimate": {
+      "refusal_rate": {
+        "point": 0.06944444444444445,
+        "ci95": [
+          0.02586662820327902,
+          0.11860644663192435
+        ],
+        "undefined_replicates": 0
+      },
+      "violation_rate_human_engaged": {
+        "point": 0.0955223880597015,
+        "ci95": [
+          0.03721627491157537,
+          0.16127364829939003
+        ],
+        "undefined_replicates": 0
+      },
+      "achieved_rate": {
+        "point": 0.7444444444444445,
+        "ci95": [
+          0.6647800860129064,
+          0.8219151794281329
+        ],
+        "undefined_replicates": 0
+      }
+    },
+    "full_720_human_label_estimate_by_model": {
+      "anthropic/claude-opus-5": {
+        "refusal_rate": {
+          "point": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "undefined_replicates": 0
+        },
+        "violation_rate_human_engaged": {
+          "point": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "undefined_replicates": 0
+        },
+        "achieved_rate": {
+          "point": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "undefined_replicates": 0
+        }
+      },
+      "google/gemini-3.7-flash": {
+        "refusal_rate": {
+          "point": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "undefined_replicates": 0
+        },
+        "violation_rate_human_engaged": {
+          "point": 0.16666666666666666,
+          "ci95": [
+            0.03472222222222221,
+            0.31047865459249674
+          ],
+          "undefined_replicates": 0
+        },
+        "achieved_rate": {
+          "point": 0.7666666666666667,
+          "ci95": [
+            0.6130167106420404,
+            0.8978288633461047
+          ],
+          "undefined_replicates": 0
+        }
+      },
+      "x-ai/grok-4.6": {
+        "refusal_rate": {
+          "point": 0.20833333333333334,
+          "ci95": [
+            0.07774566473988437,
+            0.36157082748948094
+          ],
+          "undefined_replicates": 0
+        },
+        "violation_rate_human_engaged": {
+          "point": 0.12631578947368421,
+          "ci95": [
+            0.0,
+            0.27222062139752945
+          ],
+          "undefined_replicates": 0
+        },
+        "achieved_rate": {
+          "point": 0.4666666666666667,
+          "ci95": [
+            0.2870827285921625,
+            0.6431818181818182
+          ],
+          "undefined_replicates": 0
+        }
+      }
+    }
   }
 }

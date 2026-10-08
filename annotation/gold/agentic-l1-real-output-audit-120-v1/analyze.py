@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import random
 from collections import Counter
 from pathlib import Path
 from typing import Callable
@@ -16,6 +17,9 @@ OUTPUT_PATH = HERE / "analysis.json"
 DETECTOR_AUDIT_LABELS_PATH = (
     HERE.parents[2] / "annotation/gold/agentic-l1-detector-audit-21-v1/labels.jsonl"
 )
+
+BOOTSTRAP_REPLICATES = 10_000
+BOOTSTRAP_SEED = "agentic-l1-real-output-audit-120-v1|rao-wu-bootstrap"
 
 VALID = {
     "refusal": ("engaged", "refusal"),
@@ -179,6 +183,156 @@ def human_label_estimate(weighted_rows: list[tuple[dict, float]]) -> dict:
     }
 
 
+def percentile(sorted_values: list[float], q: float) -> float:
+    position = q * (len(sorted_values) - 1)
+    lower = int(position)
+    upper = min(lower + 1, len(sorted_values) - 1)
+    fraction = position - lower
+    return sorted_values[lower] * (1 - fraction) + sorted_values[upper] * fraction
+
+
+def pool_statistics(rows: list[dict], weight: Callable[[dict], float]) -> dict:
+    pipeline = metrics(rows, weight)["pipeline"]
+    refusal = pipeline["refusal"]
+    boundary = pipeline["boundary_human_engaged"]
+    success = pipeline["success_all"]
+    return {
+        "refusal.accuracy_resolved": refusal["accuracy_resolved"],
+        "boundary_human_engaged.coverage": boundary["coverage"],
+        "boundary_human_engaged.accuracy_resolved": boundary["accuracy_resolved"],
+        "boundary_human_engaged.cohen_kappa_resolved": boundary["cohen_kappa_resolved"],
+        "boundary_human_engaged.violation_recall": boundary["per_class"]["violation"]["recall"],
+        "boundary_human_engaged.violation_precision": boundary["per_class"]["violation"][
+            "precision"
+        ],
+        "success_all.coverage": success["coverage"],
+        "success_all.accuracy_resolved": success["accuracy_resolved"],
+        "success_all.cohen_kappa_resolved": success["cohen_kappa_resolved"],
+    }
+
+
+def rate_statistics(weighted_rows: list[tuple[dict, float]]) -> dict:
+    estimate = human_label_estimate(weighted_rows)
+    return {
+        key: estimate[key]
+        for key in ("refusal_rate", "violation_rate_human_engaged", "achieved_rate")
+    }
+
+
+def summarize_draws(point: dict, draws: dict[str, list[float | None]]) -> dict:
+    summary = {}
+    for key, values in draws.items():
+        defined = sorted(value for value in values if value is not None)
+        summary[key] = {
+            "point": point[key],
+            "ci95": (
+                [percentile(defined, 0.025), percentile(defined, 0.975)] if defined else None
+            ),
+            "undefined_replicates": len(values) - len(defined),
+        }
+    return summary
+
+
+def collapsed_strata_bootstrap(
+    core: list[dict],
+    census: list[dict],
+    core_weight: Callable[[dict], float],
+    models: list[str],
+) -> dict:
+    """Rao-Wu rescaling bootstrap over collapsed (per-model) variance strata.
+
+    The design has two rows per model-by-question stratum, which makes the
+    within-stratum variance estimate zero whenever both rows agree. The 45 design
+    strata are therefore collapsed to the three models for variance estimation only:
+    each replicate draws m = n - 1 = 29 of a model's 30 core rows with replacement and
+    rescales each drawn row's design weight by n / m. Collapsing adds between-question
+    variance, so the intervals are conservative. Point estimates are unchanged.
+    """
+    variance_strata: dict[str, list[dict]] = {}
+    for row in core:
+        variance_strata.setdefault(row["model"], []).append(row)
+
+    replicate_weights: dict[int, float] = {}
+
+    def replicate_weight(row: dict) -> float:
+        return replicate_weights[id(row)]
+
+    def full_run(rows: list[dict]) -> list[tuple[dict, float]]:
+        weighted = [(row, replicate_weight(row)) for row in rows]
+        weighted.extend((row, 1.0) for row in census)
+        return weighted
+
+    def by_model(weighted: list[tuple[dict, float]]) -> dict[str, list[tuple[dict, float]]]:
+        return {
+            model: [(row, weight) for row, weight in weighted if row["model"] == model]
+            for model in models
+        }
+
+    pool_point = pool_statistics(core, core_weight)
+    full_point_rows = [(row, core_weight(row)) for row in core]
+    full_point_rows.extend((row, 1.0) for row in census)
+    full_point = rate_statistics(full_point_rows)
+    model_point = {
+        model: rate_statistics(rows) for model, rows in by_model(full_point_rows).items()
+    }
+
+    pool_draws: dict[str, list] = {key: [] for key in pool_point}
+    full_draws: dict[str, list] = {key: [] for key in full_point}
+    model_draws = {model: {key: [] for key in full_point} for model in models}
+
+    rng = random.Random(BOOTSTRAP_SEED)
+    for _ in range(BOOTSTRAP_REPLICATES):
+        replicate_weights.clear()
+        for model in models:
+            rows = variance_strata[model]
+            draws = len(rows) - 1
+            for row in (rng.choice(rows) for _ in range(draws)):
+                replicate_weights[id(row)] = replicate_weights.get(id(row), 0.0) + (
+                    core_weight(row) * len(rows) / draws
+                )
+        picked = [row for row in core if id(row) in replicate_weights]
+        for key, value in pool_statistics(picked, replicate_weight).items():
+            pool_draws[key].append(value)
+        weighted = full_run(picked)
+        for key, value in rate_statistics(weighted).items():
+            full_draws[key].append(value)
+        for model, rows in by_model(weighted).items():
+            for key, value in rate_statistics(rows).items():
+                model_draws[model][key].append(value)
+
+    return {
+        "method": (
+            "Rao-Wu rescaling bootstrap (m = n - 1) over the core rows, with the 45 "
+            "model-by-question design strata collapsed to 3 per-model variance strata; "
+            "95% percentile intervals."
+        ),
+        "replicates": BOOTSTRAP_REPLICATES,
+        "seed": BOOTSTRAP_SEED,
+        "notes": [
+            "Only sampling variance from drawing 2 of each stratum's eligible outputs is "
+            "captured. Annotator disagreement, arbitration and judge run-to-run variance "
+            "are not.",
+            "With 2 rows per design stratum the within-stratum variance is zero whenever "
+            "both rows agree, so the design strata are collapsed to models for variance "
+            "estimation. Collapsing and the absent finite-population correction "
+            "(2 of up to 16 per stratum) both make the intervals conservative.",
+            "The 21 detector-positive census cases are held fixed in every replicate.",
+            "A degenerate interval (low equals high) means no event or disagreement was "
+            "observed in the sampled rows, not that the rate is zero; by the rule of three "
+            "the unobserved rate could still be up to about 10% for one model's 30 rows "
+            "or about 3% for all 90.",
+            "undefined_replicates counts replicates where a ratio had a zero denominator "
+            "or kappa had no label variance; intervals use the defined replicates only.",
+            "risk_enriched has no population weight and gets no interval.",
+        ],
+        "eligible_pool_699_pipeline": summarize_draws(pool_point, pool_draws),
+        "full_720_human_label_estimate": summarize_draws(full_point, full_draws),
+        "full_720_human_label_estimate_by_model": {
+            model: summarize_draws(model_point[model], model_draws[model]) for model in models
+        },
+    }
+
+
 def main() -> None:
     label_rows = read_jsonl(LABELS_PATH)
     predictions = {row["case_key"]: row for row in read_jsonl(PREDICTIONS_PATH)}
@@ -286,6 +440,9 @@ def main() -> None:
             for model in models
         },
         "risk_enriched_unweighted": metrics(risk, lambda _: 1.0),
+        "uncertainty": collapsed_strata_bootstrap(
+            core, list(detector_by_case.values()), core_weight, models
+        ),
     }
     OUTPUT_PATH.write_text(json.dumps(analysis, ensure_ascii=False, indent=2) + "\n")
 

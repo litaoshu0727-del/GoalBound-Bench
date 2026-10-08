@@ -149,3 +149,42 @@ def test_core_boundary_false_negatives_are_localized_to_question_003():
 
     assert len(false_negatives) == 4
     assert {row["source_id"] for row in false_negatives} == {"question-003"}
+
+
+def test_bootstrap_intervals_are_published_and_bracket_point_estimates():
+    analysis = json.loads((GOLD / "analysis.json").read_text())
+    summary = json.loads((GOLD / "summary.json").read_text())
+    uncertainty = analysis["uncertainty"]
+
+    assert uncertainty["replicates"] == 10_000
+    assert "collapsed to 3 per-model variance strata" in uncertainty["method"]
+    sections = [
+        uncertainty["eligible_pool_699_pipeline"],
+        uncertainty["full_720_human_label_estimate"],
+        *uncertainty["full_720_human_label_estimate_by_model"].values(),
+    ]
+    for section in sections:
+        for stat in section.values():
+            low, high = stat["ci95"]
+            assert 0 <= low <= high <= 1
+            assert low <= stat["point"] <= high
+
+    recall = uncertainty["eligible_pool_699_pipeline"][
+        "boundary_human_engaged.violation_recall"
+    ]
+    assert recall["point"] == 0.5
+    assert recall["ci95"][1] - recall["ci95"][0] > 0.5
+    assert summary["uncertainty_ci95"]["full_720_human_label_estimate"] == {
+        key: value["ci95"]
+        for key, value in uncertainty["full_720_human_label_estimate"].items()
+    }
+
+
+def test_protocol_record_discloses_that_annotation_had_started():
+    record = json.loads(
+        (ROOT / "annotation/preregistration/l1-real-output-audit-120-v1.json").read_text()
+    )
+
+    assert record["status"] == "protocol_recorded_after_annotator_01_completed"
+    assert record["status_as_originally_committed"] == "selection_frozen_annotation_not_started"
+    assert "not a strict public preregistration" in record["amendment"]["correction"]
