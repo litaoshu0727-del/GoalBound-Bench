@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "batch_id": "agentic-l1-real-output-audit-120-v1",
+  "frozen_at": "2026-10-08",
+  "population": {
+    "condition": "induced",
+    "n": 720,
+    "eligible_after_detector_audit_exclusion": 699,
+    "models": [
+      "anthropic/claude-opus-5",
+      "x-ai/grok-4.6",
+      "google/gemini-3.7-flash"
+    ]
+  },
+  "sampling": {
+    "selection_generated_at_utc": "2026-09-18T08:48:34.581Z",
+    "seed": "goalbound-l1-real-output-120-v1",
+    "selected_case_keys_sha256": "9eb08bc4aca8683e55b49b982b90ce2528e135ddd7fd389acad7483bd811c964",
+    "core_random_n": 90,
+    "risk_enriched_n": 30,
+    "excluded_by_stratum": {
+      "anthropic/claude-opus-5|question-004": 1,
+      "anthropic/claude-opus-5|question-006": 5,
+      "anthropic/claude-opus-5|question-011": 2,
+      "google/gemini-3.7-flash|question-011": 3,
+      "x-ai/grok-4.6|question-004": 2,
+      "x-ai/grok-4.6|question-006": 8
+    },
+    "weighting": "Each core row represents (16 - excluded_in_model_question_stratum) / 2 eligible outputs. The 30 risk-enriched rows have no population weight."
+  },
+  "protocol_record": {
+    "path": "annotation/preregistration/l1-real-output-audit-120-v1.json",
+    "sha256": "5e26423855df5aa2ff8c8578fb6e26456e7437a13ac24753eff348d6def6ba3c",
+    "commit": "6a7c9c6dcf782590185919e3978f8f4b3ba6a937",
+    "committed_at": "2026-10-06T21:04:26+08:00",
+    "timing_limitation": "The deterministic selection manifest was generated before labeling, but it remained gitignored. Annotator 01's completed workbook predates the public protocol commit, so this batch is a frozen real-output calibration audit, not a strict public preregistration."
+  },
+  "private_source_hashes": {
+    "selection_manifest.json": "f2552b2d8944f73f0e092b33a84bd5d1edcda87d09b70d2e41d09e7c24775210",
+    "answer_map_arbitration.json": "c5431872a25ee8577fb2051b25681ad530a5b4696192a52a1f341eae973d0f34",
+    "completed_workbooks_pre_arbitration.json": "133db1f7395686be333a8144efed04761c6557da13c8cd394abca73d41614884"
+  },
+  "completed_workbook_hashes": {
+    "annotator_01.xlsx": "87e82466551f5cb5f611c6d99d36e1882960c87994c7dd004f53739d94dd4e93",
+    "annotator_02.xlsx": "827d541d4ede9376b54f50a891811c3c5e79b05215c8ff0df962c111cbe154d6",
+    "arbitration.xlsx": "06e3c7a49f8dd32b9c3d2a849466be8962ebbd34fe2423fcc230aa046b2ba93f"
+  },
+  "source_hashes": {
+    "questions.v3.agentic.jsonl": "8894eadfae232a3c8e4142a6c575d8ff6469af5e35a734f065394149f311031d",
+    "annotation/gold/agentic-l1-detector-audit-21-v1/labels.jsonl": "6ae26fa2ddaf36b842313486a783d5d2b1a66590ec9166ae53cb8e714824ad9e",
+    "runs/agentic-l1-claude-opus-5-induced/results.jsonl": "3cdad69c951879978496d11f802799eca5b7773f1f37abc8539c7862b1fec5ff",
+    "runs/l1-judged/opus-5.judge-A.jsonl": "376ac2f83cfcafd71d5c11c1931d79186453a6315d2d3d633861e06f5f1d4a1c",
+    "runs/l1-judged/opus-5.judge-C.jsonl": "dc2524ea4fbf4b332e8f0a24db55a1373ea5cc9ddad9effb51cabb41d779b04d",
+    "runs/agentic-l1-grok-4.6-induced/results.jsonl": "17b2f3510d304a112c9bb0c0ce150d55610ddee9b91e778d0d9221b010817f8f",
+    "runs/l1-judged/grok-4.6.judge-A.jsonl": "7b18a742dd7c4e8bb900fde8f907a314642fdb74427b7b9aff7ed3899db626d7",
+    "runs/l1-judged/grok-4.6.judge-C.jsonl": "2bbc84d16a4b8e71e2b5628b066f4853c137842deb0d3437b9ed5f5b85093b83",
+    "runs/agentic-l1-gemini-3.7-flash-induced/results.jsonl": "6f0c495edb886d36f06d952f7b912db07b1d6df0c2d46cece853a4bae5ed9c51",
+    "runs/l1-judged/gemini-3.7-flash.judge-A.jsonl": "7d4f7236503bc3fad4904a624dd8fae4fb89e18b3dd48b64d1aa8e320d91c764",
+    "runs/l1-judged/gemini-3.7-flash.judge-C.jsonl": "e9c13a384328ca80a8975ef8d94a2ac980e87cf1dc4baf5c177bbf9b72034a42"
+  },
+  "normalizations": [
+    {
+      "annotator": "01",
+      "workbook_row": 96,
+      "axis": "refusal",
+      "raw": "engaged+D98",
+      "normalized": "engaged",
+      "rule": "Strip one accidental +cell-reference suffix only when the prefix is an otherwise valid label."
+    }
+  ],
+  "privacy": "Candidate texts and completed workbooks remain gitignored. Published labels and predictions contain only identifiers, verdicts and output SHA-256 hashes."
+}

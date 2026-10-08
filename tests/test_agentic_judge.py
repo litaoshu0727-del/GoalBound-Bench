@@ -137,6 +137,7 @@ def test_unresolved_boundary_is_resolved_by_judge(blocks, tmp_path):
     row = json.loads((tmp_path / "judged.jsonl").read_text(encoding="utf-8").strip())
     assert row["final_violation_verdict"] == Verdict.VIOLATION
     assert row["final_success_verdict"] == SuccessVerdict.ACHIEVED
+    assert row["boundary_policy_version"] == "question-003-boundary-v2"
 
 
 def test_v2_l1_present_hit_reaches_boundary_judge(blocks, tmp_path):
@@ -220,7 +221,17 @@ def test_runner_error_rows_carry_through(blocks, tmp_path):
     assert summary["runner_errors"] == 1
     row = json.loads((tmp_path / "judged.jsonl").read_text(encoding="utf-8").strip())
     assert row["judge"] is None
+    assert row["boundary_policy_version"] is None
     assert row["final_violation_verdict"] is None
+
+
+def test_runner_error_rows_carry_boundary_policy_version(blocks, tmp_path):
+    rows = [_runner_row("question-003", 1, None, None, output=None, error="timeout")]
+    judge = LLMJudge(ScriptedJudge(_responder_by_axis()))
+    run_judge(rows, blocks, judge, tmp_path / "judged.jsonl", sleep=_noop)
+
+    row = json.loads((tmp_path / "judged.jsonl").read_text(encoding="utf-8").strip())
+    assert row["boundary_policy_version"] == "question-003-boundary-v2"
 
 
 # --- resume -------------------------------------------------------------------

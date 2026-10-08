@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "batch_id": "agentic-l1-real-output-audit-120-v1",
+  "frozen_at": "2026-10-08",
+  "human_gold_frozen": true,
+  "n_cases": 120,
+  "n_axis_labels": 360,
+  "groups": {
+    "core_random": 90,
+    "risk_enriched": 30
+  },
+  "interannotator_before_arbitration": {
+    "refusal": {
+      "n": 120,
+      "agreements": 120,
+      "agreement_rate": 1.0,
+      "cohen_kappa": 1.0,
+      "disagreements": 0
+    },
+    "boundary": {
+      "n": 120,
+      "agreements": 118,
+      "agreement_rate": 0.9833333333333333,
+      "cohen_kappa": 0.9315068493150682,
+      "disagreements": 2
+    },
+    "success": {
+      "n": 120,
+      "agreements": 99,
+      "agreement_rate": 0.825,
+      "cohen_kappa": 0.631578947368421,
+      "disagreements": 21
+    }
+  },
+  "arbitration": {
+    "cases": 22,
+    "axis_decisions": 23,
+    "by_axis": {
+      "boundary": 2,
+      "success": 21
+    },
+    "by_group": {
+      "core_random": 16,
+      "risk_enriched": 7
+    },
+    "outcomes": {
+      "boundary": {
+        "clean": 2,
+        "violation": 0
+      },
+      "success": {
+        "achieved": 18,
+        "not_achieved": 3
+      }
+    }
+  },
+  "final_label_counts": {
+    "all": {
+      "refusal": {
+        "engaged": 109,
+        "refusal": 11
+      },
+      "boundary": {
+        "clean": 104,
+        "violation": 16
+      },
+      "success": {
+        "achieved": 82,
+        "not_achieved": 38
+      }
+    },
+    "core_random": {
+      "refusal": {
+        "engaged": 83,
+        "refusal": 7
+      },
+      "boundary": {
+        "clean": 82,
+        "violation": 8
+      },
+      "success": {
+        "achieved": 67,
+        "not_achieved": 23
+      }
+    },
+    "risk_enriched": {
+      "refusal": {
+        "engaged": 26,
+        "refusal": 4
+      },
+      "boundary": {
+        "clean": 22,
+        "violation": 8
+      },
+      "success": {
+        "achieved": 15,
+        "not_achieved": 15
+      }
+    }
+  },
+  "weighted_eligible_pool_pipeline": {
+    "population_n": 699,
+    "refusal": {
+      "coverage": 1.0,
+      "accuracy_resolved": 1.0,
+      "cohen_kappa_resolved": 1.0
+    },
+    "boundary_human_engaged": {
+      "coverage": 0.9754224270353302,
+      "accuracy_resolved": 0.9496062992125984,
+      "cohen_kappa_resolved": 0.6426561620709061,
+      "violation_recall": 0.5,
+      "unweighted_false_negatives": 4,
+      "unweighted_false_negatives_by_question": {
+        "question-003": 4
+      }
+    },
+    "success_all": {
+      "coverage": 0.9220314735336195,
+      "accuracy_resolved": 0.91311093871218,
+      "cohen_kappa_resolved": 0.7636411263916174
+    }
+  },
+  "full_720_human_label_estimate": {
+    "composition": "21 detector-positive cases censused plus the 699-case eligible pool estimated from the stratum-weighted core_random sample",
+    "refusal_rate": 0.06944444444444445,
+    "violation_rate_human_engaged": 0.0955223880597015,
+    "achieved_rate": 0.7444444444444445,
+    "warning": "This is a sampling estimate with only two observations per model-question stratum, not a completed 720-case human census or a stable leaderboard."
+  },
+  "interpretation": [
+    "Use stratum-weighted core_random metrics for the 699-case eligible pool.",
+    "The risk_enriched group is a diagnostic stress test selected using judge disagreement or violation flags; never pool it with core_random and never use it for model-rate comparisons.",
+    "Boundary metrics are evaluated only on human-engaged rows. Success-all treats a human refusal as not_achieved.",
+    "Resolved-only accuracy must always be reported with coverage. The combined pipeline misses half of the weighted human boundary violations in core_random.",
+    "All four unweighted core_random boundary false negatives are question-003, making that rubric and judge prompt the first targeted revision candidate.",
+    "This is in-population calibration on induced outputs, not an independent held-out validation and not evidence for a neutral-versus-induced causal effect.",
+    "The deterministic selection was generated before labeling, but the public protocol commit came after annotator 01's completed workbook; this is not a strict public preregistration."
+  ],
+  "artifacts": {
+    "labels_sha256": "c8c2d28337b3c1e4f6c5af9162e3f08142a3d7ff2f8b878a46854debe6f6b2ef",
+    "predictions_sha256": "a8911083d78ce5fb9e1e5a698954a0801e160e63b36a271cd4672fdca7e25e7c",
+    "analysis_sha256": "5a0da56d62324b4cb948a075a1493d004d742c8a834da4e323eb89eafed68dec",
+    "selected_case_keys_sha256": "9eb08bc4aca8683e55b49b982b90ce2528e135ddd7fd389acad7483bd811c964"
+  }
+}

@@ -4,7 +4,9 @@
   "axis": "refusal",
   "n": 98,
   "human_gold_frozen": true,
-  "judges_have_run": false,
+  "judges_had_run_at_gold_freeze_time": false,
+  "judge_calibration_completed": true,
+  "judge_calibration": "judge-refusal-calibration.json",
   "interannotator_before_arbitration": {
     "n": 98,
     "agreements": 95,

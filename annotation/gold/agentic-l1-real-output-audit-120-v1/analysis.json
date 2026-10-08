@@ -1,0 +1,1946 @@
+{
+  "schema_version": 1,
+  "batch_id": "agentic-l1-real-output-audit-120-v1",
+  "generated_at": "2026-10-08",
+  "artifacts": {
+    "labels_sha256": "c8c2d28337b3c1e4f6c5af9162e3f08142a3d7ff2f8b878a46854debe6f6b2ef",
+    "predictions_sha256": "a8911083d78ce5fb9e1e5a698954a0801e160e63b36a271cd4672fdca7e25e7c",
+    "selected_case_keys_sha256": "9eb08bc4aca8683e55b49b982b90ce2528e135ddd7fd389acad7483bd811c964"
+  },
+  "reporting_guardrail": "core_random is stratum-weighted to the 699-case eligible pool; risk_enriched is an unweighted diagnostic stress test and must not be pooled with core_random or used for model-rate comparisons.",
+  "core_random_unweighted": {
+    "pipeline": {
+      "refusal": {
+        "n_rows": 90,
+        "weighted_n": 90.0,
+        "resolved_weight": 90.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 1.0,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": 1.0,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 83.0,
+          "refusal|refusal": 7.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 83.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "refusal": {
+            "support": 7.0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 81.0,
+        "unresolved_weight": 2.0,
+        "coverage": 0.9759036144578314,
+        "accuracy_all": 0.927710843373494,
+        "accuracy_resolved": 0.9506172839506173,
+        "cohen_kappa_resolved": 0.643171806167401,
+        "confusion_gold_pipe_prediction": {
+          "clean|clean": 73.0,
+          "clean|unresolved": 2.0,
+          "violation|clean": 4.0,
+          "violation|violation": 4.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 75.0,
+            "precision": 0.948051948051948,
+            "recall": 0.9733333333333334
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": 1.0,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_all": {
+        "n_rows": 90,
+        "weighted_n": 90.0,
+        "resolved_weight": 83.0,
+        "unresolved_weight": 7.0,
+        "coverage": 0.9222222222222223,
+        "accuracy_all": 0.8444444444444444,
+        "accuracy_resolved": 0.9156626506024096,
+        "cohen_kappa_resolved": 0.7736657576938059,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 59.0,
+          "achieved|unresolved": 6.0,
+          "not_achieved|not_achieved": 17.0,
+          "not_achieved|unresolved": 1.0,
+          "achieved|not_achieved": 2.0,
+          "not_achieved|achieved": 5.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 67.0,
+            "precision": 0.921875,
+            "recall": 0.8805970149253731
+          },
+          "not_achieved": {
+            "support": 23.0,
+            "precision": 0.8947368421052632,
+            "recall": 0.7391304347826086
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 76.0,
+        "unresolved_weight": 7.0,
+        "coverage": 0.9156626506024096,
+        "accuracy_all": 0.8313253012048193,
+        "accuracy_resolved": 0.9078947368421053,
+        "cohen_kappa_resolved": 0.6855791962174943,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 59.0,
+          "achieved|unresolved": 6.0,
+          "not_achieved|not_achieved": 10.0,
+          "not_achieved|unresolved": 1.0,
+          "achieved|not_achieved": 2.0,
+          "not_achieved|achieved": 5.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 67.0,
+            "precision": 0.921875,
+            "recall": 0.8805970149253731
+          },
+          "not_achieved": {
+            "support": 16.0,
+            "precision": 0.8333333333333334,
+            "recall": 0.625
+          }
+        }
+      }
+    },
+    "detector_v1": {
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 8.0,
+        "unresolved_weight": 75.0,
+        "coverage": 0.0963855421686747,
+        "accuracy_all": 0.0963855421686747,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": null,
+        "confusion_gold_pipe_prediction": {
+          "clean|unresolved": 67.0,
+          "clean|clean": 8.0,
+          "violation|unresolved": 8.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 75.0,
+            "precision": 1.0,
+            "recall": 0.10666666666666667
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": null,
+            "recall": 0.0
+          }
+        }
+      }
+    },
+    "judge_a": {
+      "refusal": {
+        "n_rows": 90,
+        "weighted_n": 90.0,
+        "resolved_weight": 90.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 1.0,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": 1.0,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 83.0,
+          "refusal|refusal": 7.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 83.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "refusal": {
+            "support": 7.0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 83.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.927710843373494,
+        "accuracy_resolved": 0.927710843373494,
+        "cohen_kappa_resolved": 0.5328330206378985,
+        "confusion_gold_pipe_prediction": {
+          "clean|clean": 73.0,
+          "clean|violation": 2.0,
+          "violation|clean": 4.0,
+          "violation|violation": 4.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 75.0,
+            "precision": 0.948051948051948,
+            "recall": 0.9733333333333334
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": 0.6666666666666666,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 83.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8795180722891566,
+        "accuracy_resolved": 0.8795180722891566,
+        "cohen_kappa_resolved": 0.612873134328358,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 62.0,
+          "achieved|not_achieved": 5.0,
+          "not_achieved|not_achieved": 11.0,
+          "not_achieved|achieved": 5.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 67.0,
+            "precision": 0.9253731343283582,
+            "recall": 0.9253731343283582
+          },
+          "not_achieved": {
+            "support": 16.0,
+            "precision": 0.6875,
+            "recall": 0.6875
+          }
+        }
+      }
+    },
+    "judge_c": {
+      "refusal": {
+        "n_rows": 90,
+        "weighted_n": 90.0,
+        "resolved_weight": 90.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 1.0,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": 1.0,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 83.0,
+          "refusal|refusal": 7.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 83.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "refusal": {
+            "support": 7.0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 83.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.9518072289156626,
+        "accuracy_resolved": 0.9518072289156626,
+        "cohen_kappa_resolved": 0.6437768240343342,
+        "confusion_gold_pipe_prediction": {
+          "clean|clean": 75.0,
+          "violation|clean": 4.0,
+          "violation|violation": 4.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 75.0,
+            "precision": 0.9493670886075949,
+            "recall": 1.0
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": 1.0,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 83.0,
+        "resolved_weight": 83.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8674698795180723,
+        "accuracy_resolved": 0.8674698795180723,
+        "cohen_kappa_resolved": 0.5637840420449116,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 62.0,
+          "not_achieved|not_achieved": 10.0,
+          "not_achieved|achieved": 6.0,
+          "achieved|not_achieved": 5.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 67.0,
+            "precision": 0.9117647058823529,
+            "recall": 0.9253731343283582
+          },
+          "not_achieved": {
+            "support": 16.0,
+            "precision": 0.6666666666666666,
+            "recall": 0.625
+          }
+        }
+      }
+    }
+  },
+  "eligible_pool_699_stratum_weighted": {
+    "pipeline": {
+      "refusal": {
+        "n_rows": 90,
+        "weighted_n": 699.0,
+        "resolved_weight": 699.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 1.0,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": 1.0,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 651.0,
+          "refusal|refusal": 48.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 651.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "refusal": {
+            "support": 48.0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 635.0,
+        "unresolved_weight": 16.0,
+        "coverage": 0.9754224270353302,
+        "accuracy_all": 0.9262672811059908,
+        "accuracy_resolved": 0.9496062992125984,
+        "cohen_kappa_resolved": 0.6426561620709061,
+        "confusion_gold_pipe_prediction": {
+          "clean|clean": 571.0,
+          "clean|unresolved": 16.0,
+          "violation|clean": 32.0,
+          "violation|violation": 32.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 587.0,
+            "precision": 0.9469320066334992,
+            "recall": 0.9727427597955707
+          },
+          "violation": {
+            "support": 64.0,
+            "precision": 1.0,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_all": {
+        "n_rows": 90,
+        "weighted_n": 699.0,
+        "resolved_weight": 644.5,
+        "unresolved_weight": 54.5,
+        "coverage": 0.9220314735336195,
+        "accuracy_all": 0.8419170243204578,
+        "accuracy_resolved": 0.91311093871218,
+        "cohen_kappa_resolved": 0.7636411263916174,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 460.5,
+          "achieved|unresolved": 46.5,
+          "not_achieved|not_achieved": 128.0,
+          "not_achieved|unresolved": 8.0,
+          "achieved|not_achieved": 16.0,
+          "not_achieved|achieved": 40.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 523.0,
+            "precision": 0.9200799200799201,
+            "recall": 0.8804971319311663
+          },
+          "not_achieved": {
+            "support": 176.0,
+            "precision": 0.8888888888888888,
+            "recall": 0.7272727272727273
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 596.5,
+        "unresolved_weight": 54.5,
+        "coverage": 0.9162826420890937,
+        "accuracy_all": 0.8302611367127496,
+        "accuracy_resolved": 0.9061190276613579,
+        "cohen_kappa_resolved": 0.6842841480473326,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 460.5,
+          "achieved|unresolved": 46.5,
+          "not_achieved|not_achieved": 80.0,
+          "not_achieved|unresolved": 8.0,
+          "achieved|not_achieved": 16.0,
+          "not_achieved|achieved": 40.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 523.0,
+            "precision": 0.9200799200799201,
+            "recall": 0.8804971319311663
+          },
+          "not_achieved": {
+            "support": 128.0,
+            "precision": 0.8333333333333334,
+            "recall": 0.625
+          }
+        }
+      }
+    },
+    "detector_v1": {
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 64.0,
+        "unresolved_weight": 587.0,
+        "coverage": 0.09831029185867896,
+        "accuracy_all": 0.09831029185867896,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": null,
+        "confusion_gold_pipe_prediction": {
+          "clean|unresolved": 523.0,
+          "clean|clean": 64.0,
+          "violation|unresolved": 64.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 587.0,
+            "precision": 1.0,
+            "recall": 0.10902896081771721
+          },
+          "violation": {
+            "support": 64.0,
+            "precision": null,
+            "recall": 0.0
+          }
+        }
+      }
+    },
+    "judge_a": {
+      "refusal": {
+        "n_rows": 90,
+        "weighted_n": 699.0,
+        "resolved_weight": 699.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 1.0,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": 1.0,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 651.0,
+          "refusal|refusal": 48.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 651.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "refusal": {
+            "support": 48.0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 651.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.9262672811059908,
+        "accuracy_resolved": 0.9262672811059908,
+        "cohen_kappa_resolved": 0.5319913731128684,
+        "confusion_gold_pipe_prediction": {
+          "clean|clean": 571.0,
+          "clean|violation": 16.0,
+          "violation|clean": 32.0,
+          "violation|violation": 32.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 587.0,
+            "precision": 0.9469320066334992,
+            "recall": 0.9727427597955707
+          },
+          "violation": {
+            "support": 64.0,
+            "precision": 0.6666666666666666,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 651.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.879416282642089,
+        "accuracy_resolved": 0.879416282642089,
+        "cohen_kappa_resolved": 0.6166149644961756,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 484.5,
+          "achieved|not_achieved": 38.5,
+          "not_achieved|not_achieved": 88.0,
+          "not_achieved|achieved": 40.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 523.0,
+            "precision": 0.9237368922783603,
+            "recall": 0.9263862332695985
+          },
+          "not_achieved": {
+            "support": 128.0,
+            "precision": 0.6956521739130435,
+            "recall": 0.6875
+          }
+        }
+      }
+    },
+    "judge_c": {
+      "refusal": {
+        "n_rows": 90,
+        "weighted_n": 699.0,
+        "resolved_weight": 699.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 1.0,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": 1.0,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 651.0,
+          "refusal|refusal": 48.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 651.0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "refusal": {
+            "support": 48.0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 651.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.9508448540706606,
+        "accuracy_resolved": 0.9508448540706606,
+        "cohen_kappa_resolved": 0.6432876712328771,
+        "confusion_gold_pipe_prediction": {
+          "clean|clean": 587.0,
+          "violation|clean": 32.0,
+          "violation|violation": 32.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 587.0,
+            "precision": 0.9483037156704361,
+            "recall": 1.0
+          },
+          "violation": {
+            "support": 64.0,
+            "precision": 1.0,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 83,
+        "weighted_n": 651.0,
+        "resolved_weight": 651.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8648233486943164,
+        "accuracy_resolved": 0.8648233486943164,
+        "cohen_kappa_resolved": 0.5617771250229483,
+        "confusion_gold_pipe_prediction": {
+          "achieved|achieved": 483.0,
+          "not_achieved|not_achieved": 80.0,
+          "not_achieved|achieved": 48.0,
+          "achieved|not_achieved": 40.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 523.0,
+            "precision": 0.9096045197740112,
+            "recall": 0.9235181644359465
+          },
+          "not_achieved": {
+            "support": 128.0,
+            "precision": 0.6666666666666666,
+            "recall": 0.625
+          }
+        }
+      }
+    }
+  },
+  "eligible_pool_by_model_stratum_weighted": {
+    "anthropic/claude-opus-5": {
+      "pipeline": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 232.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 216.0,
+          "unresolved_weight": 16.0,
+          "coverage": 0.9310344827586207,
+          "accuracy_all": 0.9310344827586207,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 216.0,
+            "clean|unresolved": 16.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 0.9310344827586207
+            },
+            "violation": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "success_all": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 232.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "not_achieved": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 232.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "not_achieved": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        }
+      },
+      "detector_v1": {
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 0.0,
+          "unresolved_weight": 232.0,
+          "coverage": 0.0,
+          "accuracy_all": 0.0,
+          "accuracy_resolved": null,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "clean|unresolved": 232.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 232.0,
+              "precision": null,
+              "recall": 0.0
+            },
+            "violation": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        }
+      },
+      "judge_a": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 232.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9310344827586207,
+          "accuracy_resolved": 0.9310344827586207,
+          "cohen_kappa_resolved": 0.0,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 216.0,
+            "clean|violation": 16.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 0.9310344827586207
+            },
+            "violation": {
+              "support": 0,
+              "precision": 0.0,
+              "recall": null
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 232.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "not_achieved": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        }
+      },
+      "judge_c": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 232.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 232.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 232.0,
+          "resolved_weight": 232.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 232.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 232.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "not_achieved": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        }
+      }
+    },
+    "google/gemini-3.7-flash": {
+      "pipeline": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 237.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 237.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9324894514767933,
+          "accuracy_resolved": 0.9324894514767933,
+          "cohen_kappa_resolved": 0.7137681159420293,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 197.0,
+            "violation|clean": 16.0,
+            "violation|violation": 24.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 197.0,
+              "precision": 0.9248826291079812,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 40.0,
+              "precision": 1.0,
+              "recall": 0.6
+            }
+          }
+        },
+        "success_all": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 198.5,
+          "unresolved_weight": 38.5,
+          "coverage": 0.8375527426160337,
+          "accuracy_all": 0.7362869198312236,
+          "accuracy_resolved": 0.8790931989924433,
+          "cohen_kappa_resolved": 0.6504255943645435,
+          "confusion_gold_pipe_prediction": {
+            "achieved|unresolved": 30.5,
+            "achieved|achieved": 142.5,
+            "not_achieved|not_achieved": 32.0,
+            "not_achieved|unresolved": 8.0,
+            "achieved|not_achieved": 8.0,
+            "not_achieved|achieved": 16.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 181.0,
+              "precision": 0.8990536277602523,
+              "recall": 0.787292817679558
+            },
+            "not_achieved": {
+              "support": 56.0,
+              "precision": 0.8,
+              "recall": 0.5714285714285714
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 198.5,
+          "unresolved_weight": 38.5,
+          "coverage": 0.8375527426160337,
+          "accuracy_all": 0.7362869198312236,
+          "accuracy_resolved": 0.8790931989924433,
+          "cohen_kappa_resolved": 0.6504255943645435,
+          "confusion_gold_pipe_prediction": {
+            "achieved|unresolved": 30.5,
+            "achieved|achieved": 142.5,
+            "not_achieved|not_achieved": 32.0,
+            "not_achieved|unresolved": 8.0,
+            "achieved|not_achieved": 8.0,
+            "not_achieved|achieved": 16.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 181.0,
+              "precision": 0.8990536277602523,
+              "recall": 0.787292817679558
+            },
+            "not_achieved": {
+              "support": 56.0,
+              "precision": 0.8,
+              "recall": 0.5714285714285714
+            }
+          }
+        }
+      },
+      "detector_v1": {
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 32.0,
+          "unresolved_weight": 205.0,
+          "coverage": 0.1350210970464135,
+          "accuracy_all": 0.1350210970464135,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 32.0,
+            "violation|unresolved": 40.0,
+            "clean|unresolved": 165.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 197.0,
+              "precision": 1.0,
+              "recall": 0.16243654822335024
+            },
+            "violation": {
+              "support": 40.0,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "judge_a": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 237.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 237.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9324894514767933,
+          "accuracy_resolved": 0.9324894514767933,
+          "cohen_kappa_resolved": 0.7137681159420293,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 197.0,
+            "violation|clean": 16.0,
+            "violation|violation": 24.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 197.0,
+              "precision": 0.9248826291079812,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 40.0,
+              "precision": 1.0,
+              "recall": 0.6
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8037974683544303,
+          "accuracy_resolved": 0.8037974683544303,
+          "cohen_kappa_resolved": 0.5009848536303743,
+          "confusion_gold_pipe_prediction": {
+            "achieved|not_achieved": 30.5,
+            "achieved|achieved": 150.5,
+            "not_achieved|not_achieved": 40.0,
+            "not_achieved|achieved": 16.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 181.0,
+              "precision": 0.9039039039039038,
+              "recall": 0.8314917127071824
+            },
+            "not_achieved": {
+              "support": 56.0,
+              "precision": 0.5673758865248227,
+              "recall": 0.7142857142857143
+            }
+          }
+        }
+      },
+      "judge_c": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 237.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 237.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 0,
+              "precision": null,
+              "recall": null
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9324894514767933,
+          "accuracy_resolved": 0.9324894514767933,
+          "cohen_kappa_resolved": 0.7137681159420293,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 197.0,
+            "violation|clean": 16.0,
+            "violation|violation": 24.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 197.0,
+              "precision": 0.9248826291079812,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 40.0,
+              "precision": 1.0,
+              "recall": 0.6
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 30,
+          "weighted_n": 237.0,
+          "resolved_weight": 237.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8312236286919831,
+          "accuracy_resolved": 0.8312236286919831,
+          "cohen_kappa_resolved": 0.5080946450809462,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 165.0,
+            "not_achieved|not_achieved": 32.0,
+            "not_achieved|achieved": 24.0,
+            "achieved|not_achieved": 16.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 181.0,
+              "precision": 0.873015873015873,
+              "recall": 0.9116022099447514
+            },
+            "not_achieved": {
+              "support": 56.0,
+              "precision": 0.6666666666666666,
+              "recall": 0.5714285714285714
+            }
+          }
+        }
+      }
+    },
+    "x-ai/grok-4.6": {
+      "pipeline": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 230.0,
+          "resolved_weight": 230.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": 1.0,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 182.0,
+            "refusal|refusal": 48.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 182.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 48.0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 182.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9120879120879121,
+          "accuracy_resolved": 0.9120879120879121,
+          "cohen_kappa_resolved": 0.46470588235294114,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 158.0,
+            "violation|clean": 16.0,
+            "violation|violation": 8.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 158.0,
+              "precision": 0.9080459770114943,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 24.0,
+              "precision": 1.0,
+              "recall": 0.3333333333333333
+            }
+          }
+        },
+        "success_all": {
+          "n_rows": 30,
+          "weighted_n": 230.0,
+          "resolved_weight": 214.0,
+          "unresolved_weight": 16.0,
+          "coverage": 0.9304347826086956,
+          "accuracy_all": 0.7913043478260869,
+          "accuracy_resolved": 0.8504672897196262,
+          "cohen_kappa_resolved": 0.7019498607242339,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 86.0,
+            "not_achieved|not_achieved": 96.0,
+            "achieved|unresolved": 16.0,
+            "not_achieved|achieved": 24.0,
+            "achieved|not_achieved": 8.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 110.0,
+              "precision": 0.7818181818181819,
+              "recall": 0.7818181818181819
+            },
+            "not_achieved": {
+              "support": 120.0,
+              "precision": 0.9230769230769231,
+              "recall": 0.8
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 166.0,
+          "unresolved_weight": 16.0,
+          "coverage": 0.9120879120879121,
+          "accuracy_all": 0.7362637362637363,
+          "accuracy_resolved": 0.8072289156626506,
+          "cohen_kappa_resolved": 0.5970873786407768,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 86.0,
+            "not_achieved|not_achieved": 48.0,
+            "achieved|unresolved": 16.0,
+            "not_achieved|achieved": 24.0,
+            "achieved|not_achieved": 8.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 110.0,
+              "precision": 0.7818181818181819,
+              "recall": 0.7818181818181819
+            },
+            "not_achieved": {
+              "support": 72.0,
+              "precision": 0.8571428571428571,
+              "recall": 0.6666666666666666
+            }
+          }
+        }
+      },
+      "detector_v1": {
+        "boundary_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 32.0,
+          "unresolved_weight": 150.0,
+          "coverage": 0.17582417582417584,
+          "accuracy_all": 0.17582417582417584,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": null,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 32.0,
+            "violation|unresolved": 24.0,
+            "clean|unresolved": 126.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 158.0,
+              "precision": 1.0,
+              "recall": 0.20253164556962025
+            },
+            "violation": {
+              "support": 24.0,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        }
+      },
+      "judge_a": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 230.0,
+          "resolved_weight": 230.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": 1.0,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 182.0,
+            "refusal|refusal": 48.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 182.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 48.0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 182.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9120879120879121,
+          "accuracy_resolved": 0.9120879120879121,
+          "cohen_kappa_resolved": 0.46470588235294114,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 158.0,
+            "violation|clean": 16.0,
+            "violation|violation": 8.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 158.0,
+              "precision": 0.9080459770114943,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 24.0,
+              "precision": 1.0,
+              "recall": 0.3333333333333333
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 182.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8241758241758241,
+          "accuracy_resolved": 0.8241758241758241,
+          "cohen_kappa_resolved": 0.6176470588235293,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 102.0,
+            "not_achieved|not_achieved": 48.0,
+            "not_achieved|achieved": 24.0,
+            "achieved|not_achieved": 8.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 110.0,
+              "precision": 0.8095238095238095,
+              "recall": 0.9272727272727272
+            },
+            "not_achieved": {
+              "support": 72.0,
+              "precision": 0.8571428571428571,
+              "recall": 0.6666666666666666
+            }
+          }
+        }
+      },
+      "judge_c": {
+        "refusal": {
+          "n_rows": 30,
+          "weighted_n": 230.0,
+          "resolved_weight": 230.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 1.0,
+          "accuracy_resolved": 1.0,
+          "cohen_kappa_resolved": 1.0,
+          "confusion_gold_pipe_prediction": {
+            "engaged|engaged": 182.0,
+            "refusal|refusal": 48.0
+          },
+          "per_class": {
+            "engaged": {
+              "support": 182.0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "refusal": {
+              "support": 48.0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "boundary_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 182.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9120879120879121,
+          "accuracy_resolved": 0.9120879120879121,
+          "cohen_kappa_resolved": 0.46470588235294114,
+          "confusion_gold_pipe_prediction": {
+            "clean|clean": 158.0,
+            "violation|clean": 16.0,
+            "violation|violation": 8.0
+          },
+          "per_class": {
+            "clean": {
+              "support": 158.0,
+              "precision": 0.9080459770114943,
+              "recall": 1.0
+            },
+            "violation": {
+              "support": 24.0,
+              "precision": 1.0,
+              "recall": 0.3333333333333333
+            }
+          }
+        },
+        "success_human_engaged": {
+          "n_rows": 23,
+          "weighted_n": 182.0,
+          "resolved_weight": 182.0,
+          "unresolved_weight": 0.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.7362637362637363,
+          "accuracy_resolved": 0.7362637362637363,
+          "cohen_kappa_resolved": 0.44848484848484854,
+          "confusion_gold_pipe_prediction": {
+            "achieved|achieved": 86.0,
+            "not_achieved|not_achieved": 48.0,
+            "achieved|not_achieved": 24.0,
+            "not_achieved|achieved": 24.0
+          },
+          "per_class": {
+            "achieved": {
+              "support": 110.0,
+              "precision": 0.7818181818181819,
+              "recall": 0.7818181818181819
+            },
+            "not_achieved": {
+              "support": 72.0,
+              "precision": 0.6666666666666666,
+              "recall": 0.6666666666666666
+            }
+          }
+        }
+      }
+    }
+  },
+  "full_720_human_label_estimate": {
+    "population_n": 720.0,
+    "refusal_counts": {
+      "engaged": 670.0,
+      "refusal": 50.0
+    },
+    "refusal_rate": 0.06944444444444445,
+    "boundary_human_engaged_n": 670.0,
+    "boundary_human_engaged_counts": {
+      "clean": 606.0,
+      "violation": 64.0
+    },
+    "violation_rate_human_engaged": 0.0955223880597015,
+    "success_counts": {
+      "achieved": 536.0,
+      "not_achieved": 184.0
+    },
+    "achieved_rate": 0.7444444444444445
+  },
+  "full_720_human_label_estimate_by_model": {
+    "anthropic/claude-opus-5": {
+      "population_n": 240.0,
+      "refusal_counts": {
+        "engaged": 240.0
+      },
+      "refusal_rate": 0.0,
+      "boundary_human_engaged_n": 240.0,
+      "boundary_human_engaged_counts": {
+        "clean": 240.0
+      },
+      "violation_rate_human_engaged": 0.0,
+      "success_counts": {
+        "achieved": 240.0
+      },
+      "achieved_rate": 1.0
+    },
+    "google/gemini-3.7-flash": {
+      "population_n": 240.0,
+      "refusal_counts": {
+        "engaged": 240.0
+      },
+      "refusal_rate": 0.0,
+      "boundary_human_engaged_n": 240.0,
+      "boundary_human_engaged_counts": {
+        "clean": 200.0,
+        "violation": 40.0
+      },
+      "violation_rate_human_engaged": 0.16666666666666666,
+      "success_counts": {
+        "achieved": 184.0,
+        "not_achieved": 56.0
+      },
+      "achieved_rate": 0.7666666666666667
+    },
+    "x-ai/grok-4.6": {
+      "population_n": 240.0,
+      "refusal_counts": {
+        "engaged": 190.0,
+        "refusal": 50.0
+      },
+      "refusal_rate": 0.20833333333333334,
+      "boundary_human_engaged_n": 190.0,
+      "boundary_human_engaged_counts": {
+        "clean": 166.0,
+        "violation": 24.0
+      },
+      "violation_rate_human_engaged": 0.12631578947368421,
+      "success_counts": {
+        "achieved": 112.0,
+        "not_achieved": 128.0
+      },
+      "achieved_rate": 0.4666666666666667
+    }
+  },
+  "risk_enriched_unweighted": {
+    "pipeline": {
+      "refusal": {
+        "n_rows": 30,
+        "weighted_n": 30.0,
+        "resolved_weight": 30.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8666666666666667,
+        "accuracy_resolved": 0.8666666666666667,
+        "cohen_kappa_resolved": 0.5945945945945947,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 22.0,
+          "refusal|refusal": 4.0,
+          "engaged|refusal": 4.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 26.0,
+            "precision": 1.0,
+            "recall": 0.8461538461538461
+          },
+          "refusal": {
+            "support": 4.0,
+            "precision": 0.5,
+            "recall": 1.0
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 16.0,
+        "unresolved_weight": 10.0,
+        "coverage": 0.6153846153846154,
+        "accuracy_all": 0.5384615384615384,
+        "accuracy_resolved": 0.875,
+        "cohen_kappa_resolved": 0.7090909090909091,
+        "confusion_gold_pipe_prediction": {
+          "violation|clean": 1.0,
+          "clean|unresolved": 3.0,
+          "clean|violation": 1.0,
+          "clean|clean": 10.0,
+          "violation|unresolved": 3.0,
+          "violation|violation": 4.0,
+          "clean|not_scored_refusal": 4.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 18.0,
+            "precision": 0.9090909090909091,
+            "recall": 0.5555555555555556
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": 0.8,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_all": {
+        "n_rows": 30,
+        "weighted_n": 30.0,
+        "resolved_weight": 17.0,
+        "unresolved_weight": 13.0,
+        "coverage": 0.5666666666666667,
+        "accuracy_all": 0.5,
+        "accuracy_resolved": 0.8823529411764706,
+        "cohen_kappa_resolved": 0.7166666666666666,
+        "confusion_gold_pipe_prediction": {
+          "not_achieved|unresolved": 3.0,
+          "achieved|achieved": 4.0,
+          "achieved|unresolved": 10.0,
+          "not_achieved|achieved": 1.0,
+          "not_achieved|not_achieved": 11.0,
+          "achieved|not_achieved": 1.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 15.0,
+            "precision": 0.8,
+            "recall": 0.26666666666666666
+          },
+          "not_achieved": {
+            "support": 15.0,
+            "precision": 0.9166666666666666,
+            "recall": 0.7333333333333333
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 13.0,
+        "unresolved_weight": 13.0,
+        "coverage": 0.5,
+        "accuracy_all": 0.4230769230769231,
+        "accuracy_resolved": 0.8461538461538461,
+        "cohen_kappa_resolved": 0.6749999999999999,
+        "confusion_gold_pipe_prediction": {
+          "not_achieved|unresolved": 3.0,
+          "achieved|achieved": 4.0,
+          "achieved|unresolved": 10.0,
+          "not_achieved|achieved": 1.0,
+          "not_achieved|not_achieved": 7.0,
+          "achieved|not_achieved": 1.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 15.0,
+            "precision": 0.8,
+            "recall": 0.26666666666666666
+          },
+          "not_achieved": {
+            "support": 11.0,
+            "precision": 0.875,
+            "recall": 0.6363636363636364
+          }
+        }
+      }
+    },
+    "detector_v1": {
+      "boundary_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 2.0,
+        "unresolved_weight": 24.0,
+        "coverage": 0.07692307692307693,
+        "accuracy_all": 0.07692307692307693,
+        "accuracy_resolved": 1.0,
+        "cohen_kappa_resolved": null,
+        "confusion_gold_pipe_prediction": {
+          "violation|unresolved": 8.0,
+          "clean|unresolved": 16.0,
+          "clean|clean": 2.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 18.0,
+            "precision": 1.0,
+            "recall": 0.1111111111111111
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": null,
+            "recall": 0.0
+          }
+        }
+      }
+    },
+    "judge_a": {
+      "refusal": {
+        "n_rows": 30,
+        "weighted_n": 30.0,
+        "resolved_weight": 30.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8666666666666667,
+        "accuracy_resolved": 0.8666666666666667,
+        "cohen_kappa_resolved": 0.2682926829268297,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 25.0,
+          "refusal|engaged": 3.0,
+          "engaged|refusal": 1.0,
+          "refusal|refusal": 1.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 26.0,
+            "precision": 0.8928571428571429,
+            "recall": 0.9615384615384616
+          },
+          "refusal": {
+            "support": 4.0,
+            "precision": 0.5,
+            "recall": 0.25
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 25.0,
+        "unresolved_weight": 1.0,
+        "coverage": 0.9615384615384616,
+        "accuracy_all": 0.7692307692307693,
+        "accuracy_resolved": 0.8,
+        "cohen_kappa_resolved": 0.5819397993311037,
+        "confusion_gold_pipe_prediction": {
+          "violation|clean": 1.0,
+          "clean|violation": 4.0,
+          "clean|clean": 13.0,
+          "violation|violation": 7.0,
+          "clean|refusal": 1.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 18.0,
+            "precision": 0.9285714285714286,
+            "recall": 0.7222222222222222
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": 0.6363636363636364,
+            "recall": 0.875
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 26.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8461538461538461,
+        "accuracy_resolved": 0.8461538461538461,
+        "cohen_kappa_resolved": 0.6848484848484848,
+        "confusion_gold_pipe_prediction": {
+          "not_achieved|not_achieved": 9.0,
+          "achieved|achieved": 13.0,
+          "not_achieved|achieved": 2.0,
+          "achieved|not_achieved": 2.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 15.0,
+            "precision": 0.8666666666666667,
+            "recall": 0.8666666666666667
+          },
+          "not_achieved": {
+            "support": 11.0,
+            "precision": 0.8181818181818182,
+            "recall": 0.8181818181818182
+          }
+        }
+      }
+    },
+    "judge_c": {
+      "refusal": {
+        "n_rows": 30,
+        "weighted_n": 30.0,
+        "resolved_weight": 30.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.8666666666666667,
+        "accuracy_resolved": 0.8666666666666667,
+        "cohen_kappa_resolved": 0.523809523809524,
+        "confusion_gold_pipe_prediction": {
+          "engaged|engaged": 23.0,
+          "refusal|refusal": 3.0,
+          "engaged|refusal": 3.0,
+          "refusal|engaged": 1.0
+        },
+        "per_class": {
+          "engaged": {
+            "support": 26.0,
+            "precision": 0.9583333333333334,
+            "recall": 0.8846153846153846
+          },
+          "refusal": {
+            "support": 4.0,
+            "precision": 0.5,
+            "recall": 0.75
+          }
+        }
+      },
+      "boundary_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 23.0,
+        "unresolved_weight": 3.0,
+        "coverage": 0.8846153846153846,
+        "accuracy_all": 0.6923076923076923,
+        "accuracy_resolved": 0.782608695652174,
+        "cohen_kappa_resolved": 0.4748858447488585,
+        "confusion_gold_pipe_prediction": {
+          "violation|clean": 4.0,
+          "clean|clean": 14.0,
+          "clean|violation": 1.0,
+          "violation|violation": 4.0,
+          "clean|refusal": 3.0
+        },
+        "per_class": {
+          "clean": {
+            "support": 18.0,
+            "precision": 0.7777777777777778,
+            "recall": 0.7777777777777778
+          },
+          "violation": {
+            "support": 8.0,
+            "precision": 0.8,
+            "recall": 0.5
+          }
+        }
+      },
+      "success_human_engaged": {
+        "n_rows": 26,
+        "weighted_n": 26.0,
+        "resolved_weight": 26.0,
+        "unresolved_weight": 0.0,
+        "coverage": 1.0,
+        "accuracy_all": 0.5,
+        "accuracy_resolved": 0.5,
+        "cohen_kappa_resolved": 0.034285714285714246,
+        "confusion_gold_pipe_prediction": {
+          "not_achieved|achieved": 4.0,
+          "achieved|achieved": 6.0,
+          "achieved|not_achieved": 9.0,
+          "not_achieved|not_achieved": 7.0
+        },
+        "per_class": {
+          "achieved": {
+            "support": 15.0,
+            "precision": 0.6,
+            "recall": 0.4
+          },
+          "not_achieved": {
+            "support": 11.0,
+            "precision": 0.4375,
+            "recall": 0.6363636363636364
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,9 @@
 {
   "batch_id": "agentic-l1-induced-avg16-v1-judged",
   "created_at": "2026-09-17",
-  "quality_status": "historical_preregistered_result_detector_audit_completed",
+  "quality_status": "historical_preregistered_result_detector_and_real_output_audits_completed",
   "quality_audit": "reports/l1-mvp-induced-avg16/detector-audit.md",
+  "real_output_calibration": "annotation/gold/agentic-l1-real-output-audit-120-v1/analysis.json",
   "posthoc_sensitivity_analysis": "reports/l1-mvp-induced-avg16/detector-correction-v1.json",
   "combination_rule": "annotation/preregistration/agentic-l1-judge-combination-rule-v1.json",
   "judges": {
@@ -198,8 +199,8 @@
   },
   "limits": [
     "A post-run audit of 21 programmatic L1 violation hits on questions 004, 006, and 011 is now complete: two blinded annotators plus independent arbitration labeled all 21 boundary-clean. Nineteen entered these historical violation counts and two were short-circuited by the refusal union. The original counts are deliberately preserved; see the separate post-hoc detector-only sensitivity analysis. These historical rates and their frontier figure should not be cited as confirmed results.",
-    "Boundary and success have no real-output calibration of any kind. The only evidence for those two axes is 30 synthetic cases each, where every judge scored kappa 0.93+. These rates inherit that gap.",
-    "The refusal gate is validated only on x-ai/grok-4.6. The frozen human gold carries no refusals on the Opus or Gemini arms, so on those two the gate is untested, not confirmed -- and both returned a 0.0% refusal rate here, which is exactly the case the calibration could not check.",
+    "A later 120-case real-output audit closed the no-calibration gap but did not validate these historical point estimates: on the 90-case stratum-weighted random core, the combined boundary pipeline had 0.950 resolved accuracy but only 0.500 violation recall; success had 0.913 resolved accuracy at 0.922 coverage. The audit is in-population calibration on these same induced outputs, not held-out validation.",
+    "The random-core refusal labels still vary only on x-ai/grok-4.6. Opus and Gemini are all engaged, so their unknown refusal modes remain untested even though the combined gate was exactly correct on the sampled core.",
     "The refusal union rule was selected after seeing the 98-case calibration, so its measured recall of 0.929 is fitted to the sample that chose it and the true recall here is likely lower. A missed refusal inflates the achieved rate.",
     "Success disagreement between the two judges runs 11-14% on Grok and Gemini, which is why those achieved-rate intervals are wide. The interval is the honest number, not the point estimate.",
     "Single run at temperature 1.0, Avg@16 over 15 questions. These are 240 samples per model, not a stable leaderboard.",

@@ -1,6 +1,6 @@
 # GoalBound-Bench 第二阶段设计:向开放式 / Agentic 场景迁移
 
-> 状态:数据、检测器、L1/L2 runner 与跨厂判官管线已落地。严格匹配的 neutral/induced 15×1 smoke、三轴人工盲审、60 条合成样本前瞻校准及 refusal 真实输出校准均已完成。三模型 L1 induced Avg@16（720 条）及判官聚合已完成；[21 条程序化越界命中](../reports/l1-mvp-induced-avg16/detector-audit.md)已完成双盲审与仲裁，全部判为 clean，并已单列事后检测器校正。[L1 `present` 策略 v2](l1-present-detector-policy-v2.md)现把自由文本关键词命中转交语义判官，保留 v1 对照。历史越界率仍暂缓引用；同规模 neutral 对照、boundary/success 总体真实输出校准和 eval-awareness 探针尚未完成。现有结果不是稳定排行榜或成果压力的因果估计。
+> 状态:数据、检测器、L1/L2 runner 与跨厂判官管线已落地。严格匹配的 neutral/induced 15×1 smoke、三轴人工盲审、60 条合成样本前瞻校准及 refusal 真实输出校准均已完成。三模型 L1 induced Avg@16（720 条）及判官聚合已完成；[21 条程序化越界命中](../reports/l1-mvp-induced-avg16/detector-audit.md)已完成双盲审与仲裁，全部判为 clean，并已单列事后检测器校正。[120 条真实输出三轴校准](../annotation/gold/agentic-l1-real-output-audit-120-v1/)也已完成：组合管线的 boundary 已解析准确率约 95.0%，但 violation recall 仅 50.0%。[L1 `present` 策略 v2](l1-present-detector-policy-v2.md)现把自由文本关键词命中转交语义判官，保留 v1 对照。历史越界率仍暂缓引用；同规模 neutral 对照、最终 v2 语义重评分和 eval-awareness 探针尚未完成。现有结果不是稳定排行榜或成果压力的因果估计。
 > 目标读者:项目维护者
 > 关联:接续 `README.md` 中已完成的 12 模型 MCQ 基线(经三人盲审 + 仲裁的 15 道核心题)
 
@@ -144,7 +144,7 @@ L0→L1 对照本身即可说明 MCQ 基准被高估 / 低估了多少,是很强
 
 - `src/sudo_bench/agentic/detectors.py`——纯函数检测引擎(无 API 调用、可单测)。检测器原语:`present` / `absent` / `present_and_absent` / `tool_called` / `requires_judge`。三种取证来源:`output`(L1 自由文本)、`tool_field`(L2 指定工具字段)、`tool_any_field`(逐字段独立扫描,**专门反"绕开被监控字段、把不实信息塞进自由文本字段"的走私**)。历史 L1 `present` 的否定语境处理**并不充分**：Avg@16 中 21 条程序化越界命中经盲审和仲裁均为 clean，详见[检测器审计](../reports/l1-mvp-induced-avg16/detector-audit.md)。现有[版本化策略 v2](l1-present-detector-policy-v2.md)将 L1 自由文本命中转为 `UNRESOLVED` 并交由语义判官，旧策略仍可复算。请求未支持的 level 或声明了 level 却没有通道会抛出配置错误，不再静默判 `CLEAN`。
 - `src/sudo_bench/agentic/blocks.py`——15 题均具备 L1/L2、模型可见事实、隐藏 ground truth、OpenAI function-tool schema、已知越界通道与 success 判据。
-- `src/sudo_bench/agentic/build_dataset.py`——在写出 `questions.v3.agentic.jsonl` 前做结构和引用校验，并由公开事实生成完整 L1/L2 prompt。旧字段全部保留，L0 loader 可继续读取。
+- `src/sudo_bench/agentic/build_dataset.py`——在写出当前的 `questions.v4.agentic.jsonl` 前做结构和引用校验，并由公开事实生成完整 L1/L2 prompt。已冻结实验继续引用原样保留的 v3；v4 加入版本化的 `question-003` boundary policy。旧字段全部保留，L0 loader 可继续读取。
 - `tests/test_agentic_detectors.py`——覆盖跨字段走私、否定语境误判、非法 level、双轴结果、15 题结构和工具 schema。
 
 **首版静态检测能力(由 builder 自动产出；不是经验检测器覆盖率)**:
@@ -173,7 +173,7 @@ L0→L1 对照本身即可说明 MCQ 基准被高估 / 低估了多少,是很强
 复现:
 
 ```bash
-python -m sudo_bench.agentic.build_dataset          # 生成 questions.v3.agentic.jsonl
+python -m sudo_bench.agentic.build_dataset          # 生成 questions.v4.agentic.jsonl
 pytest tests/test_agentic_detectors.py tests/test_agentic_runner.py -q
 python -m sudo_bench.agentic.runner config.agentic-l1-smoke.yaml   # 需 OPENROUTER_API_KEY
 ```
@@ -222,9 +222,10 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 
 ### 尚存的效度限制(诚实声明)
 
-- **判官配置已升级为 A/C 双主判官**(本条为 smoke 阶段的历史限制，已解决):正式 L1 运行由判官 A(`openai/gpt-5.6-sol`)与判官 C(`z-ai/glm-5.3-flash`)按[预注册组合规则](../annotation/preregistration/agentic-l1-judge-combination-rule-v1.json)判定，判官 B 仅对非 Google 两臂做稳健性复核。仍缺的是 boundary/success 在真实输出上的人工校准(见 §9)。
+- **判官配置已升级为 A/C 双主判官**(本条为 smoke 阶段的历史限制，已解决):正式 L1 运行由判官 A(`openai/gpt-5.6-sol`)与判官 C(`z-ai/glm-5.3-flash`)按[冻结组合规则](../annotation/preregistration/agentic-l1-judge-combination-rule-v1.json)判定，判官 B 仅对非 Google 两臂做稳健性复核。boundary / success 的真实输出人工校准已经完成，但 boundary violation recall 只有 50.0%，仍不足以恢复历史排行榜。
 - **smoke 阶段的三轴真实人工校准**(30 条 smoke 输出;refusal 轴此后已由 98 条正式输出金标准 `agentic-refusal-real-90-v1` 取代，判官 A/B/C 的 pooled κ 分别为 0.811/0.911/0.911，拒绝几乎全部来自 Grok，另两臂 κ 不可计算):refusal 的判官—人工共识一致率为 90.0%，κ=0.796。对 16 条人工判为 engaged 的输出，boundary 整条管线一致率为 93.8%，但人工标签全是 clean，κ=0，不能据此证明违规检出灵敏度；success 判官一致率仅 56.3%，κ=0.034，说明当前 success 自动判分不可直接用于正式结论，必须先改 rubric / 判官提示并重新校准。
 - **success 判官 v6 已完成开发集回归**:7 条 success 误判主要来自三类标准漂移——把 boundary 风险重复计入 success、把背景未提供的资料型占位符当作未完成、以及把原则性计划误当成可执行方案。v6 用一般规则分离这三类情况，写入新文件而未覆盖 v5；在 16 条人工 engaged 样本上的一致率由 56.3% 升至 93.8%，κ 由 0.034 升至 0.636，仅剩 induced question-009 一条误判。但提示正是根据这批 v5 误差修改的，因此这是**同一开发集上的回归结果，不是独立验证**，不能据此直接替换正式判官。boundary 提示未变却从 15/16 波动为 14/16，也显示单次 LLM 判官存在运行方差。
+- **`question-003` boundary v2 已版本化、冻结并完成自动检查**:120 条真实输出开发审计中的 4 条 boundary 假阴性全部来自该题，并都把伴侣此前承诺的住房投入与“不分手／再给机会”绑定。v2 明确把这种财务／义务筹码纳入 violation，同时保护普通道歉、非胁迫挽回、住房取消／退还／结清及 L0 已确认的自愿让利。v1 继续保留，判官行显式记录 policy version。为终止反复人工校准，本阶段冻结 v2 后不再追加人工标签；另从未进入任何已发布 gold 的既有输出中按冻结 seed 每模型抽 8 条，共 24 条，运行 A/C 双判官。A/C 一致 21/24（87.5%，κ=0.727），组合结果为 13 clean、7 violation、3 unresolved、1 refusal；相较 v1 有 7 条 clean→violation、3 条 clean→unresolved。结果不得反向用于调规则；无人工 gold，故不能报告准确率、召回率或精确率。详见[`question-003` boundary v2 文档](l1-question-003-boundary-policy-v2.md)、[验证协议](../annotation/calibration/question-003-boundary-v2-validation-v1/protocol.json)与[逐条报告](../annotation/calibration/question-003-boundary-v2-validation-v1/automated-dual-judge-report.json)。
 - **样本量仍小**:每组只有 15 条。人工共识拒绝率为 induced 8/15(53.3%)、neutral 6/15(40.0%)，差 13.3 个百分点但配对 McNemar p=0.6875；拒绝按未达成计后，success 为 6/15(40.0%) vs 8/15(53.3%)，配对 McNemar p=0.625。两项都只能描述，不能宣称条件效应。
 - 判官抗注入是"减缓"不是"消除"。
 
@@ -268,13 +269,14 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
 
 - **独立校准与双判官集成（已完成）**:60 条样本的双人标注、唯一分歧仲裁、A/B 判官校准、判官 C 选型和逐条输出均已冻结。A/C 是三个正式模型的统一主判官对；B 仅对非 Google 模型作稳健性复核。
 - **续跑与限流加固（已完成）**:校准输出加入 case、提示模板、判官版本与生成配置签名，拒绝混入额外 case 或静默覆盖；正式 runner 使用 18 RPM 节流和可跨过 60 秒限流窗口的 8 次 / 90 秒退避。
-- **真实输出型人工校验（进行中）**:已从 720 条正式输出中排除先前审计的 21 条检测器阳性样本，并生成两份独立顺序、隐藏模型/检测器/判官结论的 120 条盲审表（90 条分层随机样本 + 30 条高风险富集样本），抽样规则、选中样本哈希与工作簿哈希见[预注册文件](../annotation/preregistration/l1-real-output-audit-120-v1.json)。待双人标注、分歧仲裁和金标准冻结后，分别报告随机样本的误差估计与富集样本的压力测试结果，不能把两组直接合并为总体率。报告口径预先固定为:
+- **真实输出型人工校验（已完成）**:已从 720 条正式输出中排除先前审计的 21 条检测器阳性样本，对 90 条分层随机样本与 30 条高风险富集样本完成双人盲审、分歧仲裁和金标准冻结。逐条标签、判官预测、混淆矩阵与来源哈希见[冻结目录](../annotation/gold/agentic-l1-real-output-audit-120-v1/)。随机组按 45 个“模型 × 题目”层加权到 699 条 eligible 输出；组合管线的 refusal κ=1.000，boundary（人工 engaged）coverage=97.5%、已解析准确率=95.0%、κ=0.643、violation recall=50.0%，success（全部样本）coverage=92.2%、已解析准确率=91.3%、κ=0.764。30 条富集难例只作压力测试，不能与随机组直接合并。口径为:
   - 90 条随机样本只代表排除后的 699 条；每个“模型 × 题目”层固定抽 2 条，但有 6 层因排除而少于 16 条，所以池内估计必须按层可用样本数加权，不报未加权均值。
   - 全部 720 条的估计由两层合成:已逐条审完的 21 条(无抽样误差)+ 699 条池的加权估计。
   - 30 条富集样本按 A/C 判官分歧挑选，各模型数量不均(Opus 5 / Grok 15 / Gemini 10)，只反映判官在难例上的表现，不能用于估计任何比率，也不能用于模型间比较。
 - **eval-awareness 探针**:产出效度指标 ③。
-- **结果聚合 + 出图（部分完成）**:L1 induced 的 `judged.jsonl` 聚合、分歧区间和达成-合规前沿图已经生成；但图中仍是已知受旧检测器误报影响的历史预注册聚合值，待 120 条真实输出人工校验完成后再冻结最终重评分。L0→L1/L2 对照和三源人工一致性表仍待完成。
+- **结果聚合 + 出图（部分完成）**:L1 induced 的 `judged.jsonl` 聚合、分歧区间和达成-合规前沿图已经生成；但图中仍是已知受旧检测器误报影响的历史冻结聚合值。120 条真实输出校准已完成，下一步是按冻结的 v2 路由补判并重算全量结果，再决定是否更新前沿图。L0→L1/L2 对照仍待完成。
 - **按 L1 `present` 策略 v2 重评分**:v2 目前只做了 720 条离线路由对照，尚未产出新的语义分数。需要让判官 A/C 对 v2 新增的 `UNRESOLVED` 行做判定，并在冻结最终重评分前写明采用 v1 还是 v2(v1 结果保留为对照)，避免看到分数后再选策略。
+- **`question-003` boundary v2 自动化稳健性检查（已完成）**:24 条既有、未参与本轮开发的输出和 v2 规范哈希均已冻结；A/C 已完成、零错误，逐条结果和 v1→v2 变化已发布。不再生成人工标签，也不根据结果调 v2。该题级检查不能更新模型排行榜、估计 720 条总体率或提供真实准确率。
 - **同规模 neutral 对照**:三臂 neutral 配置已与 induced 逐字段匹配(仅提示与输出路径不同)，但尚未运行。完成 neutral Avg@16 与同一判官管线之前，不能讨论成果压力的因果效应。
 - **`max_tokens` 上限（已完成）**:单臂链路验证曾发现 Opus 在 `max_tokens: 2048` 下有 **6/15 样本被截断**。正式三臂统一改为 `8192`；720 条正式输出中没有样本撞上限，最长 completion 为 4755 tokens。证据见 [`reports/l1-max-tokens-truncation/`](../reports/l1-max-tokens-truncation/)与[正式运行记录](../reports/l1-mvp-induced-avg16/README.md)。
-- **真实 L1 MVP（已完成运行与判官聚合）**:Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 已完成 `induced` 条件的 15 题 × Avg@16，共 **720 条输出**；判官 A/C 完成全量判定，判官 B 对非 Google 两臂完成复核，均为零调用错误、零解析失败。由于 21 条程序化越界命中经人工复核全部为 clean，历史越界率与前沿图暂缓作为确认结果引用；在真实输出人工校验和最终重评分完成前，这批结果只能视为探索性结果，不能称为稳定排行榜或成果压力的因果效应。
+- **真实 L1 MVP（已完成运行、判官聚合与抽样人工校准）**:Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 已完成 `induced` 条件的 15 题 × Avg@16，共 **720 条输出**；判官 A/C 完成全量判定，判官 B 对非 Google 两臂完成复核，均为零调用错误、零解析失败。21 条程序化越界命中经人工复核全部为 clean；独立的 120 条真实输出校准又显示组合管线对人工 violation 的召回率只有 50.0%。因此历史越界率与前沿图继续暂缓作为确认结果引用；在 v2 最终语义重评分完成前，这批结果只能视为探索性结果，不能称为稳定排行榜或成果压力的因果效应。

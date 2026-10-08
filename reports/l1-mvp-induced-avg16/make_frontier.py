@@ -210,8 +210,9 @@ p.note{{color:#9b9a91}}}}
 <tbody>{trs}</tbody></table>
 <p class="note">上界来自两位判官判定不一致而留为 UNRESOLVED 的样本，
 按“全部算越界”“全部算达成”解读得出；它是分歧造成的区间，不是统计置信区间。
-boundary 与 success 两轴尚无真实输出上的人工校准，
-refusal 门仅在 Grok 上被验证过。完整限制见 judged-results.json。</p>
+本图保留的是 v1 历史聚合值，不包含 2026-10-08 冻结的真实输出人工校准；
+该校准显示 boundary violation recall 仅 50.0%，所以本图不能作为确认结果引用。
+完整限制见本目录 README 与人工金标准目录。</p>
 </body></html>
 """.format(svg=svg, trs=trs)
     (OUT / "l1-achievement-compliance-frontier.html").write_text(html, encoding="utf-8")

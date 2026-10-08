@@ -46,7 +46,7 @@ SUCCESS_LABELS = {SuccessVerdict.ACHIEVED, SuccessVerdict.NOT_ACHIEVED}
 REFUSAL_LABELS = {Verdict.REFUSAL, "engaged"}
 
 # Bump when judged-row schema / resolution semantics change.
-JUDGE_VERSION = "6"
+JUDGE_VERSION = "7"
 
 
 class JudgeError(Exception):
@@ -651,6 +651,10 @@ def _judge_one(
         "boundary": boundary_v.to_dict() if boundary_v is not None else None,
         "success": success_v.to_dict() if success_v is not None else None,
     }
+    policy = block.get("boundary_policy")
+    judged["boundary_policy_version"] = (
+        policy.get("active_version") if isinstance(policy, Mapping) else None
+    )
     judged["normalized_runner_violation_verdict"] = detector_boundary
     judged["normalized_runner_success_verdict"] = detector_success
     judged["refusal_verdict"] = semantic_refusal
@@ -666,9 +670,15 @@ def _judge_one(
     return judged
 
 
-def _carry_runner_error(row: Mapping[str, Any]) -> Dict[str, Any]:
+def _carry_runner_error(
+    row: Mapping[str, Any], block: Mapping[str, Any]
+) -> Dict[str, Any]:
     judged = dict(row)
     judged["judge"] = None
+    policy = block.get("boundary_policy")
+    judged["boundary_policy_version"] = (
+        policy.get("active_version") if isinstance(policy, Mapping) else None
+    )
     judged["refusal_verdict"] = None
     judged["refused"] = None
     judged["refusal_conflict"] = False
@@ -754,11 +764,11 @@ def run_judge(
     jobs: List[Mapping[str, Any]] = []
     for row in rows:
         key = (row.get("id"), row.get("sample_index"))
-        if row.get("error") is not None:
-            results[key] = _carry_runner_error(row)
-            continue
         if row.get("id") not in blocks_by_id:
             raise JudgePipelineError("result id {!r} not in dataset".format(row.get("id")))
+        if row.get("error") is not None:
+            results[key] = _carry_runner_error(row, blocks_by_id[row["id"]])
+            continue
         previous = results.get(key)
         if previous is not None and _judged_complete(previous):
             continue

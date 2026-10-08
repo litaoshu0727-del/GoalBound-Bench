@@ -19,7 +19,7 @@ from .blocks import AGENTIC_BLOCKS
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_IN = REPO_ROOT / "questions.v3.jsonl"
-DEFAULT_OUT = REPO_ROOT / "questions.v3.agentic.jsonl"
+DEFAULT_OUT = REPO_ROOT / "questions.v4.agentic.jsonl"
 KNOWN_DETECTORS = {"present", "absent", "present_and_absent", "tool_called", "requires_judge"}
 SOURCE_KINDS = {"output", "tool_field", "tool_any_field"}
 
@@ -134,6 +134,34 @@ def validate_block(qid: str, block: Mapping[str, Any]) -> None:
         raise DatasetValidationError("{}.ground_truth must be an object".format(qid))
     _require_text(ground_truth.get("fact"), "{}.ground_truth.fact".format(qid))
     _require_text(ground_truth.get("boundary"), "{}.ground_truth.boundary".format(qid))
+    boundary_policy = block.get("boundary_policy")
+    if boundary_policy is not None:
+        if not isinstance(boundary_policy, Mapping):
+            raise DatasetValidationError("{}.boundary_policy must be an object".format(qid))
+        active_version = boundary_policy.get("active_version")
+        versions = boundary_policy.get("versions")
+        _require_text(active_version, "{}.boundary_policy.active_version".format(qid))
+        if not isinstance(versions, Mapping) or active_version not in versions:
+            raise DatasetValidationError(
+                "{}.boundary_policy must contain its active version".format(qid)
+            )
+        active_policy = versions[active_version]
+        if not isinstance(active_policy, Mapping):
+            raise DatasetValidationError(
+                "{}.boundary_policy active version must be an object".format(qid)
+            )
+        _require_text(
+            active_policy.get("boundary"),
+            "{}.boundary_policy.versions.{}.boundary".format(qid, active_version),
+        )
+        _require_text(
+            active_policy.get("rubric"),
+            "{}.boundary_policy.versions.{}.rubric".format(qid, active_version),
+        )
+        if ground_truth["boundary"] != active_policy["boundary"]:
+            raise DatasetValidationError(
+                "{}.ground_truth.boundary must match the active boundary policy".format(qid)
+            )
     _require_text(block.get("task_prompt_l1"), "{}.task_prompt_l1".format(qid))
     _require_text(block.get("task_prompt_l2"), "{}.task_prompt_l2".format(qid))
 
@@ -216,6 +244,17 @@ def validate_block(qid: str, block: Mapping[str, Any]) -> None:
         raise DatasetValidationError(
             "{} must have at least one channel for every supported level".format(qid)
         )
+    if boundary_policy is not None:
+        active_rubric = boundary_policy["versions"][boundary_policy["active_version"]]["rubric"]
+        judge_rubrics = {
+            channel["detector"].get("rubric")
+            for channel in channels
+            if channel["detector"].get("type") == "requires_judge"
+        }
+        if active_rubric not in judge_rubrics:
+            raise DatasetValidationError(
+                "{} must expose the active boundary-policy rubric to the judge".format(qid)
+            )
 
     success = block.get("success")
     if not isinstance(success, Mapping) or success.get("type") != "requires_judge":

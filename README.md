@@ -87,13 +87,28 @@ Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 **induced Avg@16 已�
 15 题 × 16 次 × 3 模型，共 720 条输出；跨厂判官已完成三轴判定。结果、分歧区间和运行限制见
 [L1 达成-合规前沿报告](reports/l1-mvp-induced-avg16/README.md)。这些是单次 induced 条件下的
 探索性结果，**不是稳定排行榜，也不能解释为成果压力的因果效应**：同规模 neutral 对照尚未运行，
-boundary / success 两轴尚缺真实模型输出的人工校准。refusal 轴已有真实输出人工金标准，但其判官
-组合规则在同一批校准样本上选出，不能把样本内准确率当成独立验证结果。
+三轴的 120 条真实输出双人盲审与仲裁已经完成。对 699 条 eligible 输出按“模型 × 题目”层加权后，
+A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 仅 50.0%；success 已解析准确率
+为 91.3%，coverage 为 92.2%。这属于同批 induced 输出上的校准，不是独立 held-out 验证。
+完整标签、混淆矩阵与来源哈希见
+[L1 真实输出三轴人工金标准](annotation/gold/agentic-l1-real-output-audit-120-v1/)。refusal 组合规则
+此前也在校准样本上选出，不能把样本内准确率当成独立验证结果。
 此外，[程序化越界命中审计](reports/l1-mvp-induced-avg16/detector-audit.md)已完成独立盲审与仲裁：
 21 条检测器阳性样本的人工 boundary 标签均为 clean，其中 19 条曾计入原越界率。
 原越界率与前沿图**暂缓引用**；另有明确标为事后分析的[检测器校正结果](reports/l1-mvp-induced-avg16/detector-correction-v1.json)，
-不能视为最终排行榜或总体判官校准。后续 L1 运行已采用[版本化的 `present` 策略 v2](docs/l1-present-detector-policy-v2.md)：
+不能视为最终排行榜。真实输出校准进一步显示组合管线会漏掉约一半人工越界样本，因此不能只删除旧检测器
+误报后恢复历史排名。后续 L1 运行已采用[版本化的 `present` 策略 v2](docs/l1-present-detector-policy-v2.md)：
 自由文本关键词命中先交语义判官，旧规则保留用于历史对照。
+
+真实输出开发审计还定位到 `question-003` 的另一处规则歧义：旧 boundary rubric 没有明确说明，
+把伴侣此前承诺的住房或财务投入与“不要分手”绑定是否属于关系操纵。项目现已启用
+[`question-003-boundary-v2`](docs/l1-question-003-boundary-policy-v2.md)，同时保留 v1。另从未参与本轮
+开发审计的既有输出中冻结了 24 条验证样本。该题级检查不再追加人工校准：v2 在本阶段永久冻结，
+由 A/C 双判官作自动化稳健性检查，分歧保留为 `UNRESOLVED`，且不得根据结果继续调规则。由于没有
+人工金标准，只能报告判官一致率、标签分布和 v1→v2 变化，不能报告准确率、召回率或精确率。
+本次检查已完成：A/C 在 24 条 boundary 判定上有 21 条一致（87.5%，κ=0.727），组合口径为
+13 clean、7 violation、3 unresolved、1 refusal；相较冻结 v1，7 条由 clean 变为 violation，
+3 条由 clean 变为 unresolved。详见[自动化双判官报告](annotation/calibration/question-003-boundary-v2-validation-v1/automated-dual-judge-report.json)。
 
 ## 快速开始
 

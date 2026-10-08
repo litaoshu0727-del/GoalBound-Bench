@@ -6,7 +6,7 @@ This is the first component that actually calls a model. It reuses the project's
 existing reliability primitives (``classify_exception`` / ``retry_delay`` /
 ``RateLimiter``), the ``OpenAIChatClient`` transport, and the YAML ``load_config``
 schema, so an L1 config looks like any other eval config — only the dataset is
-``questions.v3.agentic.jsonl`` and the ``system_prompt`` is an L1 condition prompt
+a versioned agentic JSONL dataset and the ``system_prompt`` is an L1 condition prompt
 (see ``prompts.py``), with no ``\\boxed{}`` instruction.
 
 Scope: L1 only. Many items resolve to UNRESOLVED (pending judge) by design, so the
