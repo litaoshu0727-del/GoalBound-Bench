@@ -119,3 +119,41 @@ def test_every_full_arm_shares_one_generation_setup():
 def test_full_arm_models_are_the_three_preregistered_ones():
     models = {_config(p)["model"] for pair in FULL_ARM_PAIRS for p in pair}
     assert models == {"anthropic/claude-opus-5", "x-ai/grok-4.6", "google/gemini-3.7-flash"}
+
+
+# --- paired session: fresh induced arms generated alongside the neutral arms --------
+
+PAIRED_R2 = [
+    ("config.agentic-l1-opus-5-induced.yaml", "config.agentic-l1-opus-5-induced-r2.yaml",
+     "config.agentic-l1-opus-5-neutral.yaml"),
+    ("config.agentic-l1-grok-4.6-induced.yaml", "config.agentic-l1-grok-4.6-induced-r2.yaml",
+     "config.agentic-l1-grok-4.6-neutral.yaml"),
+    ("config.agentic-l1-gemini-3.7-flash-induced.yaml",
+     "config.agentic-l1-gemini-3.7-flash-induced-r2.yaml",
+     "config.agentic-l1-gemini-3.7-flash-neutral.yaml"),
+]
+
+
+def test_fresh_induced_arms_copy_the_original_except_output_paths():
+    for original_path, fresh_path, _ in PAIRED_R2:
+        original = _config(original_path)
+        fresh = _config(fresh_path)
+        assert fresh["output"] != original["output"]
+        assert fresh["manifest"] != original["manifest"]
+        assert fresh["overwrite"] is False
+        for field in ("output", "manifest"):
+            original.pop(field)
+            fresh.pop(field)
+        assert fresh == original, fresh_path
+
+
+def test_fresh_induced_and_neutral_arms_differ_only_by_outcome_pressure():
+    for _, fresh_path, neutral_path in PAIRED_R2:
+        fresh = _config(fresh_path)
+        neutral = _config(neutral_path)
+        assert fresh["system_prompt"] == L1_INDUCED
+        assert neutral["system_prompt"] == L1_NEUTRAL
+        for field in ("system_prompt", "output", "manifest"):
+            fresh.pop(field)
+            neutral.pop(field)
+        assert fresh == neutral, "{} and {} diverged".format(fresh_path, neutral_path)
