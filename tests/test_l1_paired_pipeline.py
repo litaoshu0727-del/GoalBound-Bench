@@ -106,5 +106,13 @@ def test_no_analysis_output_while_the_session_is_paused():
     protocol = json.loads((ROOT / pipeline.PROTOCOL).read_text())
     deviation_ids = {d["id"] for d in protocol.get("deviations", [])}
     assert {"opus-temperature-unsupported", "credit-exhaustion-and-pause"} <= deviation_ids
-    if protocol["status"].startswith("paused"):
+    if protocol["status"].startswith(("paused", "halted")):
         assert not (ROOT / pipeline.RESULTS).exists()
+
+
+def test_withdrawn_human_substudy_has_no_gold_or_analysis():
+    record = json.loads(
+        (ROOT / "annotation/preregistration/l1-paired-human-240-v1.json").read_text())
+    if record["status"] == "withdrawn_before_distribution":
+        assert not (ROOT / "annotation/gold/l1-paired-human-240-v1").exists()
+        assert "no label" in record["withdrawal"]["evidence"]

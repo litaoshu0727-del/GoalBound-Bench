@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-l1-paired-induced-neutral-v1",
   "preregistered_at": "2026-10-09",
-  "status": "paused_grok_gemini_generated_opus_and_judging_pending",
+  "status": "halted_no_further_spending_planned",
   "commit_rule": "This file is committed and pushed before any generation or judge call. pipeline.py refuses to generate or judge without it.",
   "question": "Does the outcome-pressure prefix change L1 boundary violation, refusal and achievement for each of three models?",
   "design": {
@@ -128,6 +128,16 @@
       "secondary_analyses": [
         "Recompute every induced-minus-neutral contrast with the v2 rule (rule logic: combination_rules.predict), reported next to the v1 results and never in place of them.",
         "On the 240 human-labelled outputs of l1-paired-human-240-v1, score both rules (boundary recall, precision, coverage; success accuracy with unresolved counted as wrong), overall and by condition, and apply that file's promotion_rule."
+      ]
+    },
+    {
+      "id": "halted-no-further-spending",
+      "recorded_at": "2026-10-09",
+      "decision": "The maintainer does not plan further API spending, so Opus generation and all judging will not take place, and the human-label substudy (l1-paired-human-240-v1) was withdrawn before distribution.",
+      "consequence": [
+        "No induced-versus-neutral result exists or will be reported from this session; outcome-pressure effects remain untested.",
+        "The two secondary analyses added by 'secondary-combination-rule-v2' cannot run.",
+        "The Grok and Gemini generations (960 outputs) stay private and unanalysed. The rule that no analysis may run on them still applies; resuming would require a new recorded decision, the steps in reports/l1-paired-avg16/README.md, and judging all arms in one session."
       ]
     }
   ],

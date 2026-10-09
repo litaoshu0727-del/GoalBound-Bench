@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "l1-paired-human-240-v1",
   "preregistered_at": "2026-10-09",
-  "status": "workbooks_built_not_distributed",
+  "status": "withdrawn_before_distribution",
   "commit_rule": "This file is committed and pushed before any workbook exists; scripts/build_paired_human_audit.py build refuses to run otherwise. The blank-workbook hashes are then added in a second commit, and workbooks are sent to annotators only after that commit is pushed.",
   "relation_to_paired_session": "A separate human-label substudy on a subset of the Grok and Gemini generations of annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json, chosen because judging there is paused for lack of API budget. That protocol's judge-based plan stays unchanged and pinned, and nothing here may change it.",
   "purpose": [
@@ -151,5 +151,12 @@
       "reports/l1-paired-avg16/human_analysis.py": "6b51204db2201a7bc66c3c7ccf7ee60f57fe6771667be504b505540e976a8ecc"
     },
     "dry_run": "Run offline on copies of the blank workbooks filled with random labels: record-completed, arbitrate (166 cases), record-arbitration, freeze (720 labels) and the analysis all completed. It exposed and fixed an openpyxl data-validation bug before any real label existed."
+  },
+  "withdrawal": {
+    "recorded_at": "2026-10-09",
+    "decision": "Withdrawn by the maintainer before either workbook was sent to an annotator.",
+    "reason": "No annotation capacity is planned and no further API spending is planned, so the substudy's second purpose (calibrating judges when judging resumes) no longer applies either.",
+    "evidence": "Both annotator workbooks still matched their committed blank hashes when the withdrawal was recorded; no label, arbitration or gold file exists.",
+    "consequence": "No result will be reported. The selection, workbooks and post-processing code are kept unchanged so the substudy could be restarted from this record; a restart must be recorded as such."
   }
 }

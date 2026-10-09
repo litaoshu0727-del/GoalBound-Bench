@@ -94,7 +94,7 @@ Opus 本次最长样本 **4755 tokens**，超过 15 条 cap-check 观测到的�
 
 不调用 API、不新增标注，用现有人工金标准比较了几种 A/C 合并规则（[脚本](combination_rules.py)、[结果](combination-rules-evaluation.json)）。选择标准在第一次运行前提交（`45293db`）。在 v2 管线下，现行“两判官一致”规则在 120 条随机核心集上的加权越界召回为 0.750、精确率 1.000（v1 管线下召回为 0.500，部分提升来自以这批样本为开发集的 question-003 v2）。
 
-按预先标准选出：boundary 只用判官 C（召回 0.875、精确率 1.000），success 用宽松规则（任一判官判达成即达成，加权准确率 0.908 对 0.842）。但 boundary 的优势只差一条样本，success 的宽松规则多出一条“误判达成”。因此这套规则只作为[次要分析](../../annotation/preregistration/agentic-l1-judge-combination-rule-v2.json)冻结；主分析仍用 v1 规则。配对会话恢复评分后，240 条人工盲审会对两套规则做前瞻检验，并按事先写定的条件决定是否在以后的协议中把 v2 升为主规则。
+按预先标准选出：boundary 只用判官 C（召回 0.875、精确率 1.000），success 用宽松规则（任一判官判达成即达成，加权准确率 0.908 对 0.842）。但 boundary 的优势只差一条样本，success 的宽松规则多出一条“误判达成”。因此这套规则只作为[次要分析](../../annotation/preregistration/agentic-l1-judge-combination-rule-v2.json)冻结；主分析仍用 v1 规则。原计划用配对会话的 240 条人工盲审做前瞻检验，但配对会话已停止、盲审在分发前撤回，所以 v2 规则目前未经验证，仍只是次要规则。
 
 ## 下一步
 
