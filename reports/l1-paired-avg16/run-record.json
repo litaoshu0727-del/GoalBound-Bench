@@ -1,0 +1,291 @@
+{
+  "protocol": "annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json",
+  "created_at": "2026-10-09",
+  "arms": {
+    "anthropic/claude-opus-5": {
+      "induced": {
+        "config": "config.agentic-l1-opus-5-induced-r2.yaml",
+        "run_ids": [
+          "23dc4385f0ba437886daa0bd709f6ae9"
+        ],
+        "samples": 30,
+        "unique_keys": 30,
+        "errors": 29,
+        "empty_outputs": 29,
+        "returned_model_matches_requested": true,
+        "at_cap": 0,
+        "completion_tokens": {
+          "min": 752,
+          "p50": 752,
+          "max": 752
+        },
+        "cost_usd": 0.0199,
+        "detector_policies": [
+          "l1_present_semantic_v2"
+        ],
+        "results_sha256": "98c248e1f2039fe4dd3c06dca8ab70623280375cdad2af78f4d2e96707b70c60",
+        "signature": {
+          "component": "agentic-l1-runner",
+          "runner_version": "7",
+          "level": "L1",
+          "model": "anthropic/claude-opus-5",
+          "generation_config": {
+            "base_url": "https://openrouter.ai/api/v1",
+            "gateway_provider": "openrouter.ai",
+            "max_tokens": 8192,
+            "model": "anthropic/claude-opus-5",
+            "model_provider": "anthropic",
+            "reasoning_effort": null,
+            "require_parameters": true,
+            "system_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+            "temperature": null
+          },
+          "generation_config_sha256": "70e60fad3f9b0181d8355a43f90b45921fc2bd94df2fe8e34c7095cc5b63ae3b",
+          "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+          "samples_per_question": 16,
+          "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd",
+          "detector_policy": "l1_present_semantic_v2"
+        }
+      },
+      "neutral": {
+        "config": "config.agentic-l1-opus-5-neutral.yaml",
+        "run_ids": [
+          "e1560e7028614bd7b0bb340d1a0900b0"
+        ],
+        "samples": 28,
+        "unique_keys": 28,
+        "errors": 27,
+        "empty_outputs": 27,
+        "returned_model_matches_requested": true,
+        "at_cap": 0,
+        "completion_tokens": {
+          "min": 315,
+          "p50": 315,
+          "max": 315
+        },
+        "cost_usd": 0.0087,
+        "detector_policies": [
+          "l1_present_semantic_v2"
+        ],
+        "results_sha256": "ab7ff86a215ab6269fc295df88e4592c34e0cba07e10779f9d7e97fadfaa27fc",
+        "signature": {
+          "component": "agentic-l1-runner",
+          "runner_version": "7",
+          "level": "L1",
+          "model": "anthropic/claude-opus-5",
+          "generation_config": {
+            "base_url": "https://openrouter.ai/api/v1",
+            "gateway_provider": "openrouter.ai",
+            "max_tokens": 8192,
+            "model": "anthropic/claude-opus-5",
+            "model_provider": "anthropic",
+            "reasoning_effort": null,
+            "require_parameters": true,
+            "system_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+            "temperature": null
+          },
+          "generation_config_sha256": "0f2ad7ade720388c22bc5dc9de20428ed806095964a47ea96bff43cd60932429",
+          "condition_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+          "samples_per_question": 16,
+          "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd",
+          "detector_policy": "l1_present_semantic_v2"
+        }
+      },
+      "pairing_checks": {
+        "same_dataset_as_frozen_induced": true,
+        "fresh_induced_prompt_equals_frozen_induced": true,
+        "signatures_differ_only_by_prompt": true
+      }
+    },
+    "x-ai/grok-4.6": {
+      "induced": {
+        "config": "config.agentic-l1-grok-4.6-induced-r2.yaml",
+        "run_ids": [
+          "640cdef2fd714b8dbec367b827799c07"
+        ],
+        "samples": 240,
+        "unique_keys": 240,
+        "errors": 0,
+        "empty_outputs": 0,
+        "returned_model_matches_requested": true,
+        "at_cap": 0,
+        "completion_tokens": {
+          "min": 602,
+          "p50": 1556.5,
+          "max": 3106
+        },
+        "cost_usd": 2.4368,
+        "detector_policies": [
+          "l1_present_semantic_v2"
+        ],
+        "results_sha256": "71d7a678af54d33f2f0812a92914f6f1f17db5b2dc93c424be51ee33ea0d4eee",
+        "signature": {
+          "component": "agentic-l1-runner",
+          "runner_version": "7",
+          "level": "L1",
+          "model": "x-ai/grok-4.6",
+          "generation_config": {
+            "base_url": "https://openrouter.ai/api/v1",
+            "gateway_provider": "openrouter.ai",
+            "max_tokens": 8192,
+            "model": "x-ai/grok-4.6",
+            "model_provider": "x-ai",
+            "reasoning_effort": null,
+            "require_parameters": true,
+            "system_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+            "temperature": 1.0
+          },
+          "generation_config_sha256": "7625cb394a146d3ca2a13fd772686e873376075c15ccdb20dd36cb298e114ff1",
+          "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+          "samples_per_question": 16,
+          "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd",
+          "detector_policy": "l1_present_semantic_v2"
+        }
+      },
+      "neutral": {
+        "config": "config.agentic-l1-grok-4.6-neutral.yaml",
+        "run_ids": [
+          "0491cede077f432e85e95cb6657176ab"
+        ],
+        "samples": 240,
+        "unique_keys": 240,
+        "errors": 0,
+        "empty_outputs": 0,
+        "returned_model_matches_requested": true,
+        "at_cap": 0,
+        "completion_tokens": {
+          "min": 313,
+          "p50": 1457.5,
+          "max": 3376
+        },
+        "cost_usd": 2.2831,
+        "detector_policies": [
+          "l1_present_semantic_v2"
+        ],
+        "results_sha256": "3fe6a85dc7d2d1767a3740e6795cc0d4c28e9506182a85d7060d254fe944d833",
+        "signature": {
+          "component": "agentic-l1-runner",
+          "runner_version": "7",
+          "level": "L1",
+          "model": "x-ai/grok-4.6",
+          "generation_config": {
+            "base_url": "https://openrouter.ai/api/v1",
+            "gateway_provider": "openrouter.ai",
+            "max_tokens": 8192,
+            "model": "x-ai/grok-4.6",
+            "model_provider": "x-ai",
+            "reasoning_effort": null,
+            "require_parameters": true,
+            "system_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+            "temperature": 1.0
+          },
+          "generation_config_sha256": "e8617323901c9664832b78616f97ca3745bb3ada8891eb0865a905a89c9af6b8",
+          "condition_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+          "samples_per_question": 16,
+          "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd",
+          "detector_policy": "l1_present_semantic_v2"
+        }
+      },
+      "pairing_checks": {
+        "same_dataset_as_frozen_induced": true,
+        "fresh_induced_prompt_equals_frozen_induced": true,
+        "signatures_differ_only_by_prompt": true
+      }
+    },
+    "google/gemini-3.7-flash": {
+      "induced": {
+        "config": "config.agentic-l1-gemini-3.7-flash-induced-r2.yaml",
+        "run_ids": [
+          "a3273cd695b44c11ab7faf6ff4509a05"
+        ],
+        "samples": 240,
+        "unique_keys": 240,
+        "errors": 0,
+        "empty_outputs": 0,
+        "returned_model_matches_requested": true,
+        "at_cap": 0,
+        "completion_tokens": {
+          "min": 414,
+          "p50": 864.0,
+          "max": 1938
+        },
+        "cost_usd": 0.8169,
+        "detector_policies": [
+          "l1_present_semantic_v2"
+        ],
+        "results_sha256": "4f0ad8841da0703068766f1a9acba912abd4c863b2df89d88fef447d40485fd6",
+        "signature": {
+          "component": "agentic-l1-runner",
+          "runner_version": "7",
+          "level": "L1",
+          "model": "google/gemini-3.7-flash",
+          "generation_config": {
+            "base_url": "https://openrouter.ai/api/v1",
+            "gateway_provider": "openrouter.ai",
+            "max_tokens": 8192,
+            "model": "google/gemini-3.7-flash",
+            "model_provider": "google",
+            "reasoning_effort": null,
+            "require_parameters": true,
+            "system_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+            "temperature": 1.0
+          },
+          "generation_config_sha256": "03e5303b408f341dfd150972c792d096168bbfc4bc705e813f474a55de1c22b9",
+          "condition_prompt_sha256": "c8ab03bccbc2f17c1229af7fb612ae1688b03ea8814c3decababdb5fa4819d8e",
+          "samples_per_question": 16,
+          "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd",
+          "detector_policy": "l1_present_semantic_v2"
+        }
+      },
+      "neutral": {
+        "config": "config.agentic-l1-gemini-3.7-flash-neutral.yaml",
+        "run_ids": [
+          "87228e249a1e45318fa720e28866ae82"
+        ],
+        "samples": 240,
+        "unique_keys": 240,
+        "errors": 0,
+        "empty_outputs": 0,
+        "returned_model_matches_requested": true,
+        "at_cap": 0,
+        "completion_tokens": {
+          "min": 328,
+          "p50": 681.5,
+          "max": 2031
+        },
+        "cost_usd": 0.6609,
+        "detector_policies": [
+          "l1_present_semantic_v2"
+        ],
+        "results_sha256": "e969e63320d2efe9c44832f3155ed4bf4b8d1a909354b1159e26c498d9378725",
+        "signature": {
+          "component": "agentic-l1-runner",
+          "runner_version": "7",
+          "level": "L1",
+          "model": "google/gemini-3.7-flash",
+          "generation_config": {
+            "base_url": "https://openrouter.ai/api/v1",
+            "gateway_provider": "openrouter.ai",
+            "max_tokens": 8192,
+            "model": "google/gemini-3.7-flash",
+            "model_provider": "google",
+            "reasoning_effort": null,
+            "require_parameters": true,
+            "system_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+            "temperature": 1.0
+          },
+          "generation_config_sha256": "4f33a567775d25946788c688e2067d7b043499691db6c732f3099b14b7c8a464",
+          "condition_prompt_sha256": "9230b6ea90e3bbe5b95f8068a7807df525532f48996aa83921485b5f36bf58e4",
+          "samples_per_question": 16,
+          "dataset_sha256": "18872ae10243381dd231c3f2feb005699081a7c2fd5eb307f25333c4705f3dfd",
+          "detector_policy": "l1_present_semantic_v2"
+        }
+      },
+      "pairing_checks": {
+        "same_dataset_as_frozen_induced": true,
+        "fresh_induced_prompt_equals_frozen_induced": true,
+        "signatures_differ_only_by_prompt": true
+      }
+    }
+  }
+}

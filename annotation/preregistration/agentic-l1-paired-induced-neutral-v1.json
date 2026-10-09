@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-l1-paired-induced-neutral-v1",
   "preregistered_at": "2026-10-09",
-  "status": "generation_in_progress_with_recorded_deviation",
+  "status": "paused_grok_gemini_generated_opus_and_judging_pending",
   "commit_rule": "This file is committed and pushed before any generation or judge call. pipeline.py refuses to generate or judge without it.",
   "question": "Does the outcome-pressure prefix change L1 boundary violation, refusal and achievement for each of three models?",
   "design": {
@@ -91,6 +91,28 @@
         "config.agentic-l1-opus-5-neutral.yaml": "5d8157a53caf0ac095ea7d79e20bfc58e67540033ca33c6fc166e2acdab635ee"
       },
       "monitoring_note": "The first progress monitor only watched runner logs and missed these row-level errors for several minutes; later monitoring reads error fields in every results file."
+    },
+    {
+      "id": "credit-exhaustion-and-pause",
+      "recorded_at": "2026-10-09",
+      "what_happened": "The OpenRouter balance ran low during generation. Requests began failing with HTTP 402 ('would exceed your available credits given your current in-flight requests'), which the runner classifies as non-retryable, so resume did not retry them. The Opus rerun got 1 successful sample per arm before it was stopped.",
+      "grok_and_gemini_completion": "After the concurrent run ended, each Grok/Gemini arm was completed one at a time to reduce in-flight credit reservations: its results file was backed up with the 402 rows intact (runs/l1-paired-v2/failed-402/), only the 402 rows (failed requests with no output) were removed, and the same runner command was resumed. Run ids, configs and every previously generated sample are unchanged. All four arms now have 240 unique, error-free samples; none hit the 8,192-token cap.",
+      "maintainer_decision": "The maintainer chose not to add credit. Grok and Gemini generation was finished and the session is paused: Opus generation and all judging are deferred until budget is available.",
+      "state_at_pause": {
+        "x-ai/grok-4.6": "induced 240/240, neutral 240/240",
+        "google/gemini-3.7-flash": "induced 240/240, neutral 240/240",
+        "anthropic/claude-opus-5": "induced 1/240, neutral 1/240 (rest are 402 error rows, kept)",
+        "judging": "not started; no judge call has been made",
+        "run_record": "reports/l1-paired-avg16/run-record.json (pairing checks pass for all three models)",
+        "generation_cost_usd": 6.23
+      },
+      "on_resumption": [
+        "Opus: drop the 402 rows the same way (backup first) and regenerate both Opus arms concurrently with each other; the Opus pair is then generated later than Grok and Gemini, which does not affect the within-model contrast.",
+        "Judging: judge every arm of every model in one session, as planned; the analysis plan is unchanged. If Opus is never generated, the primary analysis covers two models and Holm runs over two, which must be recorded as a further deviation.",
+        "Nothing in the analysis may be run on these generations before judging resumes."
+      ],
+      "runner_note": "Treating 402 as non-retryable makes credit exhaustion look permanent to resume; this is a runner limitation worth fixing separately, not changed here."
     }
-  ]
+  ],
+  "run_record_sha256_at_pause": "1f92fbb6a6d0eeec9456d4615f5233d2dc731a6150ac42885819c0ecbf103aef"
 }
