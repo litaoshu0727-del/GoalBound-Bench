@@ -1,6 +1,6 @@
 # L1 induced / neutral 配对会话（已暂停）
 
-**状态（2026-10-09）：生成部分完成，尚未评分，不能分析。** Grok 与 Gemini 的两组已生成；Opus 未生成；没有发起任何判官调用。按协议，在全部评分完成前不得对这批生成数据做任何分析。
+**状态（2026-10-09）：生成部分完成，判官评分暂停。** Grok 与 Gemini 的两组已生成；Opus 未生成；没有发起任何判官调用。基于判官的分析在评分恢复前不得进行；唯一例外是下文单独预注册的人工盲审子研究。
 
 协议见 [`agentic-l1-paired-induced-neutral-v1.json`](../../annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json)，在任何 API 调用前公开冻结（提交 `8f8e822`），两项偏差已在该文件 `deviations` 中记录。
 
@@ -41,3 +41,11 @@
 5. **分析：** `pipeline.py analyze`，按协议中冻结的分析计划输出 `results.json`。
 
 如果最终放弃 Opus，主分析只覆盖两个模型、Holm 只在两者之间校正，并且 `pipeline.py` 需要相应修改；这两点都必须先作为新的偏差记录并提交，再运行评分。
+
+## 判官暂停期间：人工盲审子研究
+
+为了在不调用 API 的情况下推进，另行预注册了一项人工盲审：从 Grok、Gemini 的配对输出中按“模型 × 题目 × 条件”每格抽 4 条，共 240 条，由两位标注者在不知道模型和条件的情况下标注 refusal、boundary 和 success（v2 指南），分歧交第三人盲仲裁。协议、抽样哈希和空白表格哈希都在分发前提交；仲裁、冻结和分析代码也在任何标签出现前提交，并已用随机标签完整试跑。
+
+- 协议：[`l1-paired-human-240-v1.json`](../../annotation/preregistration/l1-paired-human-240-v1.json)
+- 后续步骤：`scripts/paired_human_audit_post.py`（record-completed → arbitrate → record-arbitration → freeze），然后 `human_analysis.py`
+- 预先说明：每个模型每个条件只有 60 条，模拟检验力较低（真实差 +10 个百分点时约 13–17%），主要价值是给出带区间的人工估计，并为日后恢复评分时校准判官提供 neutral 条件的金标准。它不替代上面基于判官的主分析。
