@@ -58,7 +58,7 @@
 
 ## 维护事项
 
-- `runs/` 只在本机（约 33 MB，gitignored）：包含所有原始输出，恢复任何工作都离不开它，建议备份。
-- 运行 `uv lock`：`pyproject.toml` 新增的 `annotation` 可选依赖（openpyxl）还没进锁文件。
+- `runs/`、`annotation/generated/`、`outputs/` 都被 gitignore，不在仓库里。2026-10-09 已打包备份到维护者的云端存储（342 个文件，解压比对通过；压缩包 SHA-256 `4dc503e26d52d5f71dbcbd151d98a240e3a5411f3e5cf5b9c9bf5ff5a140a69c`）。之后若有新的运行或标注，需要重新备份。
+- `uv.lock` 已包含 `annotation` 可选依赖（openpyxl）；`uv sync --extra annotation` 后可直接用项目环境运行建表脚本。
 - 已修复（2026-10-09）：runner 现在把 HTTP 402 视为可重试，运行中会退避重试，续跑时也会补发以前存下的 402 行。
 - OpenRouter 余额约 $2，不足以恢复上述任何付费工作。
