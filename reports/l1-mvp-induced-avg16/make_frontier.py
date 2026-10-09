@@ -7,9 +7,15 @@ ordering is used unchanged.
 
 Run from the repository root:
 
-    python reports/l1-mvp-induced-avg16/make_frontier.py
+    python reports/l1-mvp-induced-avg16/make_frontier.py          # historical v1 figure
+    python reports/l1-mvp-induced-avg16/make_frontier.py --v2     # v2 rescoring figure
+
+The v2 figure reads rescoring-v2/judged-results-v2.json, draws each model's v1 position
+as a hollow ring (achieved rates did not change, so every move is vertical), and writes
+into rescoring-v2/ so the historical files stay untouched.
 """
 
+import argparse
 import json
 import pathlib
 
@@ -22,6 +28,18 @@ SERIES_DARK = ["#3987e5", "#d95926", "#199e70"]
 W, H = 1600, 1080
 L, R, T, B = 170, 1180, 260, 880                     # plot rect
 X_MAX, Y_MAX = 100.0, 16.0
+FILE_STEM = "l1-achievement-compliance-frontier"
+V2 = False
+
+
+def configure_v2():
+    """Switch the module to the v2 figure: taller header, higher ceiling, own folder."""
+    global OUT, H, T, B, Y_MAX, V2
+    OUT = pathlib.Path("reports/l1-mvp-induced-avg16/rescoring-v2")
+    H, T, B = 1120, 300, 920
+    Y_MAX = 20.0
+    LABEL["Claude Opus 5"] = (-24, -52, "end")   # its marker now sits near the x axis
+    V2 = True
 
 
 def sx(pct):
@@ -33,9 +51,11 @@ def sy(pct):
 
 
 def load():
-    data = json.loads((OUT / "judged-results.json").read_text(encoding="utf-8"))
+    name = "judged-results-v2.json" if V2 else "judged-results.json"
+    data = json.loads((OUT / name).read_text(encoding="utf-8"))
     rows = []
-    for model, a in data["arms"].items():
+    for model, arm in data["arms"].items():
+        a = arm["v2"] if V2 else arm
         rows.append({
             "model": model, "short": SHORT[model], "n": a["n"],
             "ach": a["achieved_rate"]["resolved"] * 100,
@@ -44,6 +64,7 @@ def load():
             "vio_hi": a["violation_rate"]["upper_bound_unresolved_all_violation"] * 100,
             "ref": a["refusal_rate"] * 100,
             "vio_eng": (a["violation_rate_engaged_only"]["resolved"] or 0) * 100,
+            "vio_v1": arm["v1_historical"]["violation_rate"]["resolved"] * 100 if V2 else None,
         })
     rows.sort(key=lambda r: r["ach"], reverse=True)
     return rows
@@ -61,13 +82,18 @@ LABEL = {"Claude Opus 5": (-24, 54, "end"),
 def svg_body(rows):
     p = []
     p.append('<rect x="0" y="0" width="{}" height="{}" fill="var(--surface-1)"/>'.format(W, H))
-    p.append('<text class="title" x="{}" y="96">GoalBound-Bench L1 达成-合规前沿</text>'.format(L))
+    p.append('<text class="title" x="{}" y="96">GoalBound-Bench L1 达成-合规前沿{}</text>'.format(
+        L, "（v2 重评分）" if V2 else ""))
     p.append('<text class="subtitle" x="{}" y="136">情境化 induced 条件 · 15 题 × 16 样本 · '
-             '每模型 n=240 · 判官对 gpt-5.6-sol + glm-5.3-flash</text>'.format(L))
+             '每模型 n=240 · 判官对 gpt-5.6-sol + glm-5.3-flash{}</text>'.format(
+                 L, " · present 检测器 v2 + question-003 判据 v2" if V2 else ""))
     p.append('<text class="warning" x="{}" y="176">纵轴越高越容易越界，横轴越靠右越能达成正当'
              '目标；理想位置在右下角。方框是未决样本造成的不确定区间，不是置信区间。</text>'.format(L))
     p.append('<text class="warning" x="{}" y="208">这不是能力排行榜：拒绝任务会同时压低越界率和'
              '达成率，所以低越界率本身不代表更好。</text>'.format(L))
+    if V2:
+        p.append('<text class="warning" x="{}" y="240">越界率很可能偏低：question-003 只能算下界，'
+                 '120 条人工审计中组合管线的越界召回约 50%。空心圈为 v1 历史值。</text>'.format(L))
 
     # grid + axes
     for v in range(0, int(Y_MAX) + 1, 4):
@@ -87,8 +113,9 @@ def svg_body(rows):
         (L + R) / 2, B + 92, xlab))
     p.append('<text class="axlabel" transform="translate({},{:.0f}) rotate(-90)" '
              'text-anchor="middle">越界率 ↑（越高越差）</text>'.format(L - 96, (T + B) / 2))
+    # In v2 the Opus marker sits in the corner itself, so the hint moves clear of it.
     p.append('<text class="hint" x="{}" y="{}" text-anchor="end">理想区域 ↘</text>'.format(
-        R - 8, B - 16))
+        R - 44 if V2 else R - 8, B - 12 if V2 else B - 16))
 
     for i, r in enumerate(rows):
         c = "var(--series-{})".format(i + 1)
@@ -96,7 +123,16 @@ def svg_body(rows):
         x1, y1 = sx(r["ach_hi"]), sy(r["vio_hi"])
         aria = ("{} 达成率 {:.1f}% 至 {:.1f}%，越界率 {:.1f}% 至 {:.1f}%，拒绝率 {:.1f}%").format(
             r["short"], r["ach"], r["ach_hi"], r["vio"], r["vio_hi"], r["ref"])
+        if V2:
+            aria += "；v1 历史越界率 {:.1f}%".format(r["vio_v1"])
         g = ['<g class="pt" tabindex="0" role="listitem" aria-label="{}">'.format(aria)]
+        if V2 and abs(r["vio_v1"] - r["vio"]) > 0.05:
+            yv1 = sy(r["vio_v1"])
+            g.append('<line x1="{:.1f}" y1="{:.1f}" x2="{:.1f}" y2="{:.1f}" stroke="{}" '
+                     'stroke-width="2" stroke-dasharray="4 5" opacity="0.7"/>'.format(
+                         x0, yv1, x0, y0, c))
+            g.append('<circle cx="{:.1f}" cy="{:.1f}" r="8" fill="var(--surface-1)" stroke="{}" '
+                     'stroke-width="2.5"/>'.format(x0, yv1, c))
         if x1 - x0 > 1 and y0 - y1 > 1:
             g.append('<rect x="{:.1f}" y="{:.1f}" width="{:.1f}" height="{:.1f}" fill="{}" '
                      'opacity="0.13"/>'.format(x0, y1, x1 - x0, y0 - y1, c))
@@ -131,10 +167,37 @@ def svg_body(rows):
         p.append('<text class="leg" x="{}" y="{}">{}</text>'.format(R + 90, yy, r["short"]))
         sub = "拒绝 {:.1f}%｜排除拒绝后越界 {:.1f}%".format(r["ref"], r["vio_eng"])
         p.append('<text class="legsub" x="{}" y="{}">{}</text>'.format(R + 90, yy + 26, sub))
+        if V2:
+            change = "越界 v1 {:.1f}% → v2 {:.1f}%".format(r["vio_v1"], r["vio"])
+            p.append('<text class="legsub" x="{}" y="{}">{}</text>'.format(R + 90, yy + 50, change))
+    if V2:
+        yy = ly + 44 + len(rows) * 78 + 12
+        p.append('<circle cx="{}" cy="{}" r="8" fill="var(--surface-1)" stroke="var(--text-muted)" '
+                 'stroke-width="2.5"/>'.format(R + 70, yy - 5))
+        p.append('<text class="legsub" x="{}" y="{}">v1 历史越界率</text>'.format(R + 90, yy))
     return "\n  ".join(p)
 
 
+NOTE_V1 = """上界来自两位判官判定不一致而留为 UNRESOLVED 的样本，
+按“全部算越界”“全部算达成”解读得出；它是分歧造成的区间，不是统计置信区间。
+本图保留的是 v1 历史聚合值，不包含 2026-10-08 冻结的真实输出人工校准；
+该校准显示 boundary violation recall 仅 50.0%，所以本图不能作为确认结果引用。
+完整限制见本目录 README 与人工金标准目录。"""
+NOTE_V2 = """上界来自两位判官判定不一致而留为 UNRESOLVED 的样本，
+按“全部算越界”“全部算达成”解读得出；它是分歧造成的区间，不是统计置信区间。
+本图是 2026-10-09 按 present 检测器 v2 与 question-003 判据 v2 重评分的结果，
+达成率与拒绝率与 v1 相同。
+question-003 的越界数只能算下界；120 条人工审计显示 v2 之前的组合管线越界召回约 50%，
+因此整体越界率很可能偏低。仅 induced 条件、单次运行，属探索性结果，不是排行榜。
+完整说明见本目录 README。"""
+
+
 def main():
+    parser = argparse.ArgumentParser(description="Render the L1 frontier figure.")
+    parser.add_argument("--v2", action="store_true", help="render the v2 rescoring figure")
+    if parser.parse_args().v2:
+        configure_v2()
+    stem = FILE_STEM + ("-v2" if V2 else "")
     rows = load()
     style = """
     .title { font: 700 42px 'Geist','PingFang SC','Microsoft YaHei',-apple-system,sans-serif;
@@ -170,6 +233,10 @@ def main():
             "right. Each marker is the resolved value and the box extends to the upper bound "
             "produced by samples the two judges left unresolved. Refusal rate is printed beside "
             "each marker because refusing the task lowers both rates at once.")
+    if V2:
+        desc += (" This is the v2 rescoring; a hollow ring joined by a dashed line marks each "
+                 "model's historical v1 violation rate. Question-003 counts are a lower bound "
+                 "and overall violation rates are likely undercounts.")
     theme = (":root{{{light}}}\n"
              "@media (prefers-color-scheme:dark){{:root:not([data-theme=light]){{{dark}}}}}\n"
              ":root[data-theme=dark]{{{dark}}}\n").format(light=tokens, dark=tokens_dark)
@@ -177,7 +244,7 @@ def main():
            'aria-labelledby="ft fd">\n  <title id="ft">GoalBound-Bench L1 达成-合规前沿</title>\n'
            '  <desc id="fd">{d}</desc>\n  <style>{th}\n{st}</style>\n  {body}\n</svg>\n'
            ).format(w=W, h=H, d=desc, th=theme, st=style, body=svg_body(rows))
-    (OUT / "l1-achievement-compliance-frontier.svg").write_text(svg, encoding="utf-8")
+    (OUT / (stem + ".svg")).write_text(svg, encoding="utf-8")
 
     trs = "\n".join(
         "<tr><th scope=\"row\">{s}</th><td>{v:.1f}%</td><td>{vh:.1f}%</td><td>{a:.1f}%</td>"
@@ -208,14 +275,10 @@ p.note{{color:#9b9a91}}}}
 <th scope="col">达成率</th><th scope="col">达成上界</th><th scope="col">拒绝率</th>
 <th scope="col">排除拒绝后越界率</th></tr></thead>
 <tbody>{trs}</tbody></table>
-<p class="note">上界来自两位判官判定不一致而留为 UNRESOLVED 的样本，
-按“全部算越界”“全部算达成”解读得出；它是分歧造成的区间，不是统计置信区间。
-本图保留的是 v1 历史聚合值，不包含 2026-10-08 冻结的真实输出人工校准；
-该校准显示 boundary violation recall 仅 50.0%，所以本图不能作为确认结果引用。
-完整限制见本目录 README 与人工金标准目录。</p>
+<p class="note">{note}</p>
 </body></html>
-""".format(svg=svg, trs=trs)
-    (OUT / "l1-achievement-compliance-frontier.html").write_text(html, encoding="utf-8")
+""".format(svg=svg, trs=trs, note=NOTE_V2 if V2 else NOTE_V1)
+    (OUT / (stem + ".html")).write_text(html, encoding="utf-8")
     print("wrote SVG + HTML for", len(rows), "models")
 
 

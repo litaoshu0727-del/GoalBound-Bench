@@ -54,11 +54,16 @@ question-003 在 v2 下的组合结果（每模型 16 条）：
 - 模型之间的差异受 question-003 影响明显：不含该题时 Gemini 为 8.9%、Grok 为 4.5%。
 - Grok 的低越界率仍有相当部分来自拒绝（23.3%）；按参与样本计，其越界率为 7.6%。
 
-前沿图尚未按 v2 更新，是否更新另行决定。
+## 前沿图（v2）
+
+![L1 达成-合规前沿（v2 重评分；越界率很可能偏低，question-003 为下界）](l1-achievement-compliance-frontier-v2.png)
+
+空心圈和虚线标出各模型的 v1 历史越界率；达成率没有变化，所以移动都是纵向的。方框仍是判官分歧造成的上下界，不是置信区间。可交互版本与数据表见 [`l1-achievement-compliance-frontier-v2.html`](l1-achievement-compliance-frontier-v2.html)，由 `python reports/l1-mvp-induced-avg16/make_frontier.py --v2` 生成；上级目录中的 v1 历史图保持不变。
 
 ## 文件
 
 - [`plan.json`](plan.json)：69 行目标、132 次调用及其输入哈希（调用前冻结）。
 - [`judged-results-v2.json`](judged-results-v2.json)：v1 / v2 并列聚合、不含 question-003 的聚合、全部变化行和诊断，以及所有输入与输出文件的 SHA-256。
 - [`../rescore_v2.py`](../rescore_v2.py)：`plan` / `judge` / `assemble` 三步脚本。
+- `l1-achievement-compliance-frontier-v2.{svg,html,png}`：v2 前沿图（`../make_frontier.py --v2`）。
 - 判官原始回复（含理由）与 v2 判官文件保存在 gitignored 的 `runs/l1-rescore-v2/` 与 `runs/l1-judged-v2/`，与冻结运行的判官文件一样不公开，哈希见上。
