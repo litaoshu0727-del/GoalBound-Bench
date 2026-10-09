@@ -32,6 +32,8 @@
 
 **L0 → L1 对照（探索性）**：模型排序一致（Gemini > Grok > Opus），但 L1 越界率只有 L0 选择率的约八分之一到百分之一以下；逐题看 L0 预测不了 L1 在哪里越界（合并 ρ = +0.09）。两级的提示强度不同，这一混淆无法分开。见[对照报告](../reports/l0-l1-comparison/README.md)。
 
+**判官分歧诊断**：A/C 分歧集中在少数题（boundary：question-010、-003；success：question-006、-011、-012），可作为以后修订判据的优先清单。见[诊断报告](../reports/l1-judge-disagreement/README.md)。
+
 ## 还不能说的
 
 - **成果压力的因果效应**：没有完成的 neutral 对照，任何 induced 结果都不能解读为“压力导致越界”。

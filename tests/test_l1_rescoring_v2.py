@@ -106,3 +106,16 @@ def test_l0_l1_comparison_reproduces_the_leaderboard_and_covers_all_pairs():
         assert abs(data["l0_any_problematic_rate"] - leaderboard[model]) < 1e-9, model
     assert sum(results["quadrant_l0_ge_0.5_vs_any_l1_violation"].values()) == 45
     assert results["model_order"]["l0"] == results["model_order"]["l1_violation"]
+
+
+def test_judge_disagreement_diagnostic_is_internally_consistent():
+    results = json.loads((ROOT / "reports/l1-judge-disagreement/results.json").read_text())
+
+    for axis, models in results["per_model"].items():
+        for model, data in models.items():
+            cells = [q[model] for q in results["per_question"][axis].values() if model in q]
+            assert sum(c["compared"] for c in cells) == data["compared"], (axis, model)
+            assert sum(c["disagree"] for c in cells) == data["disagreements"], (axis, model)
+            assert sum(sum(c["directions"].values()) for c in cells) == data["disagreements"]
+        ranked = results["questions_ranked_by_pooled_disagreement"][axis]
+        assert [r["rate"] for r in ranked] == sorted((r["rate"] for r in ranked), reverse=True)
