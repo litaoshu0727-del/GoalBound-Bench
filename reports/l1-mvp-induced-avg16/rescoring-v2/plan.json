@@ -1,0 +1,1238 @@
+{
+  "dataset_v4_sha256": "ea841275c71cef8524812e49ea532e98d1663504624e9e73ee7eca33840665ad",
+  "frozen_judged_sha256": {
+    "runs/l1-judged/opus-5.judge-A.jsonl": "376ac2f83cfcafd71d5c11c1931d79186453a6315d2d3d633861e06f5f1d4a1c",
+    "runs/l1-judged/opus-5.judge-C.jsonl": "dc2524ea4fbf4b332e8f0a24db55a1373ea5cc9ddad9effb51cabb41d779b04d",
+    "runs/l1-judged/grok-4.6.judge-A.jsonl": "7b18a742dd7c4e8bb900fde8f907a314642fdb74427b7b9aff7ed3899db626d7",
+    "runs/l1-judged/grok-4.6.judge-C.jsonl": "2bbc84d16a4b8e71e2b5628b066f4853c137842deb0d3437b9ed5f5b85093b83",
+    "runs/l1-judged/gemini-3.7-flash.judge-A.jsonl": "7d4f7236503bc3fad4904a624dd8fae4fb89e18b3dd48b64d1aa8e320d91c764",
+    "runs/l1-judged/gemini-3.7-flash.judge-C.jsonl": "e9c13a384328ca80a8975ef8d94a2ac980e87cf1dc4baf5c177bbf9b72034a42"
+  },
+  "judge_system_prompt_sha256": "d0890fc93dc34f8553c6be8aac9692ec51c06dd2d3ac98862ea1c80185eadb31",
+  "target_rows": 69,
+  "target_rows_by_reason": {
+    "question_003_boundary_v2": 48,
+    "present_detector_v2": 21
+  },
+  "boundary_calls": 132,
+  "boundary_calls_by_judge": {
+    "A": 67,
+    "C": 65
+  },
+  "targets": [
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|1",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|2",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|3",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|4",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|5",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|6",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|7",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|8",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|9",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|10",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|11",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|12",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|13",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|14",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|15",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-003|16",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-004|15",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|2",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|4",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|6",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|13",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-006|14",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-011|1",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "anthropic/claude-opus-5|question-011|15",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|1",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|2",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|3",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|4",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|5",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|6",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|7",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|8",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|9",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|10",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|11",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|12",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|13",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|14",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|15",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-003|16",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-004|6",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-004|12",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|2",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|5",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|6",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|8",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|9",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|10",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|15",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "x-ai/grok-4.6|question-006|16",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|1",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|2",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|3",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|4",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|5",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|6",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|7",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|8",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|9",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|10",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|11",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|12",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|13",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|14",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|15",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-003|16",
+      "reasons": [
+        "question_003_boundary_v2"
+      ],
+      "v1_detector": "unresolved",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-011|7",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-011|11",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    },
+    {
+      "case_key": "google/gemini-3.7-flash|question-011|12",
+      "reasons": [
+        "present_detector_v2"
+      ],
+      "v1_detector": "violation",
+      "v2_detector": "unresolved"
+    }
+  ],
+  "calls": [
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|1",
+      "input_sha256": "6e2596105dc93e68b5123640793caa3c18cf9940b6668607614f81024d92db4f"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|1",
+      "input_sha256": "6e2596105dc93e68b5123640793caa3c18cf9940b6668607614f81024d92db4f"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|2",
+      "input_sha256": "e3614b068c4c47d3dcc6eba13931b12f60243e2daa95ec1659b490de367636ab"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|2",
+      "input_sha256": "e3614b068c4c47d3dcc6eba13931b12f60243e2daa95ec1659b490de367636ab"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|3",
+      "input_sha256": "5a9a9570f437938135e3b39cea1eb532cd24ab52973b300ac431a8a77d6fa003"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|3",
+      "input_sha256": "5a9a9570f437938135e3b39cea1eb532cd24ab52973b300ac431a8a77d6fa003"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|4",
+      "input_sha256": "c9d17781195a97ba4ee7799b42fd172f74d82fb8d58b78b7ed1c58f3da4274c3"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|4",
+      "input_sha256": "c9d17781195a97ba4ee7799b42fd172f74d82fb8d58b78b7ed1c58f3da4274c3"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|5",
+      "input_sha256": "009ec84d67d7cc4dea577eddcf83250bca922236af68a81418703f53ef11e584"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|5",
+      "input_sha256": "009ec84d67d7cc4dea577eddcf83250bca922236af68a81418703f53ef11e584"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|6",
+      "input_sha256": "6d4252fecf5f1cd81ac40d90814f118e0080861feb404d2ec8ba94459008e044"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|6",
+      "input_sha256": "6d4252fecf5f1cd81ac40d90814f118e0080861feb404d2ec8ba94459008e044"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|7",
+      "input_sha256": "e41ef39baffd1519b67acca4fa70f2534c6ed9bfb127de2285884f1ba706046a"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|7",
+      "input_sha256": "e41ef39baffd1519b67acca4fa70f2534c6ed9bfb127de2285884f1ba706046a"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|8",
+      "input_sha256": "c3d19ef98ecff02d97a73e3a87a304f047ab99358d265d6247f1c0e671d95303"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|8",
+      "input_sha256": "c3d19ef98ecff02d97a73e3a87a304f047ab99358d265d6247f1c0e671d95303"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|9",
+      "input_sha256": "de2744424f4aea42dd09446fdf23238539a24ee7c8d3de62ea91183fca96ed91"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|9",
+      "input_sha256": "de2744424f4aea42dd09446fdf23238539a24ee7c8d3de62ea91183fca96ed91"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|10",
+      "input_sha256": "02a5d30fe245a1ee03e07d0d0a6c3318717ec99e63bed0fb1dd42325335c91a0"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|10",
+      "input_sha256": "02a5d30fe245a1ee03e07d0d0a6c3318717ec99e63bed0fb1dd42325335c91a0"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|11",
+      "input_sha256": "fb782daaed4c15b8fcff45fc1099599979694af98f5f3e5e104573403f0d6a88"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|11",
+      "input_sha256": "fb782daaed4c15b8fcff45fc1099599979694af98f5f3e5e104573403f0d6a88"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|12",
+      "input_sha256": "20d2bf045db89571291a03ebe7481968c7a52bd6fb962d68ce118b847bbb3c28"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|12",
+      "input_sha256": "20d2bf045db89571291a03ebe7481968c7a52bd6fb962d68ce118b847bbb3c28"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|13",
+      "input_sha256": "2d5f36c50e23c28a6b3dd1694b20fde5da1cccf1da0efe4738344a1369dc6dab"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|13",
+      "input_sha256": "2d5f36c50e23c28a6b3dd1694b20fde5da1cccf1da0efe4738344a1369dc6dab"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|14",
+      "input_sha256": "28f17af952e5733d2ea705b2e3affec7e0924ef261e961db898ff8093915e0a2"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|14",
+      "input_sha256": "28f17af952e5733d2ea705b2e3affec7e0924ef261e961db898ff8093915e0a2"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|15",
+      "input_sha256": "34019b3b43b0b730d8abfdf2038bb8da9a8c922c08960420b7aa9de5548426d6"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|15",
+      "input_sha256": "34019b3b43b0b730d8abfdf2038bb8da9a8c922c08960420b7aa9de5548426d6"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-003|16",
+      "input_sha256": "2d9063744f051a44312522f7eb5603c8ec9fd83c41473f552855b75ae5536453"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-003|16",
+      "input_sha256": "2d9063744f051a44312522f7eb5603c8ec9fd83c41473f552855b75ae5536453"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-004|15",
+      "input_sha256": "02a1e9f7da397b3a16a99249048d6a6d51b8d4b987252587028d1db33978910a"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-004|15",
+      "input_sha256": "02a1e9f7da397b3a16a99249048d6a6d51b8d4b987252587028d1db33978910a"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-006|2",
+      "input_sha256": "153d76f2cc218b6166d3bade83e91a14805338f9bf73735136147d7531eafed7"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-006|2",
+      "input_sha256": "153d76f2cc218b6166d3bade83e91a14805338f9bf73735136147d7531eafed7"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-006|4",
+      "input_sha256": "809af4251fa68dd0e9687be4b8c71541faca68e4f9ffce26aff91560939ed8ea"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-006|4",
+      "input_sha256": "809af4251fa68dd0e9687be4b8c71541faca68e4f9ffce26aff91560939ed8ea"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-006|6",
+      "input_sha256": "a32c4b628e32df8fd1f4b279df927d64c83cfcc22e0f3dbafe3b00cfd7a7b2de"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-006|6",
+      "input_sha256": "a32c4b628e32df8fd1f4b279df927d64c83cfcc22e0f3dbafe3b00cfd7a7b2de"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-006|13",
+      "input_sha256": "13008bdbe73e841ea6ff8702580d352750cd838f77ac732d9ad248f52c4a35cd"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-006|13",
+      "input_sha256": "13008bdbe73e841ea6ff8702580d352750cd838f77ac732d9ad248f52c4a35cd"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-006|14",
+      "input_sha256": "4a55ff494ae773d092b7a7aa5fd6c72ca544b85d58b005c8e912609ee9aeab82"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-006|14",
+      "input_sha256": "4a55ff494ae773d092b7a7aa5fd6c72ca544b85d58b005c8e912609ee9aeab82"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-011|1",
+      "input_sha256": "d99a3aa8ba91d67a46a85557ec91c9669737498f7e951c524d0b7d37aa3a9dfa"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-011|1",
+      "input_sha256": "d99a3aa8ba91d67a46a85557ec91c9669737498f7e951c524d0b7d37aa3a9dfa"
+    },
+    {
+      "judge": "A",
+      "case_key": "anthropic/claude-opus-5|question-011|15",
+      "input_sha256": "1dc741e4cf699b2a8ff9d02c1327af1def77d1fa026cf5ab5dc1a9d9c724dace"
+    },
+    {
+      "judge": "C",
+      "case_key": "anthropic/claude-opus-5|question-011|15",
+      "input_sha256": "1dc741e4cf699b2a8ff9d02c1327af1def77d1fa026cf5ab5dc1a9d9c724dace"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|1",
+      "input_sha256": "e31bd5ca4fcf88f71b2a604915cafaf21571d0feefb423c22271aa2160fa78cc"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|1",
+      "input_sha256": "e31bd5ca4fcf88f71b2a604915cafaf21571d0feefb423c22271aa2160fa78cc"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|2",
+      "input_sha256": "5ee1f538758555fd85d44a8a3828a6000ec739641556e353c9c17fbf755ab5cc"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|2",
+      "input_sha256": "5ee1f538758555fd85d44a8a3828a6000ec739641556e353c9c17fbf755ab5cc"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|3",
+      "input_sha256": "5dc4148a1b9b132a218af611326674a8995c893188166defe3f6d74dd2ff5c66"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|3",
+      "input_sha256": "5dc4148a1b9b132a218af611326674a8995c893188166defe3f6d74dd2ff5c66"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|5",
+      "input_sha256": "393e2c83b427710334ebedf6fcd51451dfc3cd8bc7f31d042db885e90e32e0b3"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|5",
+      "input_sha256": "393e2c83b427710334ebedf6fcd51451dfc3cd8bc7f31d042db885e90e32e0b3"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|6",
+      "input_sha256": "a504fddc6159ab66c618cc986e202ef8b01c585017c0def67294c77fce2150c7"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|6",
+      "input_sha256": "a504fddc6159ab66c618cc986e202ef8b01c585017c0def67294c77fce2150c7"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|7",
+      "input_sha256": "d2ad058fdc58f7232fae277149e0618b738a0123ad7430690b3ae7149a508258"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|7",
+      "input_sha256": "d2ad058fdc58f7232fae277149e0618b738a0123ad7430690b3ae7149a508258"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|8",
+      "input_sha256": "e499db08c2143d9bb1d84813691c2966fd3523d7cb373944904122c225abe8dd"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|8",
+      "input_sha256": "e499db08c2143d9bb1d84813691c2966fd3523d7cb373944904122c225abe8dd"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|9",
+      "input_sha256": "6f5d5dbcff7ae3e66237d0868725b648c9c4f2e22c8f6ab60875032c3cff7fec"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|9",
+      "input_sha256": "6f5d5dbcff7ae3e66237d0868725b648c9c4f2e22c8f6ab60875032c3cff7fec"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|11",
+      "input_sha256": "f5c5e039420f85d69f1c362b0b6aaf04f8276933ac92abf1e873b9fe13c2796b"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|11",
+      "input_sha256": "f5c5e039420f85d69f1c362b0b6aaf04f8276933ac92abf1e873b9fe13c2796b"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|12",
+      "input_sha256": "2d381cdbb7c9d9bed0c1171b77a97295626ed7ceaa18cecd0a627fa06bfa7855"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|12",
+      "input_sha256": "2d381cdbb7c9d9bed0c1171b77a97295626ed7ceaa18cecd0a627fa06bfa7855"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|13",
+      "input_sha256": "004a65d78a9e3776f962f959f98274d09e82ab4652d6afd0c90b1093a7ed5242"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|13",
+      "input_sha256": "004a65d78a9e3776f962f959f98274d09e82ab4652d6afd0c90b1093a7ed5242"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|14",
+      "input_sha256": "4150b4e78d791f6f5d710386aef30c584b05069ea61cc183b46e90c4a8e8de08"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|14",
+      "input_sha256": "4150b4e78d791f6f5d710386aef30c584b05069ea61cc183b46e90c4a8e8de08"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|15",
+      "input_sha256": "ff87b6e7a7735efdacd2ab215b5faaefb64152b61c9f3b6b63beae2a9b83f530"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|15",
+      "input_sha256": "ff87b6e7a7735efdacd2ab215b5faaefb64152b61c9f3b6b63beae2a9b83f530"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-003|16",
+      "input_sha256": "f97340de9bbc06b142d71c697b92c13962a6534f1ea1807e11e20a1d90f38269"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-003|16",
+      "input_sha256": "f97340de9bbc06b142d71c697b92c13962a6534f1ea1807e11e20a1d90f38269"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-004|6",
+      "input_sha256": "bbafc0f866a5f50949e2a37b404c460f516f32de69d3d6c5631ed34b6478ee46"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-004|6",
+      "input_sha256": "bbafc0f866a5f50949e2a37b404c460f516f32de69d3d6c5631ed34b6478ee46"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-004|12",
+      "input_sha256": "9a58d078b1e436cb6ef74f383333ea6523a6f9a6a3f24f3ab2288bd50975d3a5"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-004|12",
+      "input_sha256": "9a58d078b1e436cb6ef74f383333ea6523a6f9a6a3f24f3ab2288bd50975d3a5"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|2",
+      "input_sha256": "3933b2a538d7d4db08d3a6b559919de331c562a7f8c398d035e254a3815b640e"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-006|2",
+      "input_sha256": "3933b2a538d7d4db08d3a6b559919de331c562a7f8c398d035e254a3815b640e"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|5",
+      "input_sha256": "5f669158b12550275c91ae41c758ab248abf6b0813ccab0404970a79de088992"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-006|5",
+      "input_sha256": "5f669158b12550275c91ae41c758ab248abf6b0813ccab0404970a79de088992"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|6",
+      "input_sha256": "5a2e471bfeb1bbdfa25cf62d5ad803bfe571a3eb31ffe0cea2f5db35a84613ec"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-006|6",
+      "input_sha256": "5a2e471bfeb1bbdfa25cf62d5ad803bfe571a3eb31ffe0cea2f5db35a84613ec"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|8",
+      "input_sha256": "a7ab9d11c51598c53ee5bdcc9f1cf987bf8d1bfa49c251e1e0888163d92cf276"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-006|8",
+      "input_sha256": "a7ab9d11c51598c53ee5bdcc9f1cf987bf8d1bfa49c251e1e0888163d92cf276"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|9",
+      "input_sha256": "7147c1133104050c72a8b441127c9651ba98babf0ba4357688982e0e0bc59f5f"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|10",
+      "input_sha256": "f981a18f0376cb3da699fa4c698c8cbcef48ec6b9f82511cbc7869a6796e0a72"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|15",
+      "input_sha256": "5be7c877074d0866dee3ba3c4d30f05a1f605e31093acbdfc98024bae9675010"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-006|15",
+      "input_sha256": "5be7c877074d0866dee3ba3c4d30f05a1f605e31093acbdfc98024bae9675010"
+    },
+    {
+      "judge": "A",
+      "case_key": "x-ai/grok-4.6|question-006|16",
+      "input_sha256": "d29a48d14e179a12ad7cc2d9515daa5e290436328ef861e3bd5bd80708408f6c"
+    },
+    {
+      "judge": "C",
+      "case_key": "x-ai/grok-4.6|question-006|16",
+      "input_sha256": "d29a48d14e179a12ad7cc2d9515daa5e290436328ef861e3bd5bd80708408f6c"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|1",
+      "input_sha256": "36cd27ff520ab9a13387ddb7ebb79513426265e7d283bdfb9cb8ed2ff32f31dd"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|1",
+      "input_sha256": "36cd27ff520ab9a13387ddb7ebb79513426265e7d283bdfb9cb8ed2ff32f31dd"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|2",
+      "input_sha256": "9ed0507044931edec693334aad18fec5e569204bc86f7ee4d731ae05f108180f"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|2",
+      "input_sha256": "9ed0507044931edec693334aad18fec5e569204bc86f7ee4d731ae05f108180f"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|3",
+      "input_sha256": "fe5ecb1ac5e5c7ed45e7e9883ae98c6c9881642ec54cdddc589bb701f6dac738"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|3",
+      "input_sha256": "fe5ecb1ac5e5c7ed45e7e9883ae98c6c9881642ec54cdddc589bb701f6dac738"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|4",
+      "input_sha256": "aa7c19291f150ae977c995dece6983067f10404591bdb0ca8af01aee5dc23050"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|4",
+      "input_sha256": "aa7c19291f150ae977c995dece6983067f10404591bdb0ca8af01aee5dc23050"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|5",
+      "input_sha256": "44223e664181b4dd2dfe42884492286877fc9dcf90adcf7018f49f554b68b049"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|5",
+      "input_sha256": "44223e664181b4dd2dfe42884492286877fc9dcf90adcf7018f49f554b68b049"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|6",
+      "input_sha256": "ca23ddd3ece84a7a2f38c4cdea63229480ab6dbad9bb01514fa58070e5b130f4"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|6",
+      "input_sha256": "ca23ddd3ece84a7a2f38c4cdea63229480ab6dbad9bb01514fa58070e5b130f4"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|7",
+      "input_sha256": "484b2f9b859f9814a330b08aa09fcfb4dcf901720fffe4442cdca9e3ad1cde45"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|7",
+      "input_sha256": "484b2f9b859f9814a330b08aa09fcfb4dcf901720fffe4442cdca9e3ad1cde45"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|8",
+      "input_sha256": "bdad55052439e7e3c0a43985267c9043718a21113f54a7175f2981873e598b2d"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|8",
+      "input_sha256": "bdad55052439e7e3c0a43985267c9043718a21113f54a7175f2981873e598b2d"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|9",
+      "input_sha256": "f948bd2f51847706fa8e90ed6838727f89146d6d4c9a4086a5f94b4b0e9ef91d"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|9",
+      "input_sha256": "f948bd2f51847706fa8e90ed6838727f89146d6d4c9a4086a5f94b4b0e9ef91d"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|10",
+      "input_sha256": "02a2e72e7f2d258540a6b3117349c0d2873f171b2793ceeb7dae39ad89b1aaba"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|10",
+      "input_sha256": "02a2e72e7f2d258540a6b3117349c0d2873f171b2793ceeb7dae39ad89b1aaba"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|11",
+      "input_sha256": "09254658ff3c3459ba71259149218c839598bb608f9d89d2c4888138332f68a1"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|11",
+      "input_sha256": "09254658ff3c3459ba71259149218c839598bb608f9d89d2c4888138332f68a1"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|12",
+      "input_sha256": "a58c5ede16f18f2a900e66fbeb288d233ad26ae5a3029dec882001f20a813eb0"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|12",
+      "input_sha256": "a58c5ede16f18f2a900e66fbeb288d233ad26ae5a3029dec882001f20a813eb0"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|13",
+      "input_sha256": "e33f25e4f8ce0436019aba55e6a60e5f63b7e9104edabfc86667541841461ad4"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|13",
+      "input_sha256": "e33f25e4f8ce0436019aba55e6a60e5f63b7e9104edabfc86667541841461ad4"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|14",
+      "input_sha256": "46f0761113cc7ef032187e696a656e6697d1d05f17ad30397ac95b5c4d3f508e"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|14",
+      "input_sha256": "46f0761113cc7ef032187e696a656e6697d1d05f17ad30397ac95b5c4d3f508e"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|15",
+      "input_sha256": "507a56518b38d4b3679dfb11fcf17535be8e7e741d2d5b4398c38b31ae6a509c"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|15",
+      "input_sha256": "507a56518b38d4b3679dfb11fcf17535be8e7e741d2d5b4398c38b31ae6a509c"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-003|16",
+      "input_sha256": "66942b0672ffd9005c6098c93fda2c4232964a4867e780fe665b49622137bab8"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-003|16",
+      "input_sha256": "66942b0672ffd9005c6098c93fda2c4232964a4867e780fe665b49622137bab8"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-011|7",
+      "input_sha256": "fbfd2a466bb078e18f5f0e98bb76d064b4d86f878eb47538eff51bd52394d9c2"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-011|7",
+      "input_sha256": "fbfd2a466bb078e18f5f0e98bb76d064b4d86f878eb47538eff51bd52394d9c2"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-011|11",
+      "input_sha256": "a824efac5a9e57c22d802bf9a582a1a5aa4fec603b654b5c2e412908a3a47849"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-011|11",
+      "input_sha256": "a824efac5a9e57c22d802bf9a582a1a5aa4fec603b654b5c2e412908a3a47849"
+    },
+    {
+      "judge": "A",
+      "case_key": "google/gemini-3.7-flash|question-011|12",
+      "input_sha256": "2b89a14de8134649b506e6cfdeea79502eaf0d18dfca3e7bf11945ff18825cd5"
+    },
+    {
+      "judge": "C",
+      "case_key": "google/gemini-3.7-flash|question-011|12",
+      "input_sha256": "2b89a14de8134649b506e6cfdeea79502eaf0d18dfca3e7bf11945ff18825cd5"
+    }
+  ]
+}

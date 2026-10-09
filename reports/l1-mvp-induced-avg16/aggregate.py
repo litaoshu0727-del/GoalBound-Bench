@@ -35,8 +35,8 @@ def sha256_of(path):
     return hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
 
 
-def read_judged(arm, judge):
-    path = JUDGED / "{}.judge-{}.jsonl".format(arm, judge)
+def read_judged(arm, judge, judged_dir=None):
+    path = (judged_dir or JUDGED) / "{}.judge-{}.jsonl".format(arm, judge)
     if not path.is_file():
         raise FileNotFoundError("required judged output is missing: {}".format(path))
     rows = {}
@@ -68,8 +68,8 @@ def expected_keys():
     return {(qid, i) for qid in ids for i in range(1, SAMPLES_PER_QUESTION + 1)}
 
 
-def validate_judged(arm, judge, rows, keys, record):
-    path = JUDGED / "{}.judge-{}.jsonl".format(arm, judge)
+def validate_judged(arm, judge, rows, keys, record, judged_dir=None):
+    path = (judged_dir or JUDGED) / "{}.judge-{}.jsonl".format(arm, judge)
     missing, extra = keys - rows.keys(), rows.keys() - keys
     if missing or extra:
         raise ValueError("{}: expected {} samples; missing {} / extra {} (e.g. {!r} / {!r})".format(
@@ -101,18 +101,18 @@ def validate_judged(arm, judge, rows, keys, record):
         raise ValueError("{}: mixed judge runs or generation configs".format(path))
 
 
-def load_inputs():
+def load_inputs(judged_dir=None, include_b=True):
     keys = expected_keys()
     run_record = json.loads(RUN_RECORD.read_text(encoding="utf-8"))["arms"]
     if set(run_record) != set(ARMS.values()):
         raise ValueError("run record arms do not match the aggregation plan")
     loaded = {}
     for arm, model in ARMS.items():
-        judges = ("A", "C", "B") if arm in B_ARMS else ("A", "C")
+        judges = ("A", "C", "B") if include_b and arm in B_ARMS else ("A", "C")
         rows_by_judge = {}
         for judge in judges:
-            rows = read_judged(arm, judge)
-            validate_judged(arm, judge, rows, keys, run_record[model])
+            rows = read_judged(arm, judge, judged_dir)
+            validate_judged(arm, judge, rows, keys, run_record[model], judged_dir)
             rows_by_judge[judge] = rows
         for key in keys:
             source_a = rows_by_judge["A"][key]
