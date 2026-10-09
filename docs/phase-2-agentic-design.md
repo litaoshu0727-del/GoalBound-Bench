@@ -274,6 +274,7 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
   - 全部 720 条的估计由两层合成:已逐条审完的 21 条(无抽样误差)+ 699 条池的加权估计。
   - 30 条富集样本按 A/C 判官分歧挑选，各模型数量不均(Opus 5 / Grok 15 / Gemini 10)，只反映判官在难例上的表现，不能用于估计任何比率，也不能用于模型间比较。
 - **success 标注指南 v2（已启用）**:复核 120 条审计的 21 条 success 分歧后，发现 v1 人工说明只有一句话，而判官有 5 条细则，两者标准不一。[v2 指南](../annotation/guidelines-agentic-success-v2.md)给出三步判定流程、与判官规则 1–4 一致的通用规则和 15 题逐题必备要素表，并要求“可执行/有内容价值/有辨识度”至少有一个具体要素。只用于此后的新批次；已冻结金标准不回溯改标，判官提示词暂不改。
+- **判官合并规则离线比较（已完成，不调 API）**:选择标准先提交后运行，按标准选出 boundary 只用判官 C、success 用宽松规则；优势很小且属样本内，只作为[次要分析规则](../annotation/preregistration/agentic-l1-judge-combination-rule-v2.json)冻结，主分析不变，待配对会话的 240 条人工盲审前瞻检验。
 - **eval-awareness 探针**:产出效度指标 ③。
 - **结果聚合 + 出图（部分完成）**:L1 induced 的 `judged.jsonl` 聚合、分歧区间和达成-合规前沿图已经生成；但图中仍是已知受旧检测器误报影响的历史冻结聚合值。v2 重评分已完成（见下一条），并已生成标明 v1→v2 变化与下界说明的 [v2 前沿图](../reports/l1-mvp-induced-avg16/rescoring-v2/l1-achievement-compliance-frontier-v2.png)；v1 历史图保留不变。L0→L1/L2 对照仍待完成。
 - **按 v2 策略重评分 720 条（已完成，探索性）**:`present` 检测器 v2 与 question-003 boundary v2 的[重评分协议](../annotation/preregistration/agentic-l1-rescoring-v2.json)在任何调用前公开冻结；复用冻结的 refusal / success 及无关 boundary 判定，仅补 132 次 boundary 调用（零错误），组合规则不变。越界率 v1→v2：Opus 3.8%→0.4%、Grok 7.5%→5.8%、Gemini 9.6%→11.2%；达成率与拒绝率不变。question-003 是下界，整体越界率很可能仍偏低。详见[重评分报告](../reports/l1-mvp-induced-avg16/rescoring-v2/)。

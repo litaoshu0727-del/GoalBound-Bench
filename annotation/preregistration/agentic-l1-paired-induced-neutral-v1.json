@@ -119,6 +119,16 @@
       "what": "While judging is paused, a separately preregistered human-label substudy (annotation/preregistration/l1-paired-human-240-v1.json) labels 240 of the Grok and Gemini generations, four per model x question x condition.",
       "scope_of_the_no_analysis_rule": "The rule that nothing may be analysed before judging resumes still applies to every judge-based analysis. It is narrowed only to allow that substudy's own preregistered human-label analysis.",
       "unchanged": "This protocol's judge-based analysis plan, code and pinned files are unchanged and may not be adjusted in response to the substudy's results."
+    },
+    {
+      "id": "secondary-combination-rule-v2",
+      "recorded_at": "2026-10-09",
+      "added_before_judging": "No judge call has been made in this session.",
+      "what": "Adds two secondary analyses using annotation/preregistration/agentic-l1-judge-combination-rule-v2.json, selected in-sample on the 2026-09-12 induced run. The primary analysis and its v1 rule are unchanged.",
+      "secondary_analyses": [
+        "Recompute every induced-minus-neutral contrast with the v2 rule (rule logic: combination_rules.predict), reported next to the v1 results and never in place of them.",
+        "On the 240 human-labelled outputs of l1-paired-human-240-v1, score both rules (boundary recall, precision, coverage; success accuracy with unresolved counted as wrong), overall and by condition, and apply that file's promotion_rule."
+      ]
     }
   ],
   "run_record_sha256_at_pause": "1f92fbb6a6d0eeec9456d4615f5233d2dc731a6150ac42885819c0ecbf103aef"

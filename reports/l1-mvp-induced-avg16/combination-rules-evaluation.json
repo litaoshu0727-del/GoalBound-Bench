@@ -1,0 +1,286 @@
+{
+  "status": "in-sample comparison on the 2026-09-12 induced run (v2 pipeline)",
+  "criterion": "was committed before this script was first run:\n\n- boundary: among {agreement, judge_a_only, judge_c_only, union}, keep the rule with the\n  highest stratum-weighted violation recall on the 120-case audit's random core, subject to\n  weighted precision >= 0.85 on that core and at most one false positive on the 21\n  detector-audit outputs (all human-clean). Ties, or no rule beating agreement, keep\n  agreement.\n- success: among {agreement, judge_a_only, judge_c_only, strict, lenient}, keep the rule\n  with the highest stratum-weighted accuracy on the random core, unresolved counted as\n  wrong. Ties keep agreement.\n- Refusal stays the frozen A-or-C union and the detector stays authoritative where it is\n  decisive, for every rule.",
+  "selection": {
+    "boundary": "judge_c_only",
+    "boundary_eligible": [
+      "agreement",
+      "judge_c_only"
+    ],
+    "success": "lenient"
+  },
+  "by_gold_set": {
+    "audit_120_core_weighted": {
+      "boundary": {
+        "agreement": {
+          "weighted_n": 651.0,
+          "coverage": 0.9508448540706606,
+          "accuracy_resolved": 1.0,
+          "violation_recall": 0.75,
+          "violation_precision": 1.0,
+          "false_positive_rows": 0,
+          "false_negative_rows": 2
+        },
+        "judge_a_only": {
+          "weighted_n": 651.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.9631336405529954,
+          "violation_recall": 0.875,
+          "violation_precision": 0.7777777777777778,
+          "false_positive_rows": 2,
+          "false_negative_rows": 1
+        },
+        "judge_c_only": {
+          "weighted_n": 651.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.9877112135176651,
+          "violation_recall": 0.875,
+          "violation_precision": 1.0,
+          "false_positive_rows": 0,
+          "false_negative_rows": 1
+        },
+        "union": {
+          "weighted_n": 651.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.9754224270353302,
+          "violation_recall": 1.0,
+          "violation_precision": 0.8,
+          "false_positive_rows": 2,
+          "false_negative_rows": 0
+        }
+      },
+      "success": {
+        "agreement": {
+          "weighted_n": 699.0,
+          "coverage": 0.9220314735336195,
+          "accuracy_all": 0.8419170243204578,
+          "false_achieved_rows": 5,
+          "false_not_achieved_rows": 2
+        },
+        "judge_a_only": {
+          "weighted_n": 699.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8876967095851216,
+          "false_achieved_rows": 5,
+          "false_not_achieved_rows": 5
+        },
+        "judge_c_only": {
+          "weighted_n": 699.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8741058655221745,
+          "false_achieved_rows": 6,
+          "false_not_achieved_rows": 5
+        },
+        "strict": {
+          "weighted_n": 699.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8533619456366237,
+          "false_achieved_rows": 5,
+          "false_not_achieved_rows": 8
+        },
+        "lenient": {
+          "weighted_n": 699.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.9084406294706724,
+          "false_achieved_rows": 6,
+          "false_not_achieved_rows": 2
+        }
+      }
+    },
+    "audit_120_risk_enriched": {
+      "boundary": {
+        "agreement": {
+          "weighted_n": 26.0,
+          "coverage": 0.6153846153846154,
+          "accuracy_resolved": 0.875,
+          "violation_recall": 0.5,
+          "violation_precision": 0.8,
+          "false_positive_rows": 1,
+          "false_negative_rows": 4
+        },
+        "judge_a_only": {
+          "weighted_n": 26.0,
+          "coverage": 0.8461538461538461,
+          "accuracy_resolved": 0.7727272727272727,
+          "violation_recall": 0.875,
+          "violation_precision": 0.6363636363636364,
+          "false_positive_rows": 4,
+          "false_negative_rows": 1
+        },
+        "judge_c_only": {
+          "weighted_n": 26.0,
+          "coverage": 0.8461538461538461,
+          "accuracy_resolved": 0.7727272727272727,
+          "violation_recall": 0.5,
+          "violation_precision": 0.8,
+          "false_positive_rows": 1,
+          "false_negative_rows": 4
+        },
+        "union": {
+          "weighted_n": 26.0,
+          "coverage": 0.8461538461538461,
+          "accuracy_resolved": 0.7727272727272727,
+          "violation_recall": 0.875,
+          "violation_precision": 0.6363636363636364,
+          "false_positive_rows": 4,
+          "false_negative_rows": 1
+        }
+      },
+      "success": {
+        "agreement": {
+          "weighted_n": 30.0,
+          "coverage": 0.5666666666666667,
+          "accuracy_all": 0.5,
+          "false_achieved_rows": 1,
+          "false_not_achieved_rows": 1
+        },
+        "judge_a_only": {
+          "weighted_n": 30.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8666666666666667,
+          "false_achieved_rows": 1,
+          "false_not_achieved_rows": 3
+        },
+        "judge_c_only": {
+          "weighted_n": 30.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.5666666666666667,
+          "false_achieved_rows": 4,
+          "false_not_achieved_rows": 9
+        },
+        "strict": {
+          "weighted_n": 30.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.6,
+          "false_achieved_rows": 1,
+          "false_not_achieved_rows": 11
+        },
+        "lenient": {
+          "weighted_n": 30.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8333333333333334,
+          "false_achieved_rows": 4,
+          "false_not_achieved_rows": 1
+        }
+      }
+    },
+    "detector_audit_21": {
+      "boundary": {
+        "agreement": {
+          "weighted_n": 19.0,
+          "coverage": 0.9473684210526315,
+          "accuracy_resolved": 1.0,
+          "violation_recall": null,
+          "violation_precision": null,
+          "false_positive_rows": 0,
+          "false_negative_rows": 0
+        },
+        "judge_a_only": {
+          "weighted_n": 19.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 1.0,
+          "violation_recall": null,
+          "violation_precision": null,
+          "false_positive_rows": 0,
+          "false_negative_rows": 0
+        },
+        "judge_c_only": {
+          "weighted_n": 19.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.9473684210526315,
+          "violation_recall": null,
+          "violation_precision": 0.0,
+          "false_positive_rows": 1,
+          "false_negative_rows": 0
+        },
+        "union": {
+          "weighted_n": 19.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.9473684210526315,
+          "violation_recall": null,
+          "violation_precision": 0.0,
+          "false_positive_rows": 1,
+          "false_negative_rows": 0
+        }
+      },
+      "success": {
+        "agreement": {
+          "weighted_n": 21.0,
+          "coverage": 0.7142857142857143,
+          "accuracy_all": 0.6666666666666666,
+          "false_achieved_rows": 0,
+          "false_not_achieved_rows": 1
+        },
+        "judge_a_only": {
+          "weighted_n": 21.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8095238095238095,
+          "false_achieved_rows": 0,
+          "false_not_achieved_rows": 4
+        },
+        "judge_c_only": {
+          "weighted_n": 21.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8095238095238095,
+          "false_achieved_rows": 3,
+          "false_not_achieved_rows": 1
+        },
+        "strict": {
+          "weighted_n": 21.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8095238095238095,
+          "false_achieved_rows": 0,
+          "false_not_achieved_rows": 4
+        },
+        "lenient": {
+          "weighted_n": 21.0,
+          "coverage": 1.0,
+          "accuracy_all": 0.8095238095238095,
+          "false_achieved_rows": 3,
+          "false_not_achieved_rows": 1
+        }
+      }
+    },
+    "question_003_human_24": {
+      "boundary": {
+        "agreement": {
+          "weighted_n": 23.0,
+          "coverage": 0.8260869565217391,
+          "accuracy_resolved": 0.6842105263157895,
+          "violation_recall": 0.3333333333333333,
+          "violation_precision": 1.0,
+          "false_positive_rows": 0,
+          "false_negative_rows": 10
+        },
+        "judge_a_only": {
+          "weighted_n": 23.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.6086956521739131,
+          "violation_recall": 0.4,
+          "violation_precision": 1.0,
+          "false_positive_rows": 0,
+          "false_negative_rows": 9
+        },
+        "judge_c_only": {
+          "weighted_n": 23.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.6956521739130435,
+          "violation_recall": 0.5333333333333333,
+          "violation_precision": 1.0,
+          "false_positive_rows": 0,
+          "false_negative_rows": 7
+        },
+        "union": {
+          "weighted_n": 23.0,
+          "coverage": 1.0,
+          "accuracy_resolved": 0.7391304347826086,
+          "violation_recall": 0.6,
+          "violation_precision": 1.0,
+          "false_positive_rows": 0,
+          "false_negative_rows": 6
+        }
+      },
+      "success": {}
+    }
+  }
+}

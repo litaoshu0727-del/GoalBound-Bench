@@ -78,3 +78,19 @@ def test_resolve_mirrors_the_production_judge_rule():
         "unresolved", "achieved", False)
     assert rescore.resolve("clean", "unresolved", error, None, None) == (
         "unresolved", "unresolved", False)
+
+
+def test_combination_rule_v2_is_secondary_and_matches_its_evaluation():
+    rule = json.loads(
+        (ROOT / "annotation/preregistration/agentic-l1-judge-combination-rule-v2.json").read_text())
+    evaluation = json.loads((REPORT_DIR / "combination-rules-evaluation.json").read_text())
+
+    assert rule["status"] == "selected_in_sample_frozen_as_secondary"
+    assert evaluation["selection"]["boundary"] == "judge_c_only"
+    assert evaluation["selection"]["success"] == "lenient"
+    assert "judge C" in rule["rule"]["boundary"] and "lenient" in rule["rule"]["success"]
+    for path, digest in rule["frozen_files_sha256"].items():
+        assert _sha256(ROOT / path) == digest, path
+    paired = json.loads(
+        (ROOT / "annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json").read_text())
+    assert "secondary-combination-rule-v2" in {d["id"] for d in paired["deviations"]}
