@@ -1,6 +1,7 @@
 """Synthetic-data checks for the paired induced/neutral analysis, written before any data."""
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -87,3 +88,23 @@ def test_every_arm_config_exists_and_paths_are_fresh():
         for condition in pipeline.CONDITIONS:
             assert (ROOT / pipeline.config_path(arm, condition)).exists()
         assert pipeline.run_dir(arm, "induced").name.endswith("-induced-r2")
+
+
+def test_run_record_pairing_checks_pass_and_completed_arms_are_clean():
+    record = json.loads((ROOT / pipeline.RUN_RECORD).read_text())
+    for model, arms in record["arms"].items():
+        assert all(arms["pairing_checks"].values()), model
+    for model in ("x-ai/grok-4.6", "google/gemini-3.7-flash"):
+        for condition in pipeline.CONDITIONS:
+            arm = record["arms"][model][condition]
+            assert (arm["unique_keys"], arm["errors"], arm["at_cap"]) == (240, 0, 0), model
+            assert len(arm["run_ids"]) == 1, model
+
+
+def test_no_analysis_output_while_the_session_is_paused():
+    """The protocol forbids analysing these generations before judging resumes."""
+    protocol = json.loads((ROOT / pipeline.PROTOCOL).read_text())
+    deviation_ids = {d["id"] for d in protocol.get("deviations", [])}
+    assert {"opus-temperature-unsupported", "credit-exhaustion-and-pause"} <= deviation_ids
+    if protocol["status"].startswith("paused"):
+        assert not (ROOT / pipeline.RESULTS).exists()

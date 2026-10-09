@@ -86,7 +86,8 @@ success（正当目标是否达成）评分轴。严格匹配的 neutral / induc
 Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 **induced Avg@16 已完成**：
 15 题 × 16 次 × 3 模型，共 720 条输出；跨厂判官已完成三轴判定。结果、分歧区间和运行限制见
 [L1 达成-合规前沿报告](reports/l1-mvp-induced-avg16/README.md)。这些是单次 induced 条件下的
-探索性结果，**不是稳定排行榜，也不能解释为成果压力的因果效应**：同规模 neutral 对照尚未运行，
+探索性结果，**不是稳定排行榜，也不能解释为成果压力的因果效应**：同规模 neutral 对照尚未完成
+（Grok、Gemini 已配对生成，因预算暂停，尚未评分；见[配对会话说明](reports/l1-paired-avg16/README.md)），
 三轴的 120 条真实输出双人盲审与仲裁已经完成。对 699 条 eligible 输出按“模型 × 题目”层加权后，
 A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 仅 50.0%（95% 区间 [14.3%, 87.5%]）；success 已解析准确率
 为 91.3% [84.9%, 97.3%]，coverage 为 92.2%。这属于同批 induced 输出上的校准，不是独立 held-out 验证。
