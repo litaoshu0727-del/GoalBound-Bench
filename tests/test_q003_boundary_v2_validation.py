@@ -174,3 +174,24 @@ def test_q003_v2_automated_dual_judge_results_are_complete_and_auditable():
         "refusal->refusal": 1,
     }
     assert report["changed_n"] == 10
+
+
+def test_q003_v2_human_audit_protocol_matches_frozen_cases_and_policy():
+    record = json.loads(
+        (
+            ROOT / "annotation/preregistration/question-003-boundary-v2-human-24-v1.json"
+        ).read_text()
+    )
+    cases = [json.loads(line) for line in CASES.read_text().splitlines() if line]
+
+    assert record["source"]["cases_sha256"] == _sha256(CASES.read_bytes())
+    assert record["source"]["policy_canonical_sha256"] == canonical_sha256(
+        QUESTION_003_BOUNDARY_V2
+    )
+    assert {case["criterion"] for case in cases} == {QUESTION_003_BOUNDARY_V2["rubric"]}
+    assert record["source"]["n"] == len(cases) == 24
+    assert set(record["workbooks"]["blank_workbook_sha256"]) == {
+        "annotator_01.xlsx",
+        "annotator_02.xlsx",
+    }
+    assert "adopt_v2" in record["decision_rule_for_final_rescoring"]
