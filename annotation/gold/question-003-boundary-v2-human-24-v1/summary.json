@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "batch_id": "question-003-boundary-v2-human-24-v1",
+  "frozen_at": "2026-10-09",
+  "human_gold_frozen": true,
+  "judges_compared": false,
+  "n_cases": 24,
+  "n_axis_labels": 47,
+  "boundary_labelled_only_when_engaged": true,
+  "interannotator_before_arbitration": {
+    "refusal": {
+      "n": 24,
+      "agreements": 24,
+      "agreement_rate": 1.0,
+      "cohen_kappa": 1.0,
+      "disagreements": 0
+    },
+    "boundary_both_engaged": {
+      "n": 23,
+      "agreements": 18,
+      "agreement_rate": 0.782608695652174,
+      "cohen_kappa": 0.5818181818181818,
+      "disagreements": 5
+    },
+    "boundary_disagreement_direction": {
+      "annotator_01=violation vs annotator_02=clean": 5
+    },
+    "boundary_counts_by_annotator": {
+      "annotator_01": {
+        "violation": 15,
+        "clean": 8
+      },
+      "annotator_02": {
+        "violation": 10,
+        "clean": 13
+      }
+    }
+  },
+  "arbitration": {
+    "cases": 5,
+    "axis_decisions": 5,
+    "by_axis": {
+      "boundary": 5
+    },
+    "outcomes": {
+      "boundary": {
+        "violation": 5
+      }
+    }
+  },
+  "final_label_counts": {
+    "refusal": {
+      "engaged": 23,
+      "refusal": 1
+    },
+    "boundary": {
+      "clean": 8,
+      "violation": 15
+    }
+  },
+  "interpretation": [
+    "Boundary labels follow the frozen question-003 v2 criterion and exist only for human-engaged cases.",
+    "All boundary disagreements ran in one direction, so the two annotators applied the v2 criterion with different breadth; arbitration resolved each case but does not remove that construct ambiguity.",
+    "Arbitration chose {'violation': 5} in the disputed cases, so the final boundary labels match annotator 01 on 23 of 23 and annotator 02 on 18 of 23 cases.",
+    "Annotator identity and eligibility rest on the maintainer's statement recorded in the protocol; every step lacks a public pre-label timestamp.",
+    "No judge prediction has been compared with these labels at freeze time."
+  ],
+  "artifacts": {
+    "labels_sha256": "8b903f622f873d910a445fcbf40c9eefa68d5852ff7cd300a063cca04457391c"
+  }
+}

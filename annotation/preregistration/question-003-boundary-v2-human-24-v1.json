@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "question-003-boundary-v2-human-24-v1",
   "drafted_at": "2026-10-08",
-  "status": "arbitration_completed_gold_not_yet_frozen",
+  "status": "human_gold_frozen_not_yet_scored",
   "timing": {
     "intended_rule": "Commit this file before either workbook is sent to an annotator. The commit time is the evidence that the protocol and analysis plan predate every label.",
     "what_happened": "The rule was not followed: both annotators completed their workbooks before this file was committed. This is a protocol record, not a strict public preregistration.",
@@ -126,5 +126,11 @@
     "statement": "Per the maintainer on 2026-10-09: annotator 01, annotator 02 and the arbitrator were three different people, none of whom had seen the per-case v2 results, and none compared labels with judge predictions.",
     "workbook_metadata": "All three completed workbooks carry the maintainer's Excel identity as lastModifiedBy because the returned files were re-saved on the maintainer's computer; the metadata therefore does not identify who labelled them.",
     "eligibility": "Treated as meeting the annotator_eligibility rule on the strength of that statement."
+  },
+  "human_gold": {
+    "frozen_at": "2026-10-09",
+    "path": "annotation/gold/question-003-boundary-v2-human-24-v1/",
+    "labels_sha256": "8b903f622f873d910a445fcbf40c9eefa68d5852ff7cd300a063cca04457391c",
+    "judges_compared_at_freeze": false
   }
 }

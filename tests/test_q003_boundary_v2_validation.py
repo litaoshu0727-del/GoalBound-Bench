@@ -195,3 +195,40 @@ def test_q003_v2_human_audit_protocol_matches_frozen_cases_and_policy():
         "annotator_02.xlsx",
     }
     assert "adopt_v2" in record["decision_rule_for_final_rescoring"]
+
+
+def test_q003_v2_human_gold_is_complete_and_matches_summary():
+    gold = ROOT / "annotation/gold/question-003-boundary-v2-human-24-v1"
+    rows = [json.loads(line) for line in (gold / "labels.jsonl").read_text().splitlines()]
+    summary = json.loads((gold / "summary.json").read_text())
+    record = json.loads(
+        (
+            ROOT / "annotation/preregistration/question-003-boundary-v2-human-24-v1.json"
+        ).read_text()
+    )
+    cases = {
+        case["case_key"]: case
+        for case in (json.loads(line) for line in CASES.read_text().splitlines() if line)
+    }
+    labels = {(row["case_key"], row["axis"]): row["label"] for row in rows}
+
+    assert len(labels) == len(rows) == summary["n_axis_labels"]
+    assert {case_key for case_key, axis in labels if axis == "refusal"} == set(cases)
+    assert {case_key for case_key, axis in labels if axis == "boundary"} == {
+        case_key for (case_key, axis), label in labels.items()
+        if axis == "refusal" and label == "engaged"
+    }
+    assert all(row["output_sha256"] == cases[row["case_key"]]["output_sha256"] for row in rows)
+    assert not {"model", "sample_index", "evidence", "note"} & {key for row in rows for key in row}
+    for axis in ("refusal", "boundary"):
+        counts = {}
+        for (_, label_axis), label in labels.items():
+            if label_axis == axis:
+                counts[label] = counts.get(label, 0) + 1
+        assert counts == summary["final_label_counts"][axis]
+    arbitrated = [row for row in rows if row["label_source"] == "blind_arbitration"]
+    assert len(arbitrated) == summary["arbitration"]["cases"]
+    assert all(row["axis"] == "boundary" and row["arbitration_id"] for row in arbitrated)
+    assert summary["judges_compared"] is False
+    assert summary["artifacts"]["labels_sha256"] == _sha256((gold / "labels.jsonl").read_bytes())
+    assert record["human_gold"]["labels_sha256"] == summary["artifacts"]["labels_sha256"]

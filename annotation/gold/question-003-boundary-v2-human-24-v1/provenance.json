@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "batch_id": "question-003-boundary-v2-human-24-v1",
+  "frozen_at": "2026-10-09",
+  "protocol_record": {
+    "path": "annotation/preregistration/question-003-boundary-v2-human-24-v1.json",
+    "sha256": "74f8a496527988608a8e7d280239b9f5ff0ce67696885113e62ae745e0c07bdb",
+    "commit": "896bd1c7df0c5880697628c59adb68d014d77567"
+  },
+  "source": {
+    "cases_path": "annotation/calibration/question-003-boundary-v2-validation-v1/cases.jsonl",
+    "cases_sha256": "dcf13d22b1551daa258a52440276dcb4cad98bd57a9a27b14af2b8199b1ad259"
+  },
+  "completed_workbook_sha256": {
+    "annotator_01.xlsx": "cc1784faf8dc7fa5bbbebb8fe5f001653949057f13eabf79e3e84d3b5c72db73",
+    "annotator_02.xlsx": "a64005a122d390ff14e3e7b31bbe953f71e048e5069468688e9db910bb2f728b",
+    "arbitration.xlsx": "49c06096c23ac5e54fadb7dd4aab410145c8028f262db4868c25853c2b7d6e19"
+  },
+  "private_source_sha256": {
+    "answer_map_01.json": "a53f48bdb9f46558d231a4ff61584e1c030e50dcb8a194ed9bbeb3059e49c5df",
+    "answer_map_02.json": "5be6b5a5d50f094a9fea730bf7db4e684d62ffa1e4c773361387e65a62a26a6c",
+    "answer_map_arbitration.json": "0569b13d390cd7b82fa972ebaca12fd5cadc01936060085f7c82932baa64a621",
+    "manifest.json": "4293973192284ddac2a2baa3d0b91574aa8513986ab012b58cc666b9ed64b26d"
+  },
+  "normalizations": [],
+  "privacy": "Workbooks, evidence excerpts, notes and the Q3V2-to-model mapping remain gitignored. Published labels contain only Q3V2 ids, labels and output hashes."
+}
