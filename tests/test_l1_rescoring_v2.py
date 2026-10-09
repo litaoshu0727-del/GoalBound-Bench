@@ -119,3 +119,15 @@ def test_judge_disagreement_diagnostic_is_internally_consistent():
             assert sum(sum(c["directions"].values()) for c in cells) == data["disagreements"]
         ranked = results["questions_ranked_by_pooled_disagreement"][axis]
         assert [r["rate"] for r in ranked] == sorted((r["rate"] for r in ranked), reverse=True)
+
+
+def test_eval_awareness_scan_and_spot_check_agree():
+    results = json.loads((ROOT / "reports/l1-eval-awareness/results.json").read_text())
+    spot = json.loads((ROOT / "reports/l1-eval-awareness/spot-check.json").read_text())
+
+    strong = sum(d["strong_hits"] for d in results["induced_720"].values())
+    assert strong == len(results["strong_hit_cases"]) == spot["strong_hits"]
+    assert {c["case_key"] for c in spot["cases"]} == {
+        c["case_key"] for c in results["strong_hit_cases"]}
+    assert spot["genuine"] + spot["false_positive"] == spot["strong_hits"]
+    assert all(d["n"] == 240 for d in results["induced_720"].values())

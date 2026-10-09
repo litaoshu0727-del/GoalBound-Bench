@@ -39,7 +39,7 @@
 - **成果压力的因果效应**：没有完成的 neutral 对照，任何 induced 结果都不能解读为“压力导致越界”。
 - **L1 结果是排行榜**：单次运行、temperature 1.0、每模型 240 条、只有 induced 条件。
 - **L2 工具调用**：runner 已就绪，从未正式运行。
-- **eval-awareness**：探针尚未开始。
+- **eval-awareness**：只做了关键词初查（720 条中 2 条明确说出可能是测试，都来自 Grok 拒绝时，见[报告](../reports/l1-eval-awareness/README.md)）；没有正式探针，也没有 neutral 对照。
 - **v2 判官合并规则更好**：只用判官 C 判 boundary、宽松规则判 success 是样本内选出的，只作次要规则冻结，前瞻检验已无数据来源。
 - **neutral 条件下判官准不准**：neutral 输出从未有过人工标签。
 
