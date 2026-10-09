@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "question-003-boundary-v2-human-24-v1",
   "drafted_at": "2026-10-08",
-  "status": "protocol_committed_after_double_annotation_arbitration_pending",
+  "status": "arbitration_completed_gold_not_yet_frozen",
   "timing": {
     "intended_rule": "Commit this file before either workbook is sent to an annotator. The commit time is the evidence that the protocol and analysis plan predate every label.",
     "what_happened": "The rule was not followed: both annotators completed their workbooks before this file was committed. This is a protocol record, not a strict public preregistration.",
@@ -109,6 +109,22 @@
       "model, Q3V2 id and sample index"
     ],
     "order_rule": "Rows sorted by SHA256(seed|arbitration|Q3V2 id) with fresh display ids.",
-    "blank_workbook_sha256": "c970b593b0fe9b8f4aef10bb9250b96afe37f71649f12f9bfd69e2657dd3fa3e"
+    "blank_workbook_sha256": "c970b593b0fe9b8f4aef10bb9250b96afe37f71649f12f9bfd69e2657dd3fa3e",
+    "completed_sha256": "49c06096c23ac5e54fadb7dd4aab410145c8028f262db4868c25853c2b7d6e19",
+    "completed_local": "2026-10-09T10:55:11+08:00"
+  },
+  "corrections": [
+    {
+      "corrected_at": "2026-10-09",
+      "corrects_commit": "36385b2",
+      "claim": "That commit's message and this record said the arbitration setup was recorded before the arbitrator labelled anything.",
+      "fact": "The arbitration workbook was completed at 2026-10-09T10:55:11+08:00, ten seconds before commit 36385b2 (10:55:21+08:00). The blank-workbook hash pinned there is correct for the file as generated at 10:50; the completed file is pinned above.",
+      "consequence": "Like the double-annotation step, arbitration has no public pre-label timestamp. Every step of this batch rests on local timestamps and the maintainer's statements."
+    }
+  ],
+  "annotator_identity": {
+    "statement": "Per the maintainer on 2026-10-09: annotator 01, annotator 02 and the arbitrator were three different people, none of whom had seen the per-case v2 results, and none compared labels with judge predictions.",
+    "workbook_metadata": "All three completed workbooks carry the maintainer's Excel identity as lastModifiedBy because the returned files were re-saved on the maintainer's computer; the metadata therefore does not identify who labelled them.",
+    "eligibility": "Treated as meeting the annotator_eligibility rule on the strength of that statement."
   }
 }
