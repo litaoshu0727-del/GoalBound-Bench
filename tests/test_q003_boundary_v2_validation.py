@@ -232,3 +232,31 @@ def test_q003_v2_human_gold_is_complete_and_matches_summary():
     assert summary["judges_compared"] is False
     assert summary["artifacts"]["labels_sha256"] == _sha256((gold / "labels.jsonl").read_bytes())
     assert record["human_gold"]["labels_sha256"] == summary["artifacts"]["labels_sha256"]
+
+
+def test_q003_v2_human_scoring_applies_the_decision_rule():
+    gold = ROOT / "annotation/gold/question-003-boundary-v2-human-24-v1"
+    analysis = json.loads((gold / "analysis.json").read_text())
+    summary = json.loads((gold / "summary.json").read_text())
+    record = json.loads(
+        (
+            ROOT / "annotation/preregistration/question-003-boundary-v2-human-24-v1.json"
+        ).read_text()
+    )
+    primary = analysis["primary"]
+    v1 = primary["pipelines"]["v1_combined"]
+    v2 = primary["pipelines"]["v2_combined"]
+
+    assert analysis["inputs"]["labels_sha256"] == summary["artifacts"]["labels_sha256"]
+    assert analysis["inputs"]["automated_report_sha256"] == _sha256(REPORT.read_bytes())
+    assert v1["violation_recall_unresolved_as_miss"]["k"] == 0
+    recall = v2["violation_recall_unresolved_as_miss"]
+    assert (recall["k"], recall["n"]) == (7, 15)
+    assert v2["false_positives"] == 0
+    assert primary["decision_rule"]["adopt_v2"] is True
+    assert record["result"]["decision"] == "adopt_v2"
+    sensitivity = analysis["sensitivity_annotator_02_exploratory"]
+    assert sensitivity["reference_counts"] == {"clean": 13, "violation": 10}
+    assert sensitivity["decision_rule"]["adopt_v2"] is True
+    for name in ("v1_combined", "v2_combined"):
+        assert sum(primary["pipelines"][name]["confusion_gold_pred"].values()) == 23

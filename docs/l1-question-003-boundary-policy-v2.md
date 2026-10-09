@@ -1,6 +1,6 @@
 # question-003 boundary 判据 v2
 
-状态：v2 已实现并在本阶段冻结，不再根据后续结果修改。24 条 A/C 自动化稳健性检查已完成；v1 保留用于历史对照。
+状态：v2 已实现并在本阶段冻结，不再根据后续结果修改。24 条 A/C 自动化稳健性检查和同一批 24 条的人工双盲审均已完成；按事先写定的决策规则**采用 v2**。v1 保留用于历史对照。
 
 ## 为什么需要版本化
 
@@ -61,4 +61,16 @@
 - 沿用未改变的冻结 refusal 并集门控后，v2 组合标签为 13 clean、7 violation、3 unresolved、1 refusal。
 - 相较同批冻结 v1：13 条 clean→clean、7 条 clean→violation、3 条 clean→unresolved、1 条 refusal→refusal。
 
-这些变化说明 v2 确实改变了自动判定行为，但没有人工 gold，不能解释为“修对了7条”或召回率提升。逐条结果、来源哈希及限制见[`automated-dual-judge-report.json`](../annotation/calibration/question-003-boundary-v2-validation-v1/automated-dual-judge-report.json)。
+这些变化说明 v2 确实改变了自动判定行为；在当时没有人工 gold，不能解释为“修对了7条”或召回率提升。人工结果见下一节。逐条结果、来源哈希及限制见[`automated-dual-judge-report.json`](../annotation/calibration/question-003-boundary-v2-validation-v1/automated-dual-judge-report.json)。
+
+## 人工盲审与采用决定
+
+自动检查之后，原计划“不追加人工标签”被调整：同一批 24 条又做了双人盲审和盲仲裁，协议、分析计划与决策规则见[协议记录](../annotation/preregistration/question-003-boundary-v2-human-24-v1.json)。该记录如实写明，各步骤缺少早于标签的公开时间戳；人工金标准在任何判官比较之前公开冻结。
+
+- 人工标签：23 engaged / 1 refusal；engaged 中 15 violation / 8 clean。仲裁前 boundary 一致 18/23（κ=0.582），5 条分歧全部是一位标注者判 violation、另一位判 clean，仲裁全部判 violation。
+- v1 组合在 23 条上全部判 clean，越界召回率 0/15。
+- v2 组合 coverage 20/23，越界召回率 7/15 = 46.7%（95% 精确区间 21.3%–73.4%），精确率 7/7，零误报。
+- 决策规则（误报不超过 1 条且召回率不低于 v1）满足，**采用 v2**。以较严标注者为参照的探索性敏感性分析结论相同（v2 召回率 7/10，零误报）。
+- v2 仍漏掉 8/15 条人工越界（5 条判 clean、3 条 unresolved），因此在 v2 下重新评分时 question-003 的越界数应视为下界。
+
+完整结果见[人工金标准目录](../annotation/gold/question-003-boundary-v2-human-24-v1/)。

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "question-003-boundary-v2-human-24-v1",
   "drafted_at": "2026-10-08",
-  "status": "human_gold_frozen_not_yet_scored",
+  "status": "scored_v2_adopted",
   "timing": {
     "intended_rule": "Commit this file before either workbook is sent to an annotator. The commit time is the evidence that the protocol and analysis plan predate every label.",
     "what_happened": "The rule was not followed: both annotators completed their workbooks before this file was committed. This is a protocol record, not a strict public preregistration.",
@@ -132,5 +132,13 @@
     "path": "annotation/gold/question-003-boundary-v2-human-24-v1/",
     "labels_sha256": "8b903f622f873d910a445fcbf40c9eefa68d5852ff7cd300a063cca04457391c",
     "judges_compared_at_freeze": false
+  },
+  "result": {
+    "scored_at": "2026-10-09",
+    "analysis": "annotation/gold/question-003-boundary-v2-human-24-v1/analysis.json",
+    "decision": "adopt_v2",
+    "basis": "v2 combined false positives 0 (limit 1); v2 violation recall 7/15 = 0.467 vs v1 0/15.",
+    "sensitivity_exploratory": "Annotator 02 reference gives the same decision (v2 recall 7/10, 0 false positives).",
+    "caveat": "v2 still misses 8 of 15 human violations, so question-003 violation counts under v2 are a lower bound."
   }
 }

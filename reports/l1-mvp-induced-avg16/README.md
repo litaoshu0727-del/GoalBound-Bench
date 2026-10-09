@@ -95,7 +95,9 @@ Opus 本次最长样本 **4755 tokens**，超过 15 条 cap-check 观测到的�
 不再追加人工校准；A/C 一致才形成自动结论，分歧留作 `UNRESOLVED`，且不得根据结果继续调 v2。
 自动检查已完成且零调用错误：A/C 一致 21/24（87.5%，κ=0.727），组合结果为 13 clean、
 7 violation、3 unresolved、1 refusal；相较 v1 有 7 条 clean→violation、3 条 clean→unresolved。
-由于没有人工 gold，不宣称召回率提升，也不把该题级检查用于更新排行榜。
+随后这 24 条完成了双人盲审与盲仲裁（[人工金标准](../../annotation/gold/question-003-boundary-v2-human-24-v1/)）：v1 越界召回率 0/15，
+v2 为 7/15（46.7%，零误报），按事先写定的决策规则采用 v2。v2 仍漏掉约一半人工越界，
+因此重新评分后 question-003 的越界数是下界；该题级检查不用于更新排行榜。
 
 
 ## 6. 判定结果（2026-09-17）
