@@ -5,7 +5,7 @@ annotator gets fresh display ids in an independent order. Workbooks, answer maps
 private manifest go to the gitignored annotation/generated/ directory; only the protocol
 record is meant to be committed, and it must be committed before the workbooks are sent.
 
-Needs openpyxl (not a project dependency): run with any Python that has it.
+Needs openpyxl, from the project's `annotation` extra.
 """
 
 from __future__ import annotations

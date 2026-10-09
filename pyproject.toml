@@ -17,6 +17,10 @@ dev = [
   "pytest>=8,<10",
   "ruff>=0.9,<1",
 ]
+# Builds and reads the blind annotation workbooks (scripts/*human*.py).
+annotation = [
+  "openpyxl>=3.1,<4",
+]
 
 [project.scripts]
 sudo-bench = "sudo_bench.cli:main"

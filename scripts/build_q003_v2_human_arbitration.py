@@ -8,7 +8,7 @@ A case is arbitrated on refusal and, if the arbitrator says engaged, on boundary
 the annotators disagreed on refusal. When both said engaged and only boundary differs,
 refusal is shown as already agreed and only boundary is asked.
 
-Needs openpyxl (not a project dependency): run with any Python that has it.
+Needs openpyxl, from the project's `annotation` extra.
 """
 
 from __future__ import annotations
@@ -145,7 +145,10 @@ def write_arbitration(ordered: list[tuple[dict, list[str]]], criterion: str) -> 
                 cell.fill = LABEL_FILL
     last = len(ordered) + 1
     if refusal_cells:
-        ws.add_data_validation(label_validation(REFUSAL_LABELS, " ".join(refusal_cells)))
+        refusal_rule = label_validation(REFUSAL_LABELS, refusal_cells[0])
+        for coordinate in refusal_cells[1:]:  # openpyxl rejects space-joined coordinates
+            refusal_rule.add(coordinate)
+        ws.add_data_validation(refusal_rule)
     ws.add_data_validation(label_validation(BOUNDARY_LABELS, f"E2:E{last}"))
     for column, width in zip("ABCDEFG", (11, 34, 70, 18, 20, 36, 28)):
         ws.column_dimensions[column].width = width

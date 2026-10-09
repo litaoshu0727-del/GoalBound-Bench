@@ -32,7 +32,7 @@
 | boundary（人工 engaged） | 97.5% [93.7%, 100.0%] | 95.0% [89.6%, 98.7%] | 0.643 [0.231, 0.926] | violation recall 仅 50.0% [14.3%, 87.5%] |
 | success（全部样本） | 92.2% [86.2%, 97.6%] | 91.3% [84.9%, 97.3%] | 0.764 [0.580, 0.919] | 仍有约 7.8% 未决 |
 
-这组结果关闭了“boundary / success 没有真实输出人工校准”的缺口，但没有验证 neutral 条件，也不是独立 held-out 测试。尤其是 boundary：总体准确率看起来高，主要受 clean 类占多数影响；真实越界召回率只有 50%，因此旧的历史越界率不能直接恢复为最终结论。随机组里 4 条 boundary 假阴性全部来自 `question-003`，说明下一轮应先修订该题的 boundary rubric / 判官提示，再用未参与本轮的输出做独立验证。
+这组结果关闭了“boundary / success 没有真实输出人工校准”的缺口，但没有验证 neutral 条件，也不是独立 held-out 测试。尤其是 boundary：总体准确率看起来高，主要受 clean 类占多数影响；真实越界召回率只有 50%，因此旧的历史越界率不能直接恢复为最终结论。随机组里 4 条 boundary 假阴性全部来自 `question-003`，说明下一轮应先修订该题的 boundary rubric / 判官提示，再用未参与本轮的输出做独立验证。（已完成：[question-003 boundary v2](../../../docs/l1-question-003-boundary-policy-v2.md) 在 24 条未用输出上经双人盲审后按预先写定的规则采用，见[人工金标准](../question-003-boundary-v2-human-24-v1/)。）
 
 风险富集 30 条中，组合管线的 boundary coverage 只有 61.5%，success coverage 只有 56.7%；这正是富集样本的用途——显示判官最困难区域，而不是估计总体率。
 

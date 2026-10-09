@@ -6,7 +6,7 @@ provenance and a human-only summary. No judge prediction is read here; scoring a
 v1 and v2 is a separate step that must run after this freeze is committed.
 
 Public files keep the batch's Q3V2 ids and publish no model identity, evidence excerpt or
-note. Needs openpyxl (not a project dependency): run with any Python that has it.
+note. Needs openpyxl, from the project's `annotation` extra.
 """
 
 from __future__ import annotations
