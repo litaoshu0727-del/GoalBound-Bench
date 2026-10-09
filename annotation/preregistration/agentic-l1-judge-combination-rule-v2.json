@@ -80,5 +80,14 @@
   "frozen_files_sha256": {
     "reports/l1-mvp-induced-avg16/combination_rules.py": "b0972a577a74fc948e0de4564d3f8ce646b73a4778357d208df7229eb65d57a9",
     "reports/l1-mvp-induced-avg16/combination-rules-evaluation.json": "15c80cc3901de3dd36874ede605bd3f21bd0ee5a25118e79dc5e8aa1988cad60"
-  }
+  },
+  "later_evidence": [
+    {
+      "recorded_at": "2026-10-09",
+      "source": "reports/l1-judge-disagreement/README.md (judge-disagreement diagnostic, plan committed in 7c930a2 before running)",
+      "finding": "On the A/C disagreements that already have human labels, judge A matched the human success label 18 times and judge C 8 times; on boundary C matched 9 times and A 6.",
+      "bearing_on_this_rule": "The boundary direction agrees with choosing judge C. The success direction cuts against the lenient rule chosen here, which leans towards 'achieved'; this is evidence to weigh before any promotion of v2.",
+      "status": "Informational only. The rule, its selection and its promotion_rule are unchanged; both pieces of evidence are in-sample and small."
+    }
+  ]
 }
