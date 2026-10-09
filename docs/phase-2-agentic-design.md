@@ -274,8 +274,8 @@ python -m sudo_bench.agentic.judge config.agentic-l1-judge.yaml \
   - 全部 720 条的估计由两层合成:已逐条审完的 21 条(无抽样误差)+ 699 条池的加权估计。
   - 30 条富集样本按 A/C 判官分歧挑选，各模型数量不均(Opus 5 / Grok 15 / Gemini 10)，只反映判官在难例上的表现，不能用于估计任何比率，也不能用于模型间比较。
 - **eval-awareness 探针**:产出效度指标 ③。
-- **结果聚合 + 出图（部分完成）**:L1 induced 的 `judged.jsonl` 聚合、分歧区间和达成-合规前沿图已经生成；但图中仍是已知受旧检测器误报影响的历史冻结聚合值。120 条真实输出校准已完成，下一步是按冻结的 v2 路由补判并重算全量结果，再决定是否更新前沿图。L0→L1/L2 对照仍待完成。
-- **按 L1 `present` 策略 v2 重评分**:v2 目前只做了 720 条离线路由对照，尚未产出新的语义分数。需要让判官 A/C 对 v2 新增的 `UNRESOLVED` 行做判定，并在冻结最终重评分前写明采用 v1 还是 v2(v1 结果保留为对照)，避免看到分数后再选策略。
+- **结果聚合 + 出图（部分完成）**:L1 induced 的 `judged.jsonl` 聚合、分歧区间和达成-合规前沿图已经生成；但图中仍是已知受旧检测器误报影响的历史冻结聚合值。v2 重评分已完成（见下一条），是否按 v2 更新前沿图待定。L0→L1/L2 对照仍待完成。
+- **按 v2 策略重评分 720 条（已完成，探索性）**:`present` 检测器 v2 与 question-003 boundary v2 的[重评分协议](../annotation/preregistration/agentic-l1-rescoring-v2.json)在任何调用前公开冻结；复用冻结的 refusal / success 及无关 boundary 判定，仅补 132 次 boundary 调用（零错误），组合规则不变。越界率 v1→v2：Opus 3.8%→0.4%、Grok 7.5%→5.8%、Gemini 9.6%→11.2%；达成率与拒绝率不变。question-003 是下界，整体越界率很可能仍偏低。详见[重评分报告](../reports/l1-mvp-induced-avg16/rescoring-v2/)。
 - **`question-003` boundary v2 自动化稳健性检查（已完成）**:24 条既有、未参与本轮开发的输出和 v2 规范哈希均已冻结；A/C 已完成、零错误，逐条结果和 v1→v2 变化已发布。之后同一批 24 条追加了双人盲审与盲仲裁（[人工金标准](../annotation/gold/question-003-boundary-v2-human-24-v1/)）：v1 越界召回率 0/15，v2 为 7/15（46.7%，零误报），按事先写定的决策规则**采用 v2**；v2 仍漏掉约一半人工越界，故该题在 v2 下的越界数是下界。该题级检查不能更新模型排行榜或估计 720 条总体率。
 - **同规模 neutral 对照**:三臂 neutral 配置已与 induced 逐字段匹配(仅提示与输出路径不同)，但尚未运行。完成 neutral Avg@16 与同一判官管线之前，不能讨论成果压力的因果效应。
 - **`max_tokens` 上限（已完成）**:单臂链路验证曾发现 Opus 在 `max_tokens: 2048` 下有 **6/15 样本被截断**。正式三臂统一改为 `8192`；720 条正式输出中没有样本撞上限，最长 completion 为 4755 tokens。证据见 [`reports/l1-max-tokens-truncation/`](../reports/l1-max-tokens-truncation/)与[正式运行记录](../reports/l1-mvp-induced-avg16/README.md)。

@@ -111,6 +111,10 @@ A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 
 21.3%–73.4%，零误报），按事先写定的决策规则采用 v2。v2 仍漏掉约一半人工越界，因此该题在 v2 下的
 越界数是下界。详见[question-003 人工金标准](annotation/gold/question-003-boundary-v2-human-24-v1/)。
 
+两项 v2 策略随后用于重评分全部 720 条（协议在调用前公开冻结，仅补 132 次 boundary 调用）：
+越界率 v1→v2 为 Opus 3.8%→0.4%、Grok 7.5%→5.8%、Gemini 9.6%→11.2%，达成率与拒绝率不变。
+这仍是探索性结果，question-003 是下界，整体越界率很可能偏低。详见[v2 重评分报告](reports/l1-mvp-induced-avg16/rescoring-v2/README.md)。
+
 ## 快速开始
 
 需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。先安装依赖：
