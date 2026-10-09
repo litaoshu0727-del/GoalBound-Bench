@@ -11,7 +11,8 @@
     "annotator_02_completed_local": "2026-10-09T10:47:55+08:00",
     "evidence_limit": "The draft-before-labels ordering rests on local file modification times, not on a public timestamp.",
     "decision_rule_confirmed": "The maintainer confirmed the decision rule unchanged on 2026-10-09, after both workbooks were completed and before arbitration. The rule text is byte-identical to the 2026-10-08 draft.",
-    "arbitration": "Not started when this file was committed."
+    "arbitration": "Not started when this file was committed.",
+    "no_judge_comparison_before_arbitration": "Per the maintainer on 2026-10-09, nobody compared any human label with v1 or v2 judge predictions before arbitration."
   },
   "purpose": "Give the frozen question-003 boundary v2 policy a human gold on the 24 outputs of question-003-boundary-v2-validation-v1, so the A/C v2 verdicts there can be scored as accuracy, recall and precision rather than inter-judge agreement only.",
   "why": "The automated check moved 7 of 24 combined labels from clean to violation and 3 to unresolved. Without a human gold that shift cannot be read as fixed false negatives or as new false positives, and final rescoring under v2 would change question-003 violation counts on no validated evidence.",
@@ -92,5 +93,22 @@
       "annotator_01.xlsx": "cc1784faf8dc7fa5bbbebb8fe5f001653949057f13eabf79e3e84d3b5c72db73",
       "annotator_02.xlsx": "a64005a122d390ff14e3e7b31bbe953f71e048e5069468688e9db910bb2f728b"
     }
+  },
+  "arbitration": {
+    "generated_at_utc": "2026-10-09T02:50:46+00:00",
+    "batch_id": "question-003-boundary-v2-human-24-v1",
+    "cases": 5,
+    "by_disputed_axis": {
+      "refusal": 0,
+      "boundary_only": 5
+    },
+    "rule": "Refusal disputes are arbitrated on refusal and, if engaged, on boundary; boundary-only disputes show refusal as agreed engaged and ask boundary only.",
+    "hidden_from_arbitrator": [
+      "both annotators' labels, evidence excerpts and notes",
+      "judge A and judge C verdicts under v1 and v2",
+      "model, Q3V2 id and sample index"
+    ],
+    "order_rule": "Rows sorted by SHA256(seed|arbitration|Q3V2 id) with fresh display ids.",
+    "blank_workbook_sha256": "c970b593b0fe9b8f4aef10bb9250b96afe37f71649f12f9bfd69e2657dd3fa3e"
   }
 }
