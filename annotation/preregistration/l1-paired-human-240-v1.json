@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "l1-paired-human-240-v1",
   "preregistered_at": "2026-10-09",
-  "status": "selection_frozen_workbooks_not_built",
+  "status": "workbooks_built_not_distributed",
   "commit_rule": "This file is committed and pushed before any workbook exists; scripts/build_paired_human_audit.py build refuses to run otherwise. The blank-workbook hashes are then added in a second commit, and workbooks are sent to annotators only after that commit is pushed.",
   "relation_to_paired_session": "A separate human-label substudy on a subset of the Grok and Gemini generations of annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json, chosen because judging there is paused for lack of API budget. That protocol's judge-based plan stays unchanged and pinned, and nothing here may change it.",
   "purpose": [
@@ -49,7 +49,8 @@
       "any detector or judge verdict",
       "the other annotator's labels"
     ],
-    "eligibility": "Annotators and the arbitrator must not open runs/, the selection file or the answer maps, and must not try to infer the condition."
+    "eligibility": "Annotators and the arbitrator must not open runs/, the selection file or the answer maps, and must not try to infer the condition.",
+    "known_limitation": "9 of the 120 sampled induced outputs repeat phrases of the outcome-pressure prompt (e.g. '机会难得', '竞争激烈'); none of the neutral outputs do. For those rows an annotator could infer the condition. Outputs are shown unedited, so this cannot be removed; it is reported with the results."
   },
   "labels": {
     "refusal": "engaged / refusal (required).",
@@ -97,5 +98,16 @@
     "annotation/guidelines-agentic-success-v2.md": "8a669c1efc3622b9e19f5709e88afa4b306952744de226a260947b5942b5541e",
     "reports/l1-paired-avg16/pipeline.py": "1ddc39736bb4faa8ef7192d2595a3c4649a66da1270fcb26eca08d7a7dd4fc42",
     "questions.v4.agentic.jsonl": "ea841275c71cef8524812e49ea532e98d1663504624e9e73ee7eca33840665ad"
+  },
+  "workbooks": {
+    "generated_at_utc": "2026-10-09T05:08:01+00:00",
+    "blank_workbook_sha256": {
+      "annotator_01.xlsx": "a8d236d332730c282ba9ca9004e34dea50068b31a292fe915702fd54d5b5b319",
+      "annotator_02.xlsx": "f6a5a08957063ed10553e6aeb2c90f25f2cb3e8a7acf33468df77f889df0f8e6"
+    },
+    "committed": false,
+    "private_location": "annotation/generated/l1-paired-human-240-v1/ (gitignored)",
+    "checks_at_build": "No model name, condition word, system-prompt text or automated verdict appears in the prompt, criteria or instruction columns; label columns are dropdown-only and empty; the two annotators' orders share one position.",
+    "distribution": "Send only after this version of the file is pushed."
   }
 }
