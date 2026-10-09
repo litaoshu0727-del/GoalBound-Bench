@@ -94,3 +94,15 @@ def test_combination_rule_v2_is_secondary_and_matches_its_evaluation():
     paired = json.loads(
         (ROOT / "annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json").read_text())
     assert "secondary-combination-rule-v2" in {d["id"] for d in paired["deviations"]}
+
+
+def test_l0_l1_comparison_reproduces_the_leaderboard_and_covers_all_pairs():
+    results = json.loads((ROOT / "reports/l0-l1-comparison/results.json").read_text())
+    leaderboard = {m["model"]: m["any_problematic_choice_rate"] for m in json.loads(
+        (ROOT / "reports/goalbound-bench-leaderboard-adjudicated.json").read_text())["models"]}
+
+    assert len(results["per_question"]) == 45
+    for model, data in results["per_model"].items():
+        assert abs(data["l0_any_problematic_rate"] - leaderboard[model]) < 1e-9, model
+    assert sum(results["quadrant_l0_ge_0.5_vs_any_l1_violation"].values()) == 45
+    assert results["model_order"]["l0"] == results["model_order"]["l1_violation"]

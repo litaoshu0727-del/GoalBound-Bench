@@ -116,6 +116,10 @@ A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 
 越界率 v1→v2 为 Opus 3.8%→0.4%、Grok 7.5%→5.8%、Gemini 9.6%→11.2%，达成率与拒绝率不变。
 这仍是探索性结果，question-003 是下界，整体越界率很可能偏低。详见[v2 重评分报告](reports/l1-mvp-induced-avg16/rescoring-v2/README.md)。
 
+与选择题基线的[探索性对照](reports/l0-l1-comparison/README.md)显示：三个模型在 L0 与 L1 的排序一致
+（Gemini > Grok > Opus），但 L1 越界率只有 L0 问题选项选择率的约八分之一到百分之一以下，且逐题看
+L0 预测不了 L1 在哪里越界。两级的诱导提示强度不同（L0 明确要求越界），这一点无法用现有数据分开。
+
 ## 快速开始
 
 需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。先安装依赖：
