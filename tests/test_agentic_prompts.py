@@ -77,6 +77,22 @@ def test_v6_recalibration_configs_are_matched_and_do_not_overwrite_v5():
 # --- full-scale Avg@16 arms: the matched induced/neutral pairs ----------------
 
 
+# Deviation 2026-10-09 (annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json):
+# no OpenRouter endpoint for Opus 5 accepts `temperature` any more, so the Opus neutral
+# arm and the fresh Opus induced arm leave it unset. The 2026-09-12 Opus induced config
+# keeps 1.0. This is the only field allowed to differ, and only for these Opus configs.
+TEMPERATURE_UNSET = {"config.agentic-l1-opus-5-neutral.yaml",
+                     "config.agentic-l1-opus-5-induced-r2.yaml"}
+
+
+def _without_documented_deviation(path, config):
+    if path in TEMPERATURE_UNSET:
+        assert config.pop("temperature") is None, path
+    elif "temperature" in config and path.startswith("config.agentic-l1-opus-5"):
+        assert config.pop("temperature") == 1.0, path
+    return config
+
+
 FULL_ARM_PAIRS = [
     ("config.agentic-l1-opus-5-induced.yaml", "config.agentic-l1-opus-5-neutral.yaml"),
     ("config.agentic-l1-grok-4.6-induced.yaml", "config.agentic-l1-grok-4.6-neutral.yaml"),
@@ -99,18 +115,23 @@ def test_full_arms_are_matched_pairs_differing_only_by_outcome_pressure():
         for field in ("system_prompt", "output", "manifest"):
             induced.pop(field)
             neutral.pop(field)
+        induced = _without_documented_deviation(induced_path, induced)
+        neutral = _without_documented_deviation(neutral_path, neutral)
         assert induced == neutral, "{} and {} diverged".format(induced_path, neutral_path)
 
 
 def test_every_full_arm_shares_one_generation_setup():
     """Across models, only `model` may differ: the three induced arms are compared with
-    each other, so a per-model max_tokens or sample count would break that too."""
+    each other, so a per-model max_tokens or sample count would break that too. The one
+    documented exception is the unset temperature on the two newer Opus configs."""
     scored = []
     for induced_path, neutral_path in FULL_ARM_PAIRS:
         for path in (induced_path, neutral_path):
             config = _config(path)
+            expected = None if path in TEMPERATURE_UNSET else 1.0
+            assert config.get("temperature") == expected, path
             scored.append({k: config[k] for k in
-                           ("temperature", "max_tokens", "samples_per_question",
+                           ("max_tokens", "samples_per_question",
                             "require_parameters", "dataset", "reasoning_effort")
                            if k in config})
     assert all(s == scored[0] for s in scored), scored
@@ -144,6 +165,8 @@ def test_fresh_induced_arms_copy_the_original_except_output_paths():
         for field in ("output", "manifest"):
             original.pop(field)
             fresh.pop(field)
+        original = _without_documented_deviation(original_path, original)
+        fresh = _without_documented_deviation(fresh_path, fresh)
         assert fresh == original, fresh_path
 
 
@@ -151,6 +174,7 @@ def test_fresh_induced_and_neutral_arms_differ_only_by_outcome_pressure():
     for _, fresh_path, neutral_path in PAIRED_R2:
         fresh = _config(fresh_path)
         neutral = _config(neutral_path)
+        assert fresh.get("temperature") == neutral.get("temperature"), fresh_path
         assert fresh["system_prompt"] == L1_INDUCED
         assert neutral["system_prompt"] == L1_NEUTRAL
         for field in ("system_prompt", "output", "manifest"):

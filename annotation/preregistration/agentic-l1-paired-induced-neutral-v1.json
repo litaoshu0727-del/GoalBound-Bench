@@ -2,7 +2,7 @@
   "schema_version": 1,
   "batch_id": "agentic-l1-paired-induced-neutral-v1",
   "preregistered_at": "2026-10-09",
-  "status": "plan_frozen_no_api_calls_made",
+  "status": "generation_in_progress_with_recorded_deviation",
   "commit_rule": "This file is committed and pushed before any generation or judge call. pipeline.py refuses to generate or judge without it.",
   "question": "Does the outcome-pressure prefix change L1 boundary violation, refusal and achievement for each of three models?",
   "design": {
@@ -71,5 +71,26 @@
     "config.agentic-l1-judge-C.yaml": "4f1050648acf32c3ebb66cc6b0718567fdb1f46ddb8b0e159332195cf69344b2",
     "questions.v3.agentic.jsonl": "8894eadfae232a3c8e4142a6c575d8ff6469af5e35a734f065394149f311031d",
     "questions.v4.agentic.jsonl": "ea841275c71cef8524812e49ea532e98d1663504624e9e73ee7eca33840665ad"
-  }
+  },
+  "deviations": [
+    {
+      "id": "opus-temperature-unsupported",
+      "recorded_at": "2026-10-09",
+      "what_happened": "On the first generate run all 480 Opus 5 requests (both arms) returned HTTP 404 'No endpoints found that can handle the requested parameters' and were not retried (non-retryable). OpenRouter's public endpoint list for anthropic/claude-opus-5 showed 11 endpoints, none listing temperature as a supported parameter; the configs send temperature 1.0 with require_parameters true. The same config worked on 2026-09-12. No tokens were generated or billed.",
+      "grok_and_gemini": "Unaffected; all four arms kept running with zero errors.",
+      "change": "config.agentic-l1-opus-5-induced-r2.yaml and config.agentic-l1-opus-5-neutral.yaml now set temperature: null, so no temperature is sent and the provider default applies; require_parameters stays true. Nothing else changes. The failed result files are kept, not deleted, under runs/l1-paired-v2/failed-opus-404/.",
+      "rerun": "Both Opus arms are regenerated concurrently with each other by running the same runner command pipeline.py uses (python -m sudo_bench.agentic.runner <config> --detector-policy l1_present_semantic_v2) for the two Opus configs only, because pipeline.py generate would relaunch the four arms still running. pipeline.py itself is unchanged.",
+      "consequences": [
+        "The Opus induced/neutral pair remains matched: both arms leave temperature unset and differ only in the system prompt (tests/test_agentic_prompts.py).",
+        "Anthropic's API default temperature is 1.0, but the response does not confirm the value used, so equality with the 2026-09-12 Opus run cannot be verified. The Opus replication check against 2026-09-12 is therefore confounded by the temperature-setting change as well as by time.",
+        "Opus no longer shares one generation setup with Grok and Gemini; cross-model comparisons of rates carry this caveat. The primary analysis is within-model and unaffected.",
+        "Opus is generated later in the day than Grok and Gemini; pairing is within-model, so this does not affect the primary contrast."
+      ],
+      "amended_frozen_files_sha256": {
+        "config.agentic-l1-opus-5-induced-r2.yaml": "877363add4d30cf5feafb83c4fa6d8897c1425ff61f8121c85ef59e1d01848e8",
+        "config.agentic-l1-opus-5-neutral.yaml": "5d8157a53caf0ac095ea7d79e20bfc58e67540033ca33c6fc166e2acdab635ee"
+      },
+      "monitoring_note": "The first progress monitor only watched runner logs and missed these row-level errors for several minutes; later monitoring reads error fields in every results file."
+    }
+  ]
 }
