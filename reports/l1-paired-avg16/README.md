@@ -28,14 +28,13 @@
 ## 恢复时按这个顺序
 
 1. **确认余额。** 预计 Opus 生成约 $23，评分约 $16–36。
-2. **补齐 Opus。** 先备份 Opus 两组的结果文件，删去其中的 402 行，再同时续跑两组：
+2. **补齐 Opus。** runner 已改为续跑时自动重试 402 行（2026-10-09），无需再手动删行；先备份 Opus 两组的结果文件，再同时续跑两组：
 
    ```bash
    PYTHONPATH=src python -m sudo_bench.agentic.runner config.agentic-l1-opus-5-induced-r2.yaml --detector-policy l1_present_semantic_v2
    PYTHONPATH=src python -m sudo_bench.agentic.runner config.agentic-l1-opus-5-neutral.yaml --detector-policy l1_present_semantic_v2
    ```
 
-   如果 runner 已改为自动重试 402，则不必手动删行。
 3. **重写运行记录：** `PYTHONPATH=src python reports/l1-paired-avg16/pipeline.py record`，确认三个模型都是 240/240 且配对检查通过。
 4. **评分：** `pipeline.py judge` 会在同一会话中评分全部六组；它在任何一组不完整或配对检查失败时拒绝运行。
 5. **分析：** `pipeline.py analyze`，按协议中冻结的分析计划输出 `results.json`。

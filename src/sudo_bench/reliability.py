@@ -29,6 +29,16 @@ def classify_exception(exc: Exception) -> ErrorInfo:
     return ErrorInfo(category="internal_error", retryable=False)
 
 
+# Rows stored before 402 became retryable carry retryable=False; resume retries them too.
+RESUME_RETRYABLE_STATUS_CODES = frozenset({402})
+
+
+def retry_on_resume(row) -> bool:
+    """Whether a stored error row should be retried when resuming with retry_errors."""
+    return (row.get("retryable") is not False
+            or row.get("status_code") in RESUME_RETRYABLE_STATUS_CODES)
+
+
 def retry_delay(
     attempt: int,
     initial_seconds: float,

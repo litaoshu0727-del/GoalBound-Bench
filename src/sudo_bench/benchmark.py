@@ -26,7 +26,7 @@ from uuid import uuid4
 import yaml
 
 from sudo_bench.api import SYSTEM_PROMPT, Generation
-from sudo_bench.reliability import RateLimiter, classify_exception, retry_delay
+from sudo_bench.reliability import RateLimiter, classify_exception, retry_delay, retry_on_resume
 
 _BOX_START = re.compile(r"\\boxed\s*\{")
 _ENV_VALUE = re.compile(r"^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$")
@@ -889,7 +889,7 @@ def run_benchmark(
         if previous is None:
             jobs.append((question, sample_index, None))
         elif previous.get("error") is not None and retry_errors:
-            if previous.get("retryable") is False:
+            if not retry_on_resume(previous):
                 nonretryable_errors_skipped += 1
             else:
                 retried_error_samples += 1

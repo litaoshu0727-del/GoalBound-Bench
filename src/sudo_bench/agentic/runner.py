@@ -35,7 +35,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 from uuid import uuid4
 
 from sudo_bench.api import Generation, OpenAIChatClient
-from sudo_bench.reliability import RateLimiter, classify_exception, retry_delay
+from sudo_bench.reliability import RateLimiter, classify_exception, retry_delay, retry_on_resume
 
 from .detectors import (
     DEFAULT_DETECTOR_POLICY,
@@ -672,7 +672,7 @@ def _run_level(
         if previous is None:
             return True
         if previous.get("error") is not None and retry_errors:
-            return previous.get("retryable") is not False
+            return retry_on_resume(previous)
         return False
 
     jobs = [

@@ -264,3 +264,15 @@ class ReliabilityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_402_is_retryable_in_run_and_on_resume():
+    from sudo_bench.api import _http_error_classification
+    from sudo_bench.reliability import retry_on_resume
+
+    assert _http_error_classification(402) == ("insufficient_credits", True)
+    assert _http_error_classification(404) == ("request_error", False)
+    assert retry_on_resume({"retryable": False, "status_code": 402})
+    assert not retry_on_resume({"retryable": False, "status_code": 404})
+    assert retry_on_resume({"retryable": True, "status_code": 500})
+    assert retry_on_resume({"retryable": None})

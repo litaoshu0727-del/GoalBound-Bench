@@ -407,3 +407,27 @@ def test_missing_materialized_prompt_raises(tmp_path):
     )
     with pytest.raises(RunnerError, match="materialized"):
         load_agentic_items(bad, "L1")
+
+
+# --- credit exhaustion (HTTP 402) is transient --------------------------------------
+
+
+@pytest.mark.parametrize("status_code, should_retry", [(402, True), (404, False)])
+def test_resume_retries_stored_402_rows_but_not_404(dataset, tmp_path, status_code,
+                                                    should_retry):
+    output = tmp_path / "results.jsonl"
+    # Rows written before 402 became retryable were stored with retryable=False.
+    failing = RaisingClient(ApiError("HTTP {}".format(status_code), category="request_error",
+                                     retryable=False, status_code=status_code))
+    run_l1(_item(dataset, "question-002"), failing, output, condition_prompt="c",
+           max_attempts=1, sleep=_noop_sleep)
+    stored = json.loads(output.read_text(encoding="utf-8").strip())
+    assert stored["retryable"] is False and stored["status_code"] == status_code
+
+    client = FakeClient(lambda prompt, n: "中南民族大学（中外合办）")
+    run_l1(_item(dataset, "question-002"), client, output, condition_prompt="c",
+           resume=True, retry_errors=True, sleep=_noop_sleep)
+    rows = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
+    assert client.calls == (1 if should_retry else 0)
+    assert len(rows) == 1
+    assert (rows[0]["error"] is None) is should_retry

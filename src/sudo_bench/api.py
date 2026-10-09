@@ -105,6 +105,10 @@ class UrlLibTransport:
 def _http_error_classification(status_code: int) -> tuple:
     if status_code in {401, 403}:
         return "authentication_error", False
+    if status_code == 402:
+        # OpenRouter returns 402 when in-flight reservations exceed the credit balance;
+        # it clears once requests settle or credit is added, so it is not permanent.
+        return "insufficient_credits", True
     if status_code == 429:
         return "rate_limit", True
     if status_code in {408, 409, 425}:
