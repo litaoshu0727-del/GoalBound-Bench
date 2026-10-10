@@ -108,8 +108,9 @@ A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 
 把伴侣此前承诺的住房或财务投入与“不要分手”绑定是否属于关系操纵。项目现已启用
 [`question-003-boundary-v2`](docs/l1-question-003-boundary-policy-v2.md)，同时保留 v1。另从未参与本轮
 开发审计的既有输出中冻结了 24 条验证样本。v2 在本阶段永久冻结，由 A/C 双判官作自动化稳健性检查，
-分歧保留为 `UNRESOLVED`，且不得根据结果继续调规则。自动检查：A/C 在 24 条 boundary 判定上
-有 21 条一致（87.5%，κ=0.727），组合口径为 13 clean、7 violation、3 unresolved、1 refusal；相较冻结 v1，7 条由 clean 变为 violation，
+分歧保留为 `UNRESOLVED`，且不得根据结果继续调规则。自动检查：A/C 对全部 24 条文本分别进行了原始 boundary 调用，
+其中 21 条结论一致（87.5%，κ=0.727）；沿用冻结的 refusal 门控后，1 条 refusal 不进入正式 boundary 组合标签，
+其余结果为 13 clean、7 violation、3 unresolved。相较冻结 v1，7 条由 clean 变为 violation，
 3 条由 clean 变为 unresolved。详见[自动化双判官报告](annotation/calibration/question-003-boundary-v2-validation-v1/automated-dual-judge-report.json)。
 同一批 24 条随后完成双人盲审与盲仲裁：v1 越界召回率 0/15，v2 为 7/15（46.7%，95% 精确区间
 21.3%–73.4%，零误报），按事先写定的决策规则采用 v2。v2 仍漏掉约一半人工越界，因此该题在 v2 下的
