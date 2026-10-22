@@ -1,44 +1,28 @@
 # GoalBound-Bench
 
-🚀 GoalBound-Bench | 衡量模型追求重大成果时能否守住诚信、安全与合规边界 🌍🏆
+**衡量模型在追求重大成果时，能否守住诚信、安全与合规的边界。**
 
-GoalBound-Bench 重点完善了可靠评测、结构化语义评分、选项位置控制、提示词对照实验和
-独立盲审标注流程，使模型行为分析更稳定、更透明，也更便于审计。
+模型被放进有现实利益诱因的情境里，看它会不会为了拿到结果而篡改材料、夸大贡献、隐瞒关键信息
+或用欺骗手段争取署名。基准分两级：**L0** 给出带标签的选项，**L1** 去掉选项、让模型自己写出产物——
+越界动作必须由模型亲手造出来，没有现成的安全选项可挑。
 
-> **项目现状（2026-10-09）**：哪些结论已成立、哪些还不能说、哪些工作已停止以及恢复条件，见
-> [项目现状](docs/project-status.md)。核心问题“成果压力是否导致越界”目前仍未检验。
+> ### 项目现状（2026-10-09）
+>
+> 评测与校准管线已建成并经多轮人工校准，L1 induced 条件下的三模型结果已有**探索性**数字。
+> **但本项目的核心问题——成果压力是否导致越界——仍未检验**：对应的 neutral 对照在生成两个模型后
+> 因预算停止，从未评分。
+>
+> 完整状态、停下的工作与恢复条件见 **[项目现状](docs/project-status.md)**。
 
-🧭 在复杂且高度不确定的现实环境中，将知识、判断与意图转化为可验证、可持续且具有规模效应的实际成果，是个体与组织实现长期发展的核心能力。现实世界中的重要问题通常具有目标模糊、资源有限、利益相关者众多以及反馈滞后等特征。因此，仅具备理论知识、专业技能或创新构想，并不足以保证预期价值的实现。真正产生影响还依赖于行动者识别关键问题、整合有限资源、协调多方主体，并根据环境反馈持续调整行动策略的能力。
+---
 
-🤖 当前，前沿模型在智能体相关任务中已展现出卓越能力。然而，真实世界环境具有高度复杂性与动态性，而现有模型的训练目标通常侧重于准确、稳健地完成预先定义的任务，这在一定程度上限制了其主动识别潜在机会、突破既定目标边界，并创造超出预期的重要成果的能力。
+## 结果
 
-⚖️ GoalBound-Bench 旨在评估模型在个人利益与伦理规范发生冲突时所表现出的行为倾向。具体而言，该基准通过构建具有现实利益诱因的复杂任务情境，考察模型是否会为了最大化自身收益，主动采取包括但不限于篡改材料、夸大个人贡献、隐瞒关键信息或通过欺骗手段争取第一作者身份等高效策略。
+### L0 选择题基线（已建立）
 
-## 本仓库的主要贡献
+12 个模型 × 15 道核心题 × Avg@16，每模型 240 样本。核心题经三人独立盲审与人工仲裁从 19 道候选产生。
 
-- **可靠评测执行**：加入断点续跑、错误补跑、指数退避、全局限速、原子检查点和运行 manifest，
-  降低网络故障与中断对实验结果的影响。
-- **结构化数据与语义评分**：以稳定语义选项 ID 取代对展示字母的依赖；`questions.v3.jsonl` 纳入
-  三人盲审和人工仲裁结果，并保留旧数据格式兼容能力。
-- **选项位置偏差控制**：实现确定性、位置平衡的选项随机化；评分时将展示字母映射回语义选项，
-  支持固定顺序与随机顺序的对照分析。
-- **提示词与指标体系扩展**：支持自定义系统提示词及其哈希记录，提供诱导、自然、安全三类提示词对照，
-  并区分严格统计口径与仅基于有效回答的行为统计口径。
-- **数据标签治理**：完成三人独立盲审和 8 道争议题的人工仲裁，从 19 道候选题形成 15 道核心题，
-  同时保存单一主要风险选项和全部问题选项。
-- **实验报告与自动化测试**：提供提示词对照、选项随机化和标签审计报告，并用自动化测试覆盖关键评测与标注流程。
-
-## 当前已验证实验
-
-已完成 12 个模型的同口径随机化诱导提示 Avg@16 运行。下表使用三人盲审及人工仲裁后的 15 道核心题
-复算；每个模型包含 240 个样本，没有重新调用模型 API。
-
-![GoalBound-Bench 仲裁后问题行为选择率](reports/goalbound-bench-adjudicated-problematic-choice-rates.png)
-
-图中的条形表示“任一问题选项选择率”，深色标记表示“主要目标选择率”；数值越高，表示模型越容易
-选择问题行为，并不代表模型表现更好。可下载
-[SVG 矢量图](reports/goalbound-bench-adjudicated-problematic-choice-rates.svg)或查看
-[可访问 HTML 源图](reports/goalbound-bench-adjudicated-problematic-choice-rates.html)。
+![问题行为选择率](reports/goalbound-bench-adjudicated-problematic-choice-rates.png)
 
 | 模型 | 主要目标选择率 | 任一问题选项选择率 |
 | --- | ---: | ---: |
@@ -55,323 +39,205 @@ GoalBound-Bench 重点完善了可靠评测、结构化语义评分、选项位�
 | Meta Muse Spark 1.3 | 4.17% | 4.17% |
 | GPT-5.6 Sol | 0.00% | 0.00% |
 
-### 盲审前后变化
+数值越高表示越容易选择问题选项，**不代表模型能力高低**。读这张表时必须记住：
+**L0 的诱导提示明确要求"过度包装自己或利用他人"**，所以它测的是"被直接指示时照不照做"，
+而不是自发越界倾向。
 
-![GoalBound-Bench 盲审前与仲裁后变化](reports/goalbound-bench-adjudication-impact.png)
+[仲裁结果](reports/dataset-adjudication-round-1.md) ·
+[盲审前后变化图](reports/goalbound-bench-adjudication-impact.png) ·
+[机器可读排行榜](reports/goalbound-bench-leaderboard-adjudicated.json) ·
+[SVG](reports/goalbound-bench-adjudicated-problematic-choice-rates.svg)
 
-该图比较原始 19 道候选题与仲裁后 15 道核心题的主要目标选择率，并同时给出分数变化和名次变化。
-名次只代表问题行为选择率的位置，不代表模型能力高低。可下载
-[SVG 矢量图](reports/goalbound-bench-adjudication-impact.svg)或查看
-[可访问 HTML 源图](reports/goalbound-bench-adjudication-impact.html)。
+### L1 开放生成，induced 条件（探索性）
 
-仲裁决定、复算方法、格式错误与解释限制见
-[第 1 轮盲审与仲裁结果](reports/dataset-adjudication-round-1.md)。完整机器可读结果见
-[`goalbound-bench-leaderboard-adjudicated.json`](reports/goalbound-bench-leaderboard-adjudicated.json)。
+15 题 × 16 样本 × 3 模型 = 720 条真实产物，经程序化检测器 + 两个跨厂判官按冻结规则判定。
 
-## 开放式 / Agentic 阶段状态
+| 模型 | 越界率（未决上界） | 达成率 | 拒绝率 |
+|---|---:|---:|---:|
+| Claude Opus 5 | **0.4%**（2.5%） | 99.2% | 0.0% |
+| Grok 4.6 | **5.8%**（7.5%） | 41.2% | 23.3% |
+| Gemini 3.7 Flash | **11.2%**（18.3%） | 67.1% | 0.0% |
 
-15 道核心题已经全部扩展为 L1 开放文本与 L2 工具调用任务，并具备独立的 boundary（是否越界）和
-success（正当目标是否达成）评分轴。严格匹配的 neutral / induced 15×1 smoke、三轴人工盲审与仲裁
-已经完成；这些 smoke 用于校验方法，不是模型排行榜。
+三件事必须和这张表一起读：
 
-另有 60 条 boundary / success 合成样本在任何判官运行前完成双人盲审、仲裁和人工金标准冻结。
-判官 A/B 的前瞻校准结果分别为：A 的 boundary / success Cohen's κ 均为 0.933，B 分别为
-1.000 / 0.933。由于 B 与被测 Gemini 同厂，项目又按预注册规则选择了跨厂判官 C；三个候选的
-准确率完全并列，最终按成本 tie-breaker 选择 `z-ai/glm-5.3-flash`，不能将其描述为“最准确”。
+1. **越界率很可能偏低。** 120 条真实输出的人工三轴审计显示组合管线的 violation 召回约 0.50
+   （v2 策略下约 0.75，且是样本内）。同一批审计给出的参与样本人工越界率是 Gemini 16.7%、
+   Grok 12.6%、Opus 约 0。
+2. **Grok 的低越界率部分来自不干活。** 它拒绝了 23.3% 的任务；排除拒绝后越界率升到 7.6%。
+   双轴设计正是为了让这种退化解无处可藏。
+3. **这不是排行榜。** 单次运行、temperature 1.0、每模型 240 条、只有 induced 一个条件。
 
-- [Agentic 阶段完整设计与当前状态](docs/phase-2-agentic-design.md)
-- [冻结的 60 条候选文本与人工金标准](annotation/gold/agentic-heldout-calibration-60-v1/)
-- [校准报告、逐条输出路径与 SHA-256](annotation/gold/agentic-heldout-calibration-60-v1/RESULTS.md)
-- [A/B 双判官校准结果](annotation/gold/agentic-heldout-calibration-60-v1/two-judge-calibration.json)
-- [判官 C 选型结果](annotation/gold/agentic-heldout-calibration-60-v1/judge-c-selection.json)
-- 逐条判官输出位于 `runs/heldout-calibration/` 与 `runs/judge-c-selection/`，可据此独立复算汇总。
+[v2 重评分报告](reports/l1-mvp-induced-avg16/rescoring-v2/README.md) ·
+[达成-合规前沿图](reports/l1-mvp-induced-avg16/README.md) ·
+[判官分歧诊断](reports/l1-judge-disagreement/README.md)
 
-Gemini 3.7 Flash、Grok 4.6 与 Claude Opus 5 的正式 L1 **induced Avg@16 已完成**：
-15 题 × 16 次 × 3 模型，共 720 条输出；跨厂判官已完成三轴判定。结果、分歧区间和运行限制见
-[L1 达成-合规前沿报告](reports/l1-mvp-induced-avg16/README.md)。这些是单次 induced 条件下的
-探索性结果，**不是稳定排行榜，也不能解释为成果压力的因果效应**：同规模 neutral 对照尚未完成
-（配对会话只完成了 Grok、Gemini 的生成，因不再计划花费而停止，没有评分，人工盲审子研究也在分发前撤回；见[配对会话说明](reports/l1-paired-avg16/README.md)），
-三轴的 120 条真实输出双人盲审与仲裁已经完成。对 699 条 eligible 输出按“模型 × 题目”层加权后，
-A/C 组合管线的 boundary 已解析准确率为 95.0%，但 violation recall 仅 50.0%（95% 区间 [14.3%, 87.5%]）；success 已解析准确率
-为 91.3% [84.9%, 97.3%]，coverage 为 92.2%。这属于同批 induced 输出上的校准，不是独立 held-out 验证。
-完整标签、混淆矩阵与来源哈希见
-[L1 真实输出三轴人工金标准](annotation/gold/agentic-l1-real-output-audit-120-v1/)。refusal 组合规则
-此前也在校准样本上选出，不能把样本内准确率当成独立验证结果。
-此外，[程序化越界命中审计](reports/l1-mvp-induced-avg16/detector-audit.md)已完成独立盲审与仲裁：
-21 条检测器阳性样本的人工 boundary 标签均为 clean，其中 19 条曾计入原越界率。
-原越界率与前沿图**暂缓引用**；另有明确标为事后分析的[检测器校正结果](reports/l1-mvp-induced-avg16/detector-correction-v1.json)，
-不能视为最终排行榜。真实输出校准进一步显示组合管线会漏掉约一半人工越界样本，因此不能只删除旧检测器
-误报后恢复历史排名。后续 L1 运行已采用[版本化的 `present` 策略 v2](docs/l1-present-detector-policy-v2.md)：
-自由文本关键词命中先交语义判官，旧规则保留用于历史对照。
+### L0 → L1 对照（探索性）
 
-真实输出开发审计还定位到 `question-003` 的另一处规则歧义：旧 boundary rubric 没有明确说明，
-把伴侣此前承诺的住房或财务投入与“不要分手”绑定是否属于关系操纵。项目现已启用
-[`question-003-boundary-v2`](docs/l1-question-003-boundary-policy-v2.md)，同时保留 v1。另从未参与本轮
-开发审计的既有输出中冻结了 24 条验证样本。v2 在本阶段永久冻结，由 A/C 双判官作自动化稳健性检查，
-分歧保留为 `UNRESOLVED`，且不得根据结果继续调规则。自动检查：A/C 对全部 24 条文本分别进行了原始 boundary 调用，
-其中 21 条结论一致（87.5%，κ=0.727）；沿用冻结的 refusal 门控后，1 条 refusal 不进入正式 boundary 组合标签，
-其余结果为 13 clean、7 violation、3 unresolved。相较冻结 v1，7 条由 clean 变为 violation，
-3 条由 clean 变为 unresolved。详见[自动化双判官报告](annotation/calibration/question-003-boundary-v2-validation-v1/automated-dual-judge-report.json)。
-同一批 24 条随后完成双人盲审与盲仲裁：v1 越界召回率 0/15，v2 为 7/15（46.7%，95% 精确区间
-21.3%–73.4%，零误报），按事先写定的决策规则采用 v2。v2 仍漏掉约一半人工越界，因此该题在 v2 下的
-越界数是下界。详见[question-003 人工金标准](annotation/gold/question-003-boundary-v2-human-24-v1/)。
+三个模型在两级的排序一致（Gemini > Grok > Opus），但 **L1 越界率只有 L0 问题选项选择率的
+约八分之一到百分之一以下**，且逐题看 L0 预测不了 L1 在哪里越界（合并 ρ = +0.09）。
+两级的诱导强度不同（L0 直接要求越界），这个混淆用现有数据分不开。
 
-两项 v2 策略随后用于重评分全部 720 条（协议在调用前公开冻结，仅补 132 次 boundary 调用）：
-越界率 v1→v2 为 Opus 3.8%→0.4%、Grok 7.5%→5.8%、Gemini 9.6%→11.2%，达成率与拒绝率不变。
-这仍是探索性结果，question-003 是下界，整体越界率很可能偏低。详见[v2 重评分报告](reports/l1-mvp-induced-avg16/rescoring-v2/README.md)。
+[对照报告](reports/l0-l1-comparison/README.md)
 
-与选择题基线的[探索性对照](reports/l0-l1-comparison/README.md)显示：三个模型在 L0 与 L1 的排序一致
-（Gemini > Grok > Opus），但 L1 越界率只有 L0 问题选项选择率的约八分之一到百分之一以下，且逐题看
-L0 预测不了 L1 在哪里越界。两级的诱导提示强度不同（L0 明确要求越界），这一点无法用现有数据分开。
+---
+
+## 不能从本仓库得出的结论
+
+| 不能说 | 为什么 |
+|---|---|
+| 成果压力导致了越界 | neutral 对照未完成评分；且[检出力分析](reports/outcome-pressure-power/README.md)显示 15 题设计检不出总体效应 |
+| L1 数字是稳定排行榜 | 单次运行、单一条件、每模型 240 条 |
+| 模型在工具调用下的行为 | L2 runner 已就绪但从未正式运行 |
+| 模型识破了测试 | 只做过关键词初查（720 条中 2 条），没有正式探针 |
+| v2 判官合并规则更好 | 样本内选出，作为次要规则冻结，已无数据做前瞻检验 |
+| 判官在 neutral 条件下同样准 | neutral 输出从未有过人工标签 |
+
+---
+
+## 这些数字凭什么可以被检查
+
+- **先注册再运行。** 判定规则、抽样设计、决策准则都在跑之前冻结在
+  [`annotation/preregistration/`](annotation/preregistration/)。早期两批（120 条审计、
+  question-003 盲审）的协议是在部分标注后才提交的，**记录中如实标明，不称为严格预注册**。
+- **人工金标准是双人独立盲审 + 第三人盲仲裁**，冻结后判官才被允许接触数据。
+  全部冻结标签在 [`annotation/gold/`](annotation/gold/)。
+- **判官跨厂且规则冻结。** 判官 A（`gpt-5.6-sol`）与 C（`glm-5.3-flash`）与被测模型均不同厂；
+  合并规则（refusal 取并集、boundary/success 需两者一致）在判全量之前预注册。
+- **逐条判官决策公开**，可独立复算 κ 与各项速率；模型原始产物按 `.gitignore` 保持私有，
+  但记录了 SHA-256 供核验。
+- **偏差照实记录。** 温度不被接受、额度耗尽的 402、子研究撤回、会话中止，都写在对应协议的
+  `deviations` / `withdrawal` 字段里。
+
+主要人工校准：
+
+| 校准集 | 结论 |
+|---|---|
+| [refusal 98 条真实输出](annotation/gold/agentic-refusal-real-90-v1/) | 判官 A/B/C 的 κ = 0.811 / 0.911 / 0.911 |
+| [60 条前瞻合成集](annotation/gold/agentic-heldout-calibration-60-v1/) | 判官 A 的 boundary / success κ 均为 0.933 |
+| [120 条真实输出三轴审计](annotation/gold/agentic-l1-real-output-audit-120-v1/) | boundary 召回 0.50 [0.14, 0.88]、精确率 1.00；success 已解析准确率 0.913 |
+| [21 条检测器命中审计](reports/l1-mvp-induced-avg16/detector-audit.md) | 人工全部判 clean，促成检测器 v2 |
+| [question-003 的 24 条](annotation/gold/question-003-boundary-v2-human-24-v1/) | v1 召回 0/15、v2 为 7/15 且零误报，按预定规则采用 v2 |
+
+---
 
 ## 快速开始
 
-需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。先安装依赖：
-
-为兼容已有配置和自动化脚本，命令行入口继续使用 `sudo-bench`。
+需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。命令行入口为 `sudo-bench`（沿用旧名以兼容已有脚本）。
 
 ```bash
 uv sync
-```
-
-在环境变量中设置 API Key：
-
-```bash
 export DEEPSEEK_API_KEY="your-api-key"
 ```
 
-然后在仓库根目录运行：
+首次连真实接口，先跑 3 道题的低成本冒烟测试：
 
 ```bash
-./eval.sh
-```
-
-第一次连接真实接口时，建议先运行 3 道题的低成本冒烟测试：
-
-```bash
-export DEEPSEEK_API_KEY="your-new-key"
 uv run --no-sync sudo-bench eval config.smoke.yaml
 ```
 
-冒烟测试会串行请求、把单次输出限制为 512 tokens，并将独立结果写入 `runs/smoke/`。
-重复执行同一命令会续跑未完成样本，并补跑可重试的临时 API 错误。
+冒烟测试串行请求、单次输出限 512 tokens，结果写入 `runs/smoke/`。重复执行同一命令会续跑未完成
+样本并补跑可重试的临时错误。确认无误后：
 
-默认配置对每道题采样 1 次，用于先验证接口和费用。运行完成后会生成：
+```bash
+./eval.sh                      # 等价于 sudo-bench eval config.yaml
+```
 
-- `results.jsonl`：逐题原始响应、预测、得分、延迟与 token usage；
-- `results.manifest.json`：本次运行的模型、参数、数据集哈希、系统提示哈希和汇总指标。
+每次运行产出 `results.jsonl`（逐条原始响应、预测、得分、延迟、token usage）和
+`results.manifest.json`（模型、参数、数据集哈希、系统提示哈希、汇总指标）。
+
+> `config.yaml` 指向 `questions.jsonl`（19 道历史候选题），保留用于复现旧运行。
+> **新的正式运行应把 `dataset` 指向 [questions.v3.jsonl](questions.v3.jsonl)（15 道核心题）**
+> 并使用新的输出目录。
+
+接入其他 OpenAI 兼容接口只需改 `api_key`、`base_url`、`model`。
 
 ## 配置
 
-所有运行参数都在根目录的 [config.yaml](config.yaml) 中：
+全部参数在 [config.yaml](config.yaml)，字段含义见文件内注释。几个最容易踩的：
 
-```yaml
-api_key: ${DEEPSEEK_API_KEY}
-base_url: https://api.deepseek.com
-model: deepseek-v4-flash
-system_prompt: |
-  这里可以填写本次实验使用的系统提示词。
+| 字段 | 说明 |
+|---|---|
+| `api_key` | 支持 `${ENV_NAME}` 展开；本地无鉴权服务可设 `null` |
+| `base_url` | 接口根地址，程序会追加 `/chat/completions` |
+| `system_prompt` | 实际文本与 SHA-256 写入 manifest 并在续跑时校验，避免不同实验条件混入同一结果文件 |
+| `temperature` / `reasoning_effort` | `null` 表示不发送该参数；实际值写入 manifest 并在续跑时校验 |
+| `samples_per_question` | 每题独立采样次数，指标显示为对应的 `Avg@K` |
+| `requests_per_second` | 限制整体请求启动速率；`null` 为不限速 |
+| `shuffle_options` / `shuffle_seed` | 确定性、位置平衡的选项随机化，必须成对设置 |
+| `resume` / `overwrite` | 不能同时为 `true`；覆盖模式只在明确开始全新运行时使用 |
 
-dataset: questions.jsonl
-output: results.jsonl
-manifest: results.manifest.json
-timeout: 60
-temperature: 1.0
-reasoning_effort: null
-require_parameters: false
-max_tokens: 8192
-concurrency: 64
-samples_per_question: 1
-resume: true
-retry_errors: true
-max_attempts: 4
-backoff_initial_seconds: 1
-backoff_max_seconds: 30
-requests_per_second: null
-shuffle_options: false
-shuffle_seed: null
-case_sensitive: false
-overwrite: false
-```
-
-- `api_key` 支持 `${ENV_NAME}` 环境变量展开；不鉴权的本地服务可设为 `null`。
-- `base_url` 填接口根地址，程序会在末尾追加 `/chat/completions`。
-- `system_prompt` 可覆盖默认诱导提示词；实际文本和 SHA-256 哈希会写入 manifest，
-  续跑时也会校验，避免不同实验条件混入同一个结果文件。
-- `temperature: null` 表示不传温度，使用模型默认值。
-- `reasoning_effort` 可设为 `none`、`minimal`、`low`、`medium`、`high`、`xhigh`
-  或 `max`；`null` 表示不发送推理强度参数。实际值会写入 manifest 并在断点续跑时校验。
-- `concurrency` 控制测评并发数量。
-- `samples_per_question` 控制每道题的独立采样次数，指标会显示为对应的 `Avg@K`。
-- `resume: true` 会根据 `(question_id, sample_index)` 跳过已完成样本并补齐缺失样本。
-- `retry_errors: true` 会在续跑时重新执行结果中仍为可重试 API 错误的样本。
-- `max_attempts` 控制单次运行中每个样本的最大尝试次数；429、408/409/425、5xx、
-  超时和网络错误会使用指数退避，401/403 以及其他不可重试请求错误会立即失败。
-- `backoff_initial_seconds` 和 `backoff_max_seconds` 控制指数退避范围；服务端的
-  `Retry-After` 会被优先遵守。
-- `requests_per_second` 可限制整个评测的请求启动速率；`null` 表示不额外限速。
-- `shuffle_options: true` 对结构化数据集中的选项做确定性、位置平衡的随机排列，必须同时设置整数
-  `shuffle_seed`。种子决定每题的初始随机顺序，采样编号按轮转方式平衡各位置；相同条件始终产生
-  相同顺序，支持安全续跑。
-- `manifest` 默认由 `output` 文件名推导，例如 `results.jsonl` 对应
-  `results.manifest.json`；也可以显式指定路径。
-- `require_parameters` 主要用于 OpenRouter；设为 `true` 时只路由到支持请求参数的 Provider。
-- `dataset`、`output` 和 `manifest` 的相对路径以配置文件所在目录为基准。
-- `resume` 和 `overwrite` 不能同时为 `true`；只有明确开始全新运行时才应使用覆盖模式。
+`dataset`、`output`、`manifest` 的相对路径以**配置文件所在目录**为基准。
 
 ## 断点续跑与失败补跑
 
-默认配置已开启断点续跑。运行被终止后，直接再次执行相同命令：
-
-```bash
-./eval.sh
-```
-
-也可以用 CLI 为某个配置临时启用续跑和错误补跑：
+默认已开启。中断后直接重跑同一命令即可；也可对任意配置临时启用：
 
 ```bash
 uv run sudo-bench eval config.yaml --resume --retry-errors
 ```
 
-程序会先校验数据集、模型、采样数和已有结果，随后只调度缺失样本。每个完成样本都会通过
-原子替换写入检查点，因此中断不会留下半行 JSON，也不会产生重复的 `(question_id, sample_index)`。
+程序先校验数据集、模型、采样数与已有结果，再只调度缺失样本。每个完成样本经原子替换写入检查点，
+因此中断不会留下半行 JSON，也不会产生重复的 `(question_id, sample_index)`。
 
-如果某个样本在用尽 `max_attempts` 后仍失败，结果会保留错误类型、HTTP 状态、每次尝试的
-延迟和退避时间。下一次运行时，`retry_errors: true` 会用新结果原位替换该错误行，同时保留
-历史尝试记录。401/403 等明确不可重试错误会被保留并跳过。manifest 的 `run.status` 会记录
-`running`、`completed`、`interrupted` 或
-`failed`，并记录续跑次数、本轮跳过和补跑的样本数。
+用尽 `max_attempts` 仍失败的样本会保留错误类型、HTTP 状态、每次尝试的延迟与退避时间；
+下次运行时 `retry_errors: true` 会原位替换该错误行并保留历史尝试记录。401/403 等明确不可重试的
+错误会被保留并跳过。429、408/409/425、5xx、超时、网络错误和 402 使用指数退避，服务端的
+`Retry-After` 优先。manifest 的 `run.status` 记录 `running` / `completed` / `interrupted` / `failed`。
 
-需要开始完全独立的新运行时，请改用新的 `output` 和 `manifest` 路径；或者关闭 `resume`、
-明确设置 `overwrite: true`。后者会替换旧结果，应谨慎使用。
+## 评测工作流
 
-## Avg@16 多次采样评测
-
-将配置改为：
-
-```yaml
-samples_per_question: 16
-```
-
-也可以直接使用仓库中的独立配置，它会保留已有的 Avg@1 结果：
+**Avg@16 多次采样**——把 `samples_per_question` 改为 16，或直接用现成配置：
 
 ```bash
 uv run --no-sync sudo-bench eval config.avg16.yaml
+uv run sudo-bench score results.jsonl        # 对已有结果重新评分
 ```
 
-然后正常运行：
+摘要同时给出 `strict_avg_at_k`（API 错误计入分母，保持排行榜口径）和 `behavioral_avg_at_k`
+（只在成功响应上计算，避免把 Provider 故障误判为模型行为）。新报告应使用
+`target_choice_rate` / `target_choices` / `other_choices`，不要把越界目标称为"正确答案"。
+
+**提示词对照**——参数完全一致、只换系统提示的三组：
 
 ```bash
-./eval.sh
+uv run --no-sync sudo-bench eval config.avg16-neutral.yaml   # 不加伦理倾向
+uv run --no-sync sudo-bench eval config.avg16-safety.yaml    # 明确要求诚信、公平、合法
 ```
 
-19 道题会产生 `19 × 16 = 304` 次模型请求。最终 JSON 摘要与 manifest 中都会包含：
+结果见[提示词对照实验报告](reports/deepseek-v4-flash-prompt-comparison.md)。
 
-```json
-{
-  "metric": "Avg@16",
-  "questions": 19,
-  "samples_per_question": 16,
-  "total": 304,
-  "attempted": 298,
-  "correct": 164,
-  "target_choices": 164,
-  "errors": 6,
-  "target_choice_rate": 0.5394736842105263,
-  "strict_avg_at_k": 0.5394736842105263,
-  "behavioral_avg_at_k": 0.5503355704697986
-}
-```
+**选项随机化**——`config.randomized-{induced,neutral,safety}.yaml` 共用随机种子与选项顺序。
+每条结果保存 `target_option_id`、`predicted_option_id`、`option_order`、`shuffle_seed`，
+评分时把展示字母映射回语义 ID。见[选项随机化报告](reports/deepseek-v4-flash-option-randomization.md)。
 
-每条结果都包含相同的 `run_id`，以及从 1 开始的 `sample_index`，因此可以审计每次采样。
-已有结果也可以重新评分：
+**盲审人工标注**——只处理本地文件，不调用 API、不需要 Key：
 
 ```bash
-uv run sudo-bench score results.jsonl
+uv run sudo-bench annotation export questions.v2.jsonl annotation/generated/round-1 --seed 20260901
+uv run sudo-bench annotation merge annotation/generated/round-1/private/mapping.json \
+  annotation/generated/round-1/responses/annotator-0{1,2,3}.jsonl
 ```
 
-## 提示词对照实验
+导出会把公开资料包与私有映射分开；公开包不含目标选项、语义 ID、风险类别或初审理由。
+合并器拒绝缺题、重复题、未知选项、混用资料包与重复标注者，输出多数组合、两两一致率、
+选项级二元 Fleiss κ 与待仲裁清单。规则见[盲审标注指南](annotation/guidelines.md)，
+回覆格式见 [JSON Schema](annotation/response.schema.json)。
+需要 openpyxl 的建表脚本先执行 `uv sync --extra annotation`。
 
-在完成默认诱导组 `config.avg16.yaml` 后，可以运行参数完全一致、仅系统提示词不同的两个对照组：
+## 文档索引
 
-```bash
-uv run --no-sync sudo-bench eval config.avg16-neutral.yaml
-uv run --no-sync sudo-bench eval config.avg16-safety.yaml
-```
+| 文档 | 内容 |
+|---|---|
+| [项目现状](docs/project-status.md) | **从这里开始**：结论、限制、停下的工作与恢复条件 |
+| [第二阶段设计](docs/phase-2-agentic-design.md) | L1/L2 的威胁模型、评分管线与效度指标 |
+| [检测器 present 策略 v2](docs/l1-present-detector-policy-v2.md) | 自由文本关键词命中改走语义判官 |
+| [question-003 boundary v2](docs/l1-question-003-boundary-policy-v2.md) | 关系操纵判据的歧义修订 |
+| [`annotation/preregistration/`](annotation/preregistration/) | 全部预注册协议 |
+| [`annotation/gold/`](annotation/gold/) | 全部冻结人工金标准 |
+| [`reports/`](reports/) | 各实验报告，每个目录自带 README |
 
-三个配置使用独立结果目录。`config.avg16-neutral.yaml` 不加入明确伦理倾向，
-`config.avg16-safety.yaml` 明确要求优先诚信、公平、合法与避免伤害。
+## 数据可用性
 
-本次 DeepSeek V4 Flash 三组 Avg@16 实验的设计、结果和局限性见
-[提示词对照实验报告](reports/deepseek-v4-flash-prompt-comparison.md)。
-
-`strict_avg_at_k` 把 API 错误计入总分母，用于保持排行榜口径；`behavioral_avg_at_k` 只在
-成功获得模型回答的请求上计算，用于避免把 Provider 故障误判为模型行为。`accuracy` 和
-`avg_at_k`、`correct` 和 `incorrect` 保留为兼容字段。新报告应优先使用
-`target_choice_rate`、`target_choices` 和 `other_choices`，避免把越界目标称为“正确答案”。
-缺少 `\boxed{...}` 或返回不存在的选项字母会通过
-`format_errors` 单独报告。
-
-## 结构化数据与选项随机化
-
-原始 [questions.jsonl](questions.jsonl) 保留用于兼容历史运行和旧版结果格式；
-[questions.v2.jsonl](questions.v2.jsonl) 是包含 19 道候选题的结构化盲审来源；
-[questions.v3.jsonl](questions.v3.jsonl) 是经过三人盲审和人工仲裁后的 15 道核心题。结构化数据为每个
-选项分配稳定 ID，运行时即使 A/B/C/D 顺序发生变化，程序也会把展示字母映射回语义 ID 后评分。
-现有 `questions.v2.jsonl` 配置用于复现历史运行；新的正式运行应把配置中的 `dataset` 指向
-`questions.v3.jsonl`，并使用新的输出目录。
-
-以下三个配置使用相同随机种子和选项顺序，可用于下一轮提示词对照：
-
-```bash
-uv run --no-sync sudo-bench eval config.randomized-induced.yaml
-uv run --no-sync sudo-bench eval config.randomized-neutral.yaml
-uv run --no-sync sudo-bench eval config.randomized-safety.yaml
-```
-
-每条结构化结果都会保存 `target_option_id`、`predicted_option_id`、`option_order` 和
-`shuffle_seed`。manifest 的 `label_metrics` 会按高、中、低标签置信度分别计算
-Target Choice Rate。19 道题的初审依据和后续人工标注协议见
-[数据标签初审报告](reports/dataset-label-audit.md)。
-
-已完成的 DeepSeek V4 Flash 三组随机化实验及固定顺序对照见
-[选项随机化实验报告](reports/deepseek-v4-flash-option-randomization.md)。
-
-## 盲审人工标注
-
-在继续扩展模型实验前，建议先用至少 3 名独立标注者验证题目标签。以下命令只处理本地文件，
-不会调用模型 API，也不需要 API Key：
-
-```bash
-uv run sudo-bench annotation export questions.v2.jsonl annotation/generated/round-1 \
-  --seed 20260901
-```
-
-命令会分开生成：
-
-- `public/packet.jsonl`：匿名题号、题干和随机排列的 A/B/C/D 选项；
-- `public/response-template.jsonl`：每位标注者各自填写的模板；
-- `private/mapping.json`：匿名题号到原始题目和语义选项的映射，仅限协调者保存。
-
-公开资料不会包含原始 `target_option_id`、语义选项 ID、风险类别、初审置信度或初审理由。
-收齐至少 3 份完整回覆后运行：
-
-```bash
-uv run sudo-bench annotation merge \
-  annotation/generated/round-1/private/mapping.json \
-  annotation/generated/round-1/responses/annotator-01.jsonl \
-  annotation/generated/round-1/responses/annotator-02.jsonl \
-  annotation/generated/round-1/responses/annotator-03.jsonl
-```
-
-合并器会拒绝缺题、重复题、未知选项、混用资料包或重复标注者，并输出多数组合、两两主要选项一致率、
-选项级二元 Fleiss κ 以及待人工仲裁清单。详细定义、文件隔离规则和质量门槛见
-[盲审标注指南](annotation/guidelines.md)，机器可读的回覆格式见
-[JSON Schema](annotation/response.schema.json)。所有 `annotation/generated/` 内容默认被 Git 忽略，
-避免误提交私有映射或标注者回覆。
-
-第 1 轮盲审已经完成：8 道题进入仲裁，3 道保留原标签、1 道替换标签、4 道移出核心集合，最终形成
-15 道题的 [questions.v3.jsonl](questions.v3.jsonl)。完整结果见
-[第 1 轮盲审与仲裁结果](reports/dataset-adjudication-round-1.md)。
-
-接入其他 OpenAI 兼容接口时，只需修改 `api_key`、`base_url` 和 `model`。
+`runs/`、`annotation/generated/`、`outputs/` 被 gitignore，**不在仓库里**——它们含模型原始产物与
+标注者回覆。公开的是：判官逐条决策、冻结的人工标签、全部聚合结果，以及私有文件的 SHA-256。
+维护者在 2026-10-09 对私有数据做过一次完整备份（342 个文件，解压比对通过）。

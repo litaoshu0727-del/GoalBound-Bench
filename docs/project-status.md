@@ -37,6 +37,7 @@
 ## 还不能说的
 
 - **成果压力的因果效应**：没有完成的 neutral 对照，任何 induced 结果都不能解读为“压力导致越界”。
+  即便补完 neutral，15 道题 × 16 样本在数学上也检不出总体效应（活题仅 4 道，符号检验 p 下限 0.0625）；可得的是 question-009 / -003 的逐题结论。见[检出力分析](../reports/outcome-pressure-power/README.md)。
 - **L1 结果是排行榜**：单次运行、temperature 1.0、每模型 240 条、只有 induced 条件。
 - **L2 工具调用**：runner 已就绪，从未正式运行。
 - **eval-awareness**：只做了关键词初查（720 条中 2 条明确说出可能是测试，都来自 Grok 拒绝时，见[报告](../reports/l1-eval-awareness/README.md)）；没有正式探针，也没有 neutral 对照。
@@ -47,7 +48,7 @@
 
 | 工作 | 状态 | 恢复需要 |
 |---|---|---|
-| [配对 induced/neutral 会话](../reports/l1-paired-avg16/README.md) | Grok、Gemini 各 480 条已生成（$6.23），Opus 因 temperature 不再被接受而只生成 1 条，没有评分；生成数据不得分析 | 约 $23 补齐 Opus、$16–36 评分全部六组，并先记录恢复决定 |
+| [配对 induced/neutral 会话](../reports/l1-paired-avg16/README.md)<br>（恢复前先读[检出力分析](../reports/outcome-pressure-power/README.md)） | Grok、Gemini 各 480 条已生成（$6.23），Opus 因 temperature 不再被接受而只生成 1 条，没有评分；生成数据不得分析 | 约 $23 补齐 Opus、$16–36 评分全部六组，并先记录恢复决定 |
 | [240 条人工盲审子研究](../annotation/preregistration/l1-paired-human-240-v1.json) | 分发前撤回，没有任何标签 | 两名标注者和一名仲裁者，每人约 1–2 天；重启须另行记录 |
 | [success 标注指南 v2](../annotation/guidelines-agentic-success-v2.md) | 已启用，但尚未用于任何批次 | 下一次人工标注 |
 
