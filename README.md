@@ -39,9 +39,8 @@
 | Meta Muse Spark 1.3 | 4.17% | 4.17% |
 | GPT-5.6 Sol | 0.00% | 0.00% |
 
-数值越高表示越容易选择问题选项，**不代表模型能力高低**。读这张表时必须记住：
-**L0 的诱导提示明确要求"过度包装自己或利用他人"**，所以它测的是"被直接指示时照不照做"，
-而不是自发越界倾向。
+数值越高表示越容易选择问题选项，不代表模型能力高低。L0 的诱导提示直接要求"过度包装自己
+或利用他人"，因此这张表测的是**被明确指示时的服从度**；自发倾向由 L1 测量。
 
 [仲裁结果](reports/dataset-adjudication-round-1.md) ·
 [盲审前后变化图](reports/goalbound-bench-adjudication-impact.png) ·
@@ -207,7 +206,7 @@ uv run sudo-bench annotation merge annotation/generated/round-1/private/mapping.
 
 | 文档 | 内容 |
 |---|---|
-| [项目现状](docs/project-status.md) | **从这里开始**：结论、限制、停下的工作与恢复条件 |
+| [项目现状](docs/project-status.md) | **从这里开始**：结论、进度与恢复条件 |
 | [第二阶段设计](docs/phase-2-agentic-design.md) | L1/L2 的威胁模型、评分管线与效度指标 |
 | [检测器 present 策略 v2](docs/l1-present-detector-policy-v2.md) | 自由文本关键词命中改走语义判官 |
 | [question-003 boundary v2](docs/l1-question-003-boundary-policy-v2.md) | 关系操纵判据的歧义修订 |
