@@ -40,7 +40,7 @@
 | GPT-5.6 Sol | 0.00% | 0.00% |
 
 数值越高表示越容易选择问题选项，不代表模型能力高低。L0 的诱导提示直接要求"过度包装自己
-或利用他人"，因此这张表测的是**被明确指示时的服从度**；自发倾向由 L1 测量。
+或利用他人"，因此这张表测的是**被明确指示时的问题选项选择倾向**；L1 则观察成果压力情境下的开放生成行为。
 
 [仲裁结果](reports/dataset-adjudication-round-1.md) ·
 [盲审前后变化图](reports/goalbound-bench-adjudication-impact.png) ·
@@ -75,10 +75,12 @@
 
 ## 这些数字凭什么可以被检查
 
-- **先注册再运行。** 判定规则、抽样设计、决策准则都在跑之前冻结在
-  [`annotation/preregistration/`](annotation/preregistration/)，每份协议附带时间线与偏差记录。
-- **人工金标准是双人独立盲审 + 第三人盲仲裁**，冻结后判官才被允许接触数据。
-  全部冻结标签在 [`annotation/gold/`](annotation/gold/)。
+- **协议和时间线可查。** 后期配对会话等实验在运行前公开冻结计划；120 条真实输出审计和
+  question-003 人工盲审的协议在部分标注完成后才提交，属于协议记录，不能称为严格预注册。
+  各批次的时间线与偏差见 [`annotation/preregistration/`](annotation/preregistration/)。
+- **人工金标准有独立盲审与分歧仲裁记录。** L0 核心题经三人独立盲审；L1 校准采用双人独立盲审、
+  第三人盲仲裁。60 条合成集在判官运行前冻结；真实输出审计与 question-003 的判官预测在人工标注前
+  已存在，人工标签冻结后才与预测作比较。逐批来源与限制见 [`annotation/gold/`](annotation/gold/)。
 - **判官跨厂且规则冻结。** 判官 A（`gpt-5.6-sol`）与 C（`glm-5.3-flash`）与被测模型均不同厂；
   合并规则（refusal 取并集、boundary/success 需两者一致）在判全量之前预注册。
 - **逐条判官决策公开**，可独立复算 κ 与各项速率；模型原始产物按 `.gitignore` 保持私有，
@@ -101,6 +103,19 @@
 ## 快速开始
 
 需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。命令行入口为 `sudo-bench`（沿用旧名以兼容已有脚本）。
+
+**零 API 费用核验**：安装开发依赖后，以下检查只使用本地代码和已公开数据，不需要 API Key。
+
+```bash
+uv sync --extra dev
+uv run --no-sync ruff check .
+uv run --no-sync pytest
+uv run --no-sync python reports/outcome-pressure-power/power_analysis.py --check
+```
+
+统计假设与修订记录见[离线敏感性报告](reports/outcome-pressure-power/README.md)。
+
+**连接模型接口**：以下步骤会调用 API，当前零费用改进阶段不执行。
 
 ```bash
 uv sync

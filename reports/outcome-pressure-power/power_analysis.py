@@ -1,163 +1,268 @@
-"""Power analysis for the outcome-pressure causal test. Pure computation, no API calls.
+"""Offline sensitivity analysis from public historical counts; no model calls.
 
-The paired induced/neutral design is sound -- L1_INDUCED is exactly
-L1_OUTCOME_PRESSURE + L1_NEUTRAL and every other field is held equal -- but a design
-can be valid and still be unable to answer its question. This script asks whether
-15 questions x 16 samples can detect an outcome-pressure effect at all, using the
-violation distribution the induced run actually produced.
-
-Reads only the committed per-question counts. Run from the repository root:
-
-    python reports/outcome-pressure-power/power_analysis.py
+Does not read the halted paired session or change its frozen analysis plan.
+Uses two-sided question sign flips and Holm adjustment across models. Smoothed
+rates are alternative fixed assumptions, not posterior-predictive power estimates.
 """
 
-import itertools
+import argparse
+import hashlib
 import json
-import pathlib
+import math
 import random
-from math import comb
+from functools import lru_cache
+from pathlib import Path
 
-HERE = pathlib.Path("reports/outcome-pressure-power")
+HERE = Path(__file__).resolve().parent
 SEED = 20261022
 ALPHA = 0.05
 NSIM = 3000
+EFFECTS = (0.0, 0.25, 0.5, 0.75, 1.0)
+SCENARIOS = {
+    "empirical_plugin": 0.0,
+    "jeffreys_mean_sensitivity": 0.5,
+    "laplace_mean_sensitivity": 1.0,
+}
 
 
-def fisher_one_sided(a, b, c, d):
-    """P(induced violations >= a) under equal rates, for a 2x2 of counts."""
+def validate_input(data):
+    """Reject missing/extra questions and invalid counts instead of filling zeros."""
+    m = data["samples_per_question"]
+    if type(m) is not int or m < 1:
+        raise ValueError("samples_per_question must be a positive integer")
+    questions = data["questions"]
+    if (not isinstance(questions, list) or not questions
+            or any(not isinstance(q, str) or not q for q in questions)
+            or len(set(questions)) != len(questions)):
+        raise ValueError("questions must contain distinct non-empty ids")
+    models = data["violations_by_question"]
+    if not isinstance(models, dict) or not models:
+        raise ValueError("at least one model is required")
+    for model, counts in models.items():
+        if set(counts) != set(questions):
+            raise ValueError("{}: missing or extra question counts".format(model))
+        if any(type(c) is not int or not 0 <= c <= m for c in counts.values()):
+            raise ValueError("{}: counts must be integers in [0, m]".format(model))
+        if data["totals"].get(model) != sum(counts.values()):
+            raise ValueError("{}: total does not match counts".format(model))
+
+
+def minimum_two_sided_p(nonzero_questions):
+    """Best possible p for k nonzero differences, all in the same direction."""
+    if type(nonzero_questions) is not int or nonzero_questions < 0:
+        raise ValueError("nonzero_questions must be a non-negative integer")
+    return min(1.0, 2.0 / (2 ** nonzero_questions))
+
+
+@lru_cache(maxsize=32768)
+def _sign_flip_tail(magnitudes, observed):
+    # Exact subset-sum counts: each subset selects the negative signs.
+    # Signed sum = total - 2 * subset_sum. No questions are truncated.
+    frequencies = [1]
+    for value in magnitudes:
+        previous = frequencies
+        frequencies = previous + [0] * value
+        for subtotal, frequency in enumerate(previous):
+            frequencies[subtotal + value] += frequency
+    total = sum(magnitudes)
+    extreme = sum(f for s, f in enumerate(frequencies) if abs(total - 2 * s) >= observed)
+    return extreme / (2 ** len(magnitudes))
+
+
+def sign_flip_p(differences):
+    """Exact two-sided sign-flip p for integer count differences at equal n."""
+    differences = tuple(differences)
+    if any(type(d) is not int for d in differences):
+        raise ValueError("differences must be integer counts with equal denominators")
+    magnitudes = tuple(sorted(abs(d) for d in differences if d))
+    return _sign_flip_tail(magnitudes, abs(sum(differences)))
+
+
+def holm(pvalues):
+    """Holm-adjusted p-values for the full supplied hypothesis family."""
+    if any(not math.isfinite(p) or not 0 <= p <= 1 for p in pvalues.values()):
+        raise ValueError("p-values must be finite and in [0, 1]")
+    adjusted, previous = {}, 0.0
+    for index, (key, value) in enumerate(sorted(pvalues.items(), key=lambda item: item[1])):
+        previous = max(previous, min(1.0, (len(pvalues) - index) * value))
+        adjusted[key] = previous
+    return adjusted
+
+
+def fisher_two_sided(a, b, c, d):
+    """Sum hypergeometric tables with probability <= the observed table's.
+
+    Integer weights avoid underflow and floating-point ties. Used only for
+    hypothetical examples, not outcomes of the halted paired session.
+    """
+    if any(type(x) is not int or x < 0 for x in (a, b, c, d)):
+        raise ValueError("table entries must be non-negative integers")
     n, row1, col1 = a + b + c + d, a + b, a + c
-    total = comb(n, row1)
-    return sum(comb(col1, x) * comb(n - col1, row1 - x) / total
-               for x in range(a, min(row1, col1) + 1))
+    observed_weight = math.comb(col1, a) * math.comb(n - col1, row1 - a)
+    weights = (
+        math.comb(col1, x) * math.comb(n - col1, row1 - x)
+        for x in range(max(0, row1 + col1 - n), min(row1, col1) + 1)
+    )
+    return sum(w for w in weights if w <= observed_weight) / math.comb(n, row1)
 
 
-def icc_and_design_effect(rates, m):
-    """Between-question variance against the within-question binomial part."""
-    n = len(rates)
-    mu = sum(rates) / n
-    between = sum((r - mu) ** 2 for r in rates) / (n - 1)
-    within = mu * (1 - mu) / m if 0 < mu < 1 else 0.0
-    if between + within == 0:
-        return 0.0, 1.0, mu
-    icc = max(0.0, (between - within) / (between + within))
-    return icc, 1 + (m - 1) * icc, mu
+def simulation_interval(k, n):
+    """Rejection frequency with a Monte Carlo Wilson 95% interval, not an effect CI."""
+    z, rate = 1.959963984540054, k / n
+    denominator = 1 + z * z / n
+    centre = (rate + z * z / (2 * n)) / denominator
+    half = z * math.sqrt(rate * (1 - rate) / n + z * z / (4 * n * n)) / denominator
+    return {
+        "rejections": k, "simulations": n, "rate": rate,
+        "monte_carlo_wilson_ci95": [max(0.0, centre - half), min(1.0, centre + half)],
+    }
 
 
-def sign_permutation_p(diffs, observed):
-    """Exact sign-flip permutation p over the non-tied question differences."""
-    nonzero = [d for d in diffs if d != 0]
-    if not nonzero:
-        return 1.0
-    if len(nonzero) > 18:                     # exact enumeration stays cheap below this
-        nonzero = nonzero[:18]
-    hit = 0
-    total = 0
-    for signs in itertools.product((1, -1), repeat=len(nonzero)):
-        total += 1
-        if sum(s * abs(d) for s, d in zip(signs, nonzero)) >= observed:
-            hit += 1
-    return hit / total
+def simulate_family(counts_by_model, m, effect, pseudocount, seed, nsim=NSIM):
+    """Simulate all models before applying Holm in each replicate.
 
-
-def simulate_power(counts, m, effect, rng, nsim=NSIM):
-    """Neutral rate = induced rate x (1 - effect); test is the sign-flip permutation."""
-    base = list(counts)
-    wins = 0
+    p_i=(count+a)/(m+2a); p_n=p_i*(1-effect). Independent Bernoulli draws
+    conditional on these fixed rates are an assumption. effect=0 checks the null.
+    """
+    if not 0 <= effect <= 1 or pseudocount < 0 or nsim < 1:
+        raise ValueError("invalid simulation parameters")
+    probabilities = {
+        model: [(c + pseudocount) / (m + 2 * pseudocount) for c in counts]
+        for model, counts in counts_by_model.items()
+    }
+    rng = random.Random(seed)
+    wins = {model: {"unadjusted": 0, "holm": 0} for model in probabilities}
     for _ in range(nsim):
-        induced, neutral = [], []
-        for c in base:
-            p_i = c / m
-            p_n = p_i * (1 - effect)
-            induced.append(sum(rng.random() < p_i for _ in range(m)))
-            neutral.append(sum(rng.random() < p_n for _ in range(m)))
-        diffs = [a - b for a, b in zip(induced, neutral)]
-        if sign_permutation_p(diffs, sum(diffs)) <= ALPHA:
-            wins += 1
-    return wins / nsim
+        pvalues = {}
+        for model, rates in probabilities.items():
+            differences = []
+            for p_i in rates:
+                p_n = p_i * (1 - effect)
+                a = sum(rng.random() < p_i for _ in range(m))
+                b = sum(rng.random() < p_n for _ in range(m))
+                differences.append(a - b)
+            pvalues[model] = sign_flip_p(differences)
+        adjusted = holm(pvalues)
+        for model in probabilities:
+            wins[model]["unadjusted"] += pvalues[model] <= ALPHA
+            wins[model]["holm"] += adjusted[model] <= ALPHA
+    return {
+        model: {name: simulation_interval(k, nsim) for name, k in counts.items()}
+        for model, counts in wins.items()
+    }
+
+
+def build_report(data, nsim=NSIM):
+    validate_input(data)
+    m, questions = data["samples_per_question"], data["questions"]
+    by_model = {model: [counts[q] for q in questions]
+                for model, counts in data["violations_by_question"].items()}
+    report = {
+        "schema_version": 2,
+        "revision_date": "2026-10-31",
+        "status": "exploratory_offline_sensitivity_not_a_paired_result",
+        "inputs": {"samples_per_question": m, "questions": len(questions),
+                   "models": len(by_model), "alpha": ALPHA, "seed": SEED,
+                   "simulations_per_scenario_effect": nsim},
+        "test": {
+            "statistic": "absolute sum of question count differences; equal n per question",
+            "alternative": "two-sided",
+            "multiplicity": "Holm across all models within each simulated replicate",
+            "protocol": "annotation/preregistration/agentic-l1-paired-induced-neutral-v1.json",
+            "scope": "Matches the protocol p-value criteria only; CI and unresolved gates omitted.",
+        },
+        "observed_induced": {},
+        "zero_count_uncertainty": {
+            "count": 0, "n": m,
+            "binomial_one_sided_95_upper": -math.expm1(math.log(0.05) / m),
+            "assumption": "iid Bernoulli generation and error-free boundary labels for one item",
+        },
+        "scenarios": {},
+    }
+    for model, counts in by_model.items():
+        positive = [q for q, c in zip(questions, counts) if c]
+        report["observed_induced"][model] = {
+            "violations": sum(counts), "samples": m * len(questions),
+            "observed_positive_questions": positive,
+            "observed_zero_questions": len(questions) - len(positive),
+            "hypothetical_neutral_all_zero_two_sided_p": sign_flip_p(counts),
+            "scope": "Historical induced counts held fixed; neutral all-zero is hypothetical.",
+        }
+    for name, pseudocount in SCENARIOS.items():
+        curves = {}
+        for effect in EFFECTS:
+            curves["neutral_lower_by_{:.0%}".format(effect)] = simulate_family(
+                by_model, m, effect, pseudocount, "{}|{}|{}".format(SEED, name, effect), nsim)
+        report["scenarios"][name] = {
+            "pseudocount_per_outcome": pseudocount,
+            "induced_probability_rule": "(count + a) / (m + 2*a)",
+            "neutral_probability_rule": "p_induced * (1 - relative_reduction)",
+            "expected_induced_violations": {
+                model: sum((c + pseudocount) / (m + 2 * pseudocount) * m for c in counts)
+                for model, counts in by_model.items()
+            },
+            "interpretation": (
+                "Fixed-rate sensitivity assumption, not posterior prediction. "
+                "Zero effect reports null rejection; others report conditional power."
+            ),
+            "rejection_frequencies": curves,
+        }
+    report["hypothetical_fisher_examples"] = {
+        "interpretation": (
+            "Alternative hypothetical outcomes, not a testing family or evidence; "
+            "unadjusted p-values do not establish power or replace the frozen primary."
+        ),
+        "tables": [
+            {"induced_violations": a, "neutral_violations": b, "n_per_condition": m,
+             "two_sided_p_unadjusted": fisher_two_sided(a, m - a, b, m - b)}
+            for a, b in ((16, 8), (16, 4), (16, 0), (10, 5), (10, 2), (10, 0),
+                         (7, 3), (7, 0), (4, 0), (3, 0)) if max(a, b) <= m
+        ],
+    }
+    report["discreteness_only"] = {
+        "interpretation": "Best-case p given k nonzero differences; future k is unknown.",
+        "minimum_two_sided_p_by_k": {
+            str(k): minimum_two_sided_p(k) for k in range(len(questions) + 1)
+        },
+        "allocation_options_without_power_claim": [
+            {"questions": nq, "samples_per_question": 240 // nq, "power_estimated": False}
+            for nq in (15, 30, 60, 120)
+        ],
+    }
+    report["withdrawn_v1_claims"] = {
+        "mathematical_impossibility": "Empirical zero counts do not establish zero probabilities.",
+        "icc_design_effect_effective_n": (
+            "Withdrawn: nonstandard estimator; no substitute ICC fitted."
+        ),
+        "expansion_guarantees_power": "Observed-positive share changes with samples per question.",
+        "within_item_half_reduction_significant": "10/16 vs 5/16 is not significant at 0.05.",
+    }
+    return report
 
 
 def main():
-    data = json.loads((HERE / "per-question-violations.json").read_text(encoding="utf-8"))
-    m = data["samples_per_question"]
-    questions = data["questions"]
-    by_model = data["violations_by_question"]
-    rng = random.Random(SEED)
-
-    report = {
-        "what": ("Can 15 questions x 16 samples detect an outcome-pressure effect on the "
-                 "boundary axis? Computed from the induced run's own violation distribution."),
-        "inputs": {"per_question_violations": "per-question-violations.json",
-                   "samples_per_question": m, "alpha": ALPHA, "seed": SEED,
-                   "simulations_per_cell": NSIM},
-        "models": {},
-    }
-
-    for model, counts in by_model.items():
-        series = [counts.get(q, 0) for q in questions]
-        live = [q for q in questions if counts.get(q, 0)]
-        rates = [c / m for c in series]
-        icc, deff, mu = icc_and_design_effect(rates, m)
-        n_total = len(questions) * m
-        entry = {
-            "total_violations": sum(series),
-            "live_questions": live,
-            "n_live": len(live),
-            # A tied question contributes nothing to a paired test, so the number of
-            # live questions caps how small the permutation p can ever be.
-            "min_attainable_one_sided_p": 0.5 ** len(live) if live else None,
-            "can_ever_reach_alpha": bool(live) and 0.5 ** len(live) <= ALPHA,
-            "pooled_rate": round(mu, 4),
-            "between_question_icc": round(icc, 3),
-            "design_effect": round(deff, 1),
-            "effective_sample_size": round(n_total / deff),
-            "nominal_sample_size": n_total,
-            "power_by_effect": {},
-        }
-        for effect in (0.25, 0.5, 0.75, 1.0):
-            entry["power_by_effect"]["neutral_lower_by_{:.0%}".format(effect)] = round(
-                simulate_power(series, m, effect, rng), 3)
-        report["models"][model] = entry
-
-    report["within_question_fisher"] = [
-        {"induced": "{}/{}".format(a, m), "neutral": "{}/{}".format(b, m),
-         "one_sided_p": round(fisher_one_sided(a, m - a, b, m - b), 4),
-         "significant": fisher_one_sided(a, m - a, b, m - b) < ALPHA}
-        for a, b in ((16, 8), (16, 4), (16, 0), (10, 5), (10, 2), (10, 0),
-                     (7, 3), (7, 0), (4, 0), (3, 0))]
-
-    # The share of questions capable of producing a violation at all, taken from the
-    # most violation-prone arm so the projection is not pessimistic by construction.
-    most_live = max(len(e["live_questions"]) for e in report["models"].values())
-    observed_live_share = most_live / len(questions)
-    report["design_tradeoff"] = {
-        "budget_samples_per_model_per_condition": 240,
-        "observed_live_question_share": round(observed_live_share, 3),
-        "note": ("The unit of a paired test is the question, not the sample. Spreading the "
-                 "same budget over more questions raises the number of live units, which is "
-                 "what the attainable p depends on."),
-        "rows": [],
-    }
-    for nq in (15, 30, 60, 120):
-        live = round(nq * observed_live_share)
-        report["design_tradeoff"]["rows"].append({
-            "questions": nq, "samples_per_question": 240 // nq,
-            "expected_live_questions": live,
-            "min_attainable_one_sided_p": 0.5 ** live if live else None})
-
-    out = HERE / "results.json"
-    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-    print("{:26s} {:>6s} {:>6s} {:>8s} {:>8s} {:>9s}".format(
-        "model", "viol", "live", "min p", "DEFF", "eff. n"))
-    for model, e in report["models"].items():
-        print("{:26s} {:6d} {:6d} {:>8s} {:>8.1f} {:>9d}".format(
-            model, e["total_violations"], e["n_live"],
-            "{:.4f}".format(e["min_attainable_one_sided_p"]) if e["n_live"] else "n/a",
-            e["design_effect"], e["effective_sample_size"]))
-    print("\npower (sign-flip permutation, alpha={}):".format(ALPHA))
-    for model, e in report["models"].items():
-        print("  {:26s} {}".format(model, e["power_by_effect"]))
-    print("\nwrote", out)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check", action="store_true", help="Recompute and compare without writing")
+    args = parser.parse_args()
+    source = HERE / "per-question-violations.json"
+    report = build_report(json.loads(source.read_text(encoding="utf-8")))
+    report["inputs"]["per_question_violations_sha256"] = hashlib.sha256(
+        source.read_bytes()).hexdigest()
+    output = HERE / "results.json"
+    payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
+    if args.check:
+        if output.read_text(encoding="utf-8") != payload:
+            raise SystemExit("offline sensitivity report is stale")
+        print("offline sensitivity report reproduced exactly")
+    else:
+        output.write_text(payload, encoding="utf-8")
+        print("wrote", output)
+    for name, scenario in report["scenarios"].items():
+        print(name)
+        for effect, models in scenario["rejection_frequencies"].items():
+            print(" ", effect, {model: round(values["holm"]["rate"], 4)
+                                for model, values in models.items()})
 
 
 if __name__ == "__main__":
