@@ -104,15 +104,16 @@
 
 需要 Python 3.9+ 和 [uv](https://docs.astral.sh/uv/)。命令行入口为 `sudo-bench`（沿用旧名以兼容已有脚本）。
 
-**零 API 费用核验**：安装开发依赖后，以下检查只使用本地代码和已公开数据，不需要 API Key。
+**零 API 费用核验**：安装普通依赖后，一条命令检查数据结构、来源哈希并复算公开校准与统计报告，不需要 API Key。
 
 ```bash
-uv sync --extra dev
-uv run --no-sync ruff check .
-uv run --no-sync pytest
-uv run --no-sync python reports/outcome-pressure-power/power_analysis.py --check
+uv sync
+uv run --no-sync sudo-bench verify-offline
 ```
 
+结果保存到 `outputs/offline-verification.json`，区分 `PASS`、`FAIL` 和 `MISSING_PRIVATE_DATA`。
+缺少私有原始运行会如实标记，公开数据或复算错误则返回非零退出码。GitHub 自动检查运行同一入口。
+完整范围、退出码和严格模式见[离线复核说明](docs/offline-verification.md)。
 统计假设与修订记录见[离线敏感性报告](reports/outcome-pressure-power/README.md)。
 
 **连接模型接口**：以下步骤会调用 API，当前零费用改进阶段不执行。
@@ -222,6 +223,7 @@ uv run sudo-bench annotation merge annotation/generated/round-1/private/mapping.
 | 文档 | 内容 |
 |---|---|
 | [项目现状](docs/project-status.md) | **从这里开始**：结论、进度与恢复条件 |
+| [一键离线复核](docs/offline-verification.md) | 无需API Key核验公开资料、来源哈希和可复算指标 |
 | [第二阶段设计](docs/phase-2-agentic-design.md) | L1/L2 的威胁模型、评分管线与效度指标 |
 | [检测器 present 策略 v2](docs/l1-present-detector-policy-v2.md) | 自由文本关键词命中改走语义判官 |
 | [question-003 boundary v2](docs/l1-question-003-boundary-policy-v2.md) | 关系操纵判据的歧义修订 |
@@ -231,6 +233,8 @@ uv run sudo-bench annotation merge annotation/generated/round-1/private/mapping.
 
 ## 数据可用性
 
-`runs/`、`annotation/generated/`、`outputs/` 被 gitignore，**不在仓库里**——它们含模型原始产物与
-标注者回覆。公开的是：判官逐条决策、冻结的人工标签、全部聚合结果，以及私有文件的 SHA-256。
+`runs/` 中多数原始运行、`annotation/generated/` 和 `outputs/` 被 gitignore，不在仓库里。
+`runs/heldout-calibration/`、`runs/judge-c-selection/`、`runs/refusal-calibration/` 中明确列出的主校准判官记录
+已作为例外公开；其他公开资料包括冻结人工标签、聚合结果，以及部分私有来源的 SHA-256。
+各项可复算范围见[离线复核说明](docs/offline-verification.md)。
 维护者在 2026-10-09 对私有数据做过一次完整备份（342 个文件，解压比对通过）。

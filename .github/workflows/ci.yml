@@ -18,3 +18,12 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run ruff check .
       - run: uv run pytest
+      - name: Reproduce public results offline
+        run: uv run --no-sync sudo-bench verify-offline --report outputs/offline-verification.json
+      - name: Upload offline verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-verification-python-${{ matrix.python-version }}
+          path: outputs/offline-verification.json
+          if-no-files-found: warn

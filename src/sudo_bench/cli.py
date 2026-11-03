@@ -69,6 +69,12 @@ def build_parser() -> argparse.ArgumentParser:
     score_parser.add_argument("results", type=Path)
     score_parser.add_argument("--case-sensitive", action="store_true")
 
+    verify_parser = commands.add_parser(
+        "verify-offline", help="verify published research artifacts without API/network calls")
+    verify_parser.add_argument("--root", type=Path, default=Path.cwd())
+    verify_parser.add_argument("--report", type=Path)
+    verify_parser.add_argument("--require-private", action="store_true")
+
     annotation_parser = commands.add_parser(
         "annotation",
         help="export blind annotation packets and merge independent responses",
@@ -261,6 +267,14 @@ def _eval(
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
     try:
+        if args.command == "verify-offline":
+            from sudo_bench.offline import run
+
+            try:
+                return run(args.root, args.report, args.require_private)
+            except (OSError, ValueError) as exc:
+                print("error: {}".format(exc), file=sys.stderr)
+                return 1
         if args.command == "score":
             print(json.dumps(score_file(args.results, args.case_sensitive).to_dict()))
             return 0
